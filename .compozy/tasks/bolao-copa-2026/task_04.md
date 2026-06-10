@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Auth flow — Login page & useAuth hook
 type: frontend
 complexity: low
