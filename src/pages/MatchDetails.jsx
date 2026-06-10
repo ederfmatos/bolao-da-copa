@@ -128,7 +128,7 @@ function MatchDetails() {
   return (
     <div className="p-4 max-w-lg mx-auto space-y-4">
       <button
-        onClick={() => navigate('/matches')}
+        onClick={() => navigate(-1)}
         className="text-sm text-gray-500 dark:text-dark-muted hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
       >
         ← Voltar
