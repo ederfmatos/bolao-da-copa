@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { fetchWithFallback, defaultChain } from './providers/index.ts'
+import { calculatePoints } from '../_shared/calculatePoints.ts'
 
 interface Match {
   id: string
@@ -76,12 +77,57 @@ serve(async (req) => {
     console.log(`Upserted ${matches.length} matches`)
     console.log(`Newly finished: ${newlyFinished.length}`)
 
+    let totalPredictionsUpdated = 0
+
+    for (const matchId of newlyFinished) {
+      const match = matches.find((m) => m.id === matchId)
+      if (!match || match.homeScore === null || match.awayScore === null) continue
+
+      const { data: predictions, error: fetchError } = await supabase
+        .from('predictions')
+        .select('*')
+        .eq('match_id', matchId)
+
+      if (fetchError) {
+        console.error(`Error fetching predictions for match ${matchId}:`, fetchError)
+        continue
+      }
+
+      if (!predictions || predictions.length === 0) {
+        console.log(`No predictions for match ${matchId}, skipping`)
+        continue
+      }
+
+      for (const prediction of predictions) {
+        const points = calculatePoints(
+          { home: prediction.home_score, away: prediction.away_score },
+          { home: match.homeScore, away: match.awayScore }
+        )
+
+        const { error: updateError } = await supabase
+          .from('predictions')
+          .update({ points })
+          .eq('id', prediction.id)
+
+        if (updateError) {
+          console.error(`Error updating prediction ${prediction.id}:`, updateError)
+        } else {
+          totalPredictionsUpdated++
+        }
+      }
+
+      console.log(`Updated ${predictions.length} predictions for match ${matchId}`)
+    }
+
+    console.log(`Total predictions updated: ${totalPredictionsUpdated}`)
+
     return new Response(
       JSON.stringify({
         success: true,
         matchesUpserted: matches.length,
         newlyFinished: newlyFinished.length,
         newlyFinishedIds: newlyFinished,
+        predictionsUpdated: totalPredictionsUpdated,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
