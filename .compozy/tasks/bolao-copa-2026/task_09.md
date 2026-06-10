@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Match list — useMatches hook + Matches page
 type: frontend
 complexity: medium
