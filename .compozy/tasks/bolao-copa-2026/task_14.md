@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Deploy — Vercel + variáveis de ambiente
 type: infra
 complexity: low
