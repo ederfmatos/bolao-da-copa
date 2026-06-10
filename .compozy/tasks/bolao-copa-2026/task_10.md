@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Score prediction — ScorePicker + usePredictions
 type: frontend
 complexity: medium
