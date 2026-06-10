@@ -167,28 +167,9 @@ CREATE POLICY "predictions_update_before_deadline" ON predictions
 -- All authenticated users can see the full leaderboard.
 ```
 
-## 4. Triggers
+## 4. Profile Creation
 
-### 4.1 Auto-create profile on sign-up
-
-```sql
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO profiles (id, name, avatar_url)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
-    NEW.raw_user_meta_data->>'avatar_url'
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-```
+Profile creation is handled explicitly in the application code via the `useProfile` hook (`src/hooks/useProfile.js`). When a user authenticates, the hook checks if a profile exists and creates one if needed, using data from the authentication provider (Google OAuth).
 
 ## 5. Core Interfaces
 

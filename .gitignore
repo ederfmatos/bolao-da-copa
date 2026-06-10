@@ -40,3 +40,4 @@ lerna-debug.log*
 # Compozy
 .comozy/
 .vercel
+supabase/.temp/

@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
+import { useProfile } from './hooks/useProfile'
 import ProtectedRoute from './components/ProtectedRoute'
 import BottomNavigation from './components/BottomNavigation'
 import Login from './pages/Login.jsx'
@@ -11,6 +12,7 @@ import Rules from './pages/Rules.jsx'
 
 function App() {
   const { user, loading } = useAuth()
+  useProfile()
 
   if (loading) {
     return <div className="p-8 text-center">Carregando...</div>
