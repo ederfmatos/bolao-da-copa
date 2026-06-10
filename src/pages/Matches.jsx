@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMatches } from '../hooks/useMatches'
 import { usePredictions } from '../hooks/usePredictions'
 import { useMatchFilters } from '../hooks/useMatchFilters'
@@ -5,15 +6,18 @@ import MatchCard from '../components/MatchCard'
 import MatchFilters from '../components/MatchFilters'
 
 function Matches() {
+  const [showFilters, setShowFilters] = useState(false)
   const { matches, predictionCounts, loading, error } = useMatches()
   const { predictions } = usePredictions()
   const {
     filters,
     availableTeams,
     availableDates,
+    availableGroups,
     filteredMatches,
     setTeam,
     setDate,
+    setGroup,
     clearFilters
   } = useMatchFilters(matches)
 
@@ -42,21 +46,43 @@ function Matches() {
 
   const predictedMatchIds = new Set(predictions.map((p) => p.match_id))
 
-  const hasActiveFilters = filters.team || filters.date
+  const hasActiveFilters = filters.team || filters.date || filters.group
+  const activeFiltersCount = [filters.team, filters.date, filters.group].filter(Boolean).length
   const noResults = filteredMatches.length === 0 && hasActiveFilters
 
   return (
     <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl mb-4 text-gray-900 dark:text-dark-text">Partidas</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl text-gray-900 dark:text-dark-text">Partidas</h1>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="relative p-2 rounded-lg bg-gray-100 dark:bg-dark-card hover:bg-gray-200 dark:hover:bg-dark-border transition-colors"
+          aria-label={showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+        >
+          <svg className="w-6 h-6 text-gray-700 dark:text-dark-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          {hasActiveFilters && (
+            <span className="absolute -top-1 -right-1 bg-primary-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
+      </div>
 
-      <MatchFilters
-        filters={filters}
-        availableTeams={availableTeams}
-        availableDates={availableDates}
-        onTeamChange={setTeam}
-        onDateChange={setDate}
-        onClearFilters={clearFilters}
-      />
+      {showFilters && (
+        <MatchFilters
+          filters={filters}
+          availableTeams={availableTeams}
+          availableDates={availableDates}
+          availableGroups={availableGroups}
+          onTeamChange={setTeam}
+          onDateChange={setDate}
+          onGroupChange={setGroup}
+          onClearFilters={clearFilters}
+          onClose={() => setShowFilters(false)}
+        />
+      )}
 
       {noResults && (
         <div className="p-4 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg mb-4">

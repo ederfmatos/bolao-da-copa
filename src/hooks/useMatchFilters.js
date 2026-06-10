@@ -6,6 +6,7 @@ export function useMatchFilters(matches) {
 
   const team = searchParams.get('team') || null
   const date = searchParams.get('date') || null
+  const group = searchParams.get('group') || null
 
   const availableTeams = useMemo(() => {
     const teams = new Set()
@@ -26,6 +27,16 @@ export function useMatchFilters(matches) {
     return Array.from(dates).sort()
   }, [matches])
 
+  const availableGroups = useMemo(() => {
+    const groups = new Set()
+    matches.forEach(match => {
+      if (match.group_name) {
+        groups.add(match.group_name)
+      }
+    })
+    return Array.from(groups).sort()
+  }, [matches])
+
   const filteredMatches = useMemo(() => {
     return matches.filter(match => {
       const matchTeamFilter = !team || 
@@ -35,9 +46,11 @@ export function useMatchFilters(matches) {
       const matchDateFilter = !date || 
         new Date(match.kickoff_at).toISOString().split('T')[0] === date
 
-      return matchTeamFilter && matchDateFilter
+      const matchGroupFilter = !group || match.group_name === group
+
+      return matchTeamFilter && matchDateFilter && matchGroupFilter
     })
-  }, [matches, team, date])
+  }, [matches, team, date, group])
 
   const setTeam = (newTeam) => {
     const params = new URLSearchParams(searchParams)
@@ -59,17 +72,29 @@ export function useMatchFilters(matches) {
     setSearchParams(params)
   }
 
+  const setGroup = (newGroup) => {
+    const params = new URLSearchParams(searchParams)
+    if (newGroup) {
+      params.set('group', newGroup)
+    } else {
+      params.delete('group')
+    }
+    setSearchParams(params)
+  }
+
   const clearFilters = () => {
     setSearchParams({})
   }
 
   return {
-    filters: { team, date },
+    filters: { team, date, group },
     availableTeams,
     availableDates,
+    availableGroups,
     filteredMatches,
     setTeam,
     setDate,
+    setGroup,
     clearFilters
   }
 }
