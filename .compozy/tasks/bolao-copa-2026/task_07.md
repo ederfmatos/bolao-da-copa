@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: sync-matches Edge Function + cron
 type: backend
 complexity: high
