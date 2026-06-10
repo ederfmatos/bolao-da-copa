@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Leaderboard + Realtime + Podium
 type: frontend
 complexity: medium
