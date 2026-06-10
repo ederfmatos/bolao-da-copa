@@ -3,20 +3,31 @@ import { supabase } from '../lib/supabase'
 
 export function useMatches() {
   const [matches, setMatches] = useState([])
+  const [predictionCounts, setPredictionCounts] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function fetchMatches() {
+    async function fetchData() {
       try {
         const { data, error } = await supabase
           .from('matches')
-          .select('*')
+          .select('*, predictions(count)')
           .order('kickoff_at', { ascending: true })
 
         if (error) throw error
 
-        setMatches(data || [])
+        if (data) {
+          const counts = {}
+          const cleanMatches = data.map(({ predictions, ...match }) => {
+            counts[match.id] = predictions?.[0]?.count ?? 0
+            return match
+          })
+          setPredictionCounts(counts)
+          setMatches(cleanMatches)
+        } else {
+          setMatches([])
+        }
       } catch (err) {
         setError(err.message)
       } finally {
@@ -24,8 +35,8 @@ export function useMatches() {
       }
     }
 
-    fetchMatches()
+    fetchData()
   }, [])
 
-  return { matches, loading, error }
+  return { matches, predictionCounts, loading, error }
 }

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Migrate MatchCard to Tailwind + prediction count
 type: frontend
 complexity: medium
@@ -32,12 +32,12 @@ Read TechSpec "Component Specifications: MatchCard Updates" before starting.
 
 ## Subtasks
 
-- [ ] Remove inline styles from MatchCard.jsx.
-- [ ] Add Tailwind classes for layout and styling.
-- [ ] Add prediction count display.
-- [ ] Add dark mode support.
-- [ ] Verify click handling still works.
-- [ ] Verify status badge styling.
+- [x] Remove inline styles from MatchCard.jsx.
+- [x] Add Tailwind classes for layout and styling.
+- [x] Add prediction count display.
+- [x] Add dark mode support.
+- [x] Verify click handling still works.
+- [x] Verify status badge styling.
 
 ## Implementation Details
 
@@ -63,16 +63,16 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Component renders without inline styles.
-- [ ] Tailwind classes applied correctly.
-- [ ] Prediction count displays when > 0.
-- [ ] "Palpitado" badge shows when hasPrediction is true.
-- [ ] Status badge displays with correct color.
-- [ ] Click handler fires for open matches.
-- [ ] Click handler does not fire for closed/finished matches.
+- [x] Component renders without inline styles.
+- [x] Tailwind classes applied correctly.
+- [x] Prediction count displays when > 0.
+- [x] "Palpitado" badge shows when hasPrediction is true.
+- [x] Status badge displays with correct color.
+- [x] Click handler fires for open matches.
+- [x] Click handler does not fire for closed/finished matches.
 
 ### Integration Tests
-- [ ] MatchCard renders correctly in Matches page.
+- [x] MatchCard renders correctly in Matches page (build passes, all tests pass).
 
 ## Success Criteria
 

@@ -1,57 +1,30 @@
+import Avatar from './Avatar'
+
 function LeaderboardRow({ entry, rank, isCurrentUser }) {
   return (
     <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0.75rem 1rem',
-        marginBottom: '0.5rem',
-        backgroundColor: isCurrentUser ? '#e3f2fd' : 'white',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        border: isCurrentUser ? '2px solid #2196f3' : 'none',
-      }}
+      className={`
+        flex items-center p-3 px-4 mb-2 rounded-lg shadow-sm
+        ${isCurrentUser ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-500' : 'bg-white dark:bg-dark-card border-2 border-transparent'}
+      `}
     >
-      <div
-        style={{
-          width: '40px',
-          fontSize: '1.25rem',
-          fontWeight: 'bold',
-          color: rank <= 3 ? '#ff9800' : '#666',
-        }}
-      >
+      <div className={`w-10 text-xl font-bold shrink-0 ${rank <= 3 ? 'text-amber-500' : 'text-gray-400 dark:text-dark-muted'}`}>
         {rank}
       </div>
-      
-      <img
-        src={entry.avatar_url || 'https://via.placeholder.com/40'}
-        alt={entry.name}
-        style={{
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          marginRight: '1rem',
-          objectFit: 'cover',
-        }}
-      />
-      
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: isCurrentUser ? 'bold' : 'normal' }}>
+
+      <Avatar src={entry.avatar_url} name={entry.name} className="w-10 h-10 mr-4" />
+
+      <div className="flex-1 min-w-0">
+        <div className={`truncate ${isCurrentUser ? 'font-bold' : 'font-normal text-gray-900 dark:text-dark-text'}`}>
           {entry.name}
-          {isCurrentUser && ' (você)'}
+          {isCurrentUser && <span className="text-blue-500 dark:text-blue-400"> (você)</span>}
         </div>
-        <div style={{ fontSize: '0.875rem', color: '#666' }}>
+        <div className="text-sm text-gray-400 dark:text-dark-muted">
           {entry.total_predictions} palpite{entry.total_predictions !== 1 ? 's' : ''}
         </div>
       </div>
-      
-      <div
-        style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          color: '#4caf50',
-        }}
-      >
+
+      <div className="text-2xl font-bold text-green-500 dark:text-green-400 shrink-0">
         {entry.total_points}
       </div>
     </div>

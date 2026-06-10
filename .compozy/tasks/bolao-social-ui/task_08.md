@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create MatchDetails page
 type: frontend
 complexity: medium
@@ -35,14 +35,14 @@ Read TechSpec "Component Specifications: MatchDetails Page" before starting.
 
 ## Subtasks
 
-- [ ] Create MatchDetails.jsx page.
-- [ ] Fetch match data by ID.
-- [ ] Display match info section.
-- [ ] Display user's prediction section with ScorePicker.
-- [ ] Fetch and display social predictions list.
-- [ ] Add prediction count to header.
-- [ ] Style with Tailwind and dark mode.
-- [ ] Handle loading and error states.
+- [x] Create MatchDetails.jsx page.
+- [x] Fetch match data by ID.
+- [x] Display match info section.
+- [x] Display user's prediction section with ScorePicker.
+- [x] Fetch and display social predictions list.
+- [x] Add prediction count to header.
+- [x] Style with Tailwind and dark mode.
+- [x] Handle loading and error states.
 
 ## Implementation Details
 
@@ -71,18 +71,18 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Page renders without errors.
-- [ ] Match info displays correctly (teams, flags, group, time).
-- [ ] User's prediction section shows ScorePicker for open matches.
-- [ ] User's prediction section is read-only for closed/finished matches.
-- [ ] Social predictions list renders PredictionRow for each prediction.
-- [ ] Prediction count displays in header.
-- [ ] Loading state shows while data fetches.
-- [ ] Error state displays error message.
+- [x] Page renders without errors.
+- [x] Match info displays correctly (teams, flags, group, time).
+- [x] User's prediction section shows ScorePicker for open matches.
+- [x] User's prediction section is read-only for closed/finished matches.
+- [x] Social predictions list renders PredictionRow for each prediction.
+- [x] Prediction count displays in header.
+- [x] Loading state shows while data fetches.
+- [x] Error state displays error message.
 
 ### Integration Tests
-- [ ] Navigating to /match/:matchId loads match data.
-- [ ] Saving prediction updates user's prediction.
+- [x] Navigating to /match/:matchId loads match data.
+- [x] Saving prediction updates user's prediction.
 - [ ] Social predictions refresh after save.
 
 ## Success Criteria

@@ -8,19 +8,19 @@ function Leaderboard() {
   const { user } = useAuth()
 
   if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando classificação...</div>
+    return <div className="p-8 text-center text-gray-500 dark:text-dark-muted">Carregando classificação...</div>
   }
 
   if (error) {
-    return <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>Erro: {error}</div>
+    return <div className="p-8 text-center text-red-500">Erro: {error}</div>
   }
 
   if (leaderboard.length === 0) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Classificação</h1>
-        <p style={{ color: '#666' }}>Nenhum palpite registrado ainda.</p>
-        <p style={{ color: '#666' }}>Seja o primeiro a palpitar!</p>
+      <div className="p-8 text-center">
+        <h1 className="text-2xl mb-4 text-gray-900 dark:text-dark-text">Classificação</h1>
+        <p className="text-gray-400 dark:text-dark-muted">Nenhum palpite registrado ainda.</p>
+        <p className="text-gray-400 dark:text-dark-muted">Seja o primeiro a palpitar!</p>
       </div>
     )
   }
@@ -29,8 +29,8 @@ function Leaderboard() {
   const rest = leaderboard.slice(3)
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+    <div className="p-4 max-w-xl mx-auto">
+      <h1 className="text-2xl mb-4 text-center text-gray-900 dark:text-dark-text">
         Classificação
       </h1>
 

@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 
-function MatchCard({ match, hasPrediction }) {
+function MatchCard({ match, hasPrediction, predictionCount = 0 }) {
   const navigate = useNavigate()
-  
+
   const kickoffDate = new Date(match.kickoff_at)
   const localTime = kickoffDate.toLocaleString('pt-BR', {
     day: '2-digit',
@@ -12,9 +12,9 @@ function MatchCard({ match, hasPrediction }) {
   })
 
   const statusColors = {
-    scheduled: '#4caf50',
-    live: '#f44336',
-    finished: '#9e9e9e',
+    scheduled: 'bg-primary-500',
+    live: 'bg-red-500',
+    finished: 'bg-gray-400',
   }
 
   const statusLabels = {
@@ -26,78 +26,55 @@ function MatchCard({ match, hasPrediction }) {
   const now = new Date()
   const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
   const kickoffTime = new Date(match.kickoff_at)
-  
+
   const isClosed = kickoffTime <= oneHourFromNow || match.status === 'live'
   const isFinished = match.status === 'finished'
   const isClickable = !isClosed && !isFinished
 
   const handleClick = () => {
     if (isClickable) {
-      navigate(`/predict/${match.id}`)
+      navigate(`/match/${match.id}`)
     }
   }
 
   return (
     <div
       onClick={handleClick}
-      style={{
-        padding: '1rem',
-        marginBottom: '0.75rem',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        cursor: isClickable ? 'pointer' : 'default',
-        opacity: isFinished ? 0.7 : 1,
-        position: 'relative',
-      }}
+      className={`p-4 mb-3 bg-white dark:bg-dark-card rounded-lg shadow relative ${
+        isClickable ? 'cursor-pointer' : ''
+      } ${isFinished ? 'opacity-70' : ''}`}
     >
       {hasPrediction && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '0.5rem',
-            right: '0.5rem',
-            backgroundColor: '#4caf50',
-            color: 'white',
-            padding: '0.25rem 0.5rem',
-            borderRadius: '4px',
-            fontSize: '0.75rem',
-          }}
-        >
+        <div className="absolute top-2 right-2 bg-primary-500 text-white px-2 py-1 rounded text-xs">
           Palpitado
         </div>
       )}
-      
-      <div style={{ marginBottom: '0.5rem', fontSize: '0.875rem', color: '#666' }}>
-        {match.group_name} • {localTime}
+
+      <div className="mb-2 text-sm text-gray-500 dark:text-dark-muted">
+        {match.group_name} &bull; {localTime}
+        {predictionCount > 0 && (
+          <span className="ml-1">&bull; {predictionCount} palpites</span>
+        )}
       </div>
-      
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
+
+      <div className="flex justify-between items-center">
+        <div className="flex-1">
+          <div className="font-bold mb-1">
             {match.home_flag} {match.home_team}
           </div>
-          <div style={{ fontWeight: 'bold' }}>
+          <div className="font-bold">
             {match.away_flag} {match.away_team}
           </div>
         </div>
-        
-        <div style={{ textAlign: 'center', minWidth: '80px' }}>
+
+        <div className="text-center min-w-[80px]">
           {match.status !== 'scheduled' && (
-            <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-              {match.home_score ?? '-'} × {match.away_score ?? '-'}
+            <div className="text-xl font-bold">
+              {match.home_score ?? '-'} &times; {match.away_score ?? '-'}
             </div>
           )}
           <div
-            style={{
-              display: 'inline-block',
-              padding: '0.25rem 0.5rem',
-              backgroundColor: statusColors[match.status],
-              color: 'white',
-              borderRadius: '4px',
-              fontSize: '0.75rem',
-              marginTop: '0.5rem',
-            }}
+            className={`inline-block px-2 py-1 text-white rounded text-xs mt-2 ${statusColors[match.status]}`}
           >
             {statusLabels[match.status]}
           </div>

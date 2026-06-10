@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Update useMatches hook with prediction counts
 type: frontend
 complexity: low

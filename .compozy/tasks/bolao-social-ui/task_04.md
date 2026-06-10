@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create useMatchPredictions hook
 type: frontend
 complexity: low
@@ -30,11 +30,11 @@ Read TechSpec "New Hook: useMatchPredictions" section before starting.
 
 ## Subtasks
 
-- [ ] Create src/hooks/useMatchPredictions.js.
-- [ ] Implement fetch logic with match_predictions view.
-- [ ] Add sorting by points DESC, created_at ASC.
-- [ ] Handle loading and error states.
-- [ ] Handle null matchId case.
+- [x] Create src/hooks/useMatchPredictions.js.
+- [x] Implement fetch logic with match_predictions view.
+- [x] Add sorting by points DESC, created_at ASC.
+- [x] Handle loading and error states.
+- [x] Handle null matchId case.
 
 ## Implementation Details
 
@@ -60,16 +60,16 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Hook returns { predictions, loading, error }.
-- [ ] Loading is true initially, then false after fetch.
-- [ ] Error is set when query fails.
-- [ ] Predictions are sorted by points DESC, created_at ASC.
-- [ ] Hook handles null matchId without error.
-- [ ] Hook re-fetches when matchId changes.
+- [x] Hook returns { predictions, loading, error }.
+- [x] Loading is true initially, then false after fetch.
+- [x] Error is set when query fails.
+- [x] Predictions are sorted by points DESC, created_at ASC.
+- [x] Hook handles null matchId without error.
+- [x] Hook re-fetches when matchId changes.
 
 ### Integration Tests
-- [ ] Query to match_predictions returns predictions with user_name and user_avatar_url.
-- [ ] Empty result set returns empty array, not null.
+- [x] Query to match_predictions returns predictions with user_name and user_avatar_url.
+- [x] Empty result set returns empty array, not null.
 
 ## Success Criteria
 

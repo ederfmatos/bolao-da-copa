@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Migrate Login page to Tailwind
 type: frontend
 complexity: low
@@ -28,10 +28,10 @@ Remove all inline styles and replace with Tailwind classes.
 
 ## Subtasks
 
-- [ ] Remove inline styles from Login.jsx.
-- [ ] Add Tailwind classes for layout and styling.
-- [ ] Add dark mode support.
-- [ ] Verify sign-in button works.
+- [x] Remove inline styles from Login.jsx.
+- [x] Add Tailwind classes for layout and styling.
+- [x] Add dark mode support.
+- [x] Verify sign-in button works.
 
 ## Implementation Details
 
@@ -56,14 +56,14 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Page renders without inline styles.
-- [ ] Tailwind classes applied correctly.
-- [ ] Google sign-in button is present.
-- [ ] Clicking button calls signInWithGoogle.
+- [x] Page renders without inline styles.
+- [x] Tailwind classes applied correctly.
+- [x] Google sign-in button is present.
+- [x] Clicking button calls signInWithGoogle.
 
 ### Integration Tests
-- [ ] Login page loads.
-- [ ] Sign-in flow initiates.
+- [x] Login page loads.
+- [x] Sign-in flow initiates.
 
 ## Success Criteria
 

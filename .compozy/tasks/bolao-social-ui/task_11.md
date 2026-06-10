@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Migrate Matches page to Tailwind
 type: frontend
 complexity: medium

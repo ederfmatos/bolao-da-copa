@@ -3,15 +3,15 @@ import { usePredictions } from '../hooks/usePredictions'
 import MatchCard from '../components/MatchCard'
 
 function Matches() {
-  const { matches, loading, error } = useMatches()
+  const { matches, predictionCounts, loading, error } = useMatches()
   const { predictions } = usePredictions()
 
   if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Carregando partidas...</div>
+    return <div className="p-8 text-center text-gray-500 dark:text-dark-muted">Carregando partidas...</div>
   }
 
   if (error) {
-    return <div style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>Erro: {error}</div>
+    return <div className="p-8 text-center text-red-500">Erro: {error}</div>
   }
 
   const now = new Date()
@@ -32,18 +32,20 @@ function Matches() {
   const predictedMatchIds = new Set(predictions.map((p) => p.match_id))
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Partidas</h1>
+    <div className="p-4 max-w-xl mx-auto">
+      <h1 className="text-2xl mb-4 text-gray-900 dark:text-dark-text">Partidas</h1>
 
       {openMatches.length === 0 && (
-        <div style={{ padding: '1rem', backgroundColor: '#fff3cd', borderRadius: '8px', marginBottom: '1rem' }}>
-          <p style={{ margin: 0 }}>Nenhuma partida aberta para palpites no momento.</p>
+        <div className="p-4 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg mb-4">
+          <p className="m-0 text-yellow-800 dark:text-yellow-200">
+            Nenhuma partida aberta para palpites no momento.
+          </p>
         </div>
       )}
 
       {openMatches.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#4caf50' }}>
+        <section className="mb-8">
+          <h2 className="text-xl mb-3 text-primary-600 dark:text-primary-500">
             Abertas para Palpite ({openMatches.length})
           </h2>
           {openMatches.map((match) => (
@@ -51,14 +53,15 @@ function Matches() {
               key={match.id}
               match={match}
               hasPrediction={predictedMatchIds.has(match.id)}
+              predictionCount={predictionCounts[match.id] || 0}
             />
           ))}
         </section>
       )}
 
       {closedMatches.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#ff9800' }}>
+        <section className="mb-8">
+          <h2 className="text-xl mb-3 text-accent-orange dark:text-orange-400">
             Fechadas ({closedMatches.length})
           </h2>
           {closedMatches.map((match) => (
@@ -66,6 +69,7 @@ function Matches() {
               key={match.id}
               match={match}
               hasPrediction={predictedMatchIds.has(match.id)}
+              predictionCount={predictionCounts[match.id] || 0}
             />
           ))}
         </section>
@@ -73,7 +77,7 @@ function Matches() {
 
       {finishedMatches.length > 0 && (
         <section>
-          <h2 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#9e9e9e' }}>
+          <h2 className="text-xl mb-3 text-gray-400 dark:text-dark-muted">
             Encerradas ({finishedMatches.length})
           </h2>
           {finishedMatches.map((match) => (
@@ -81,6 +85,7 @@ function Matches() {
               key={match.id}
               match={match}
               hasPrediction={predictedMatchIds.has(match.id)}
+              predictionCount={predictionCounts[match.id] || 0}
             />
           ))}
         </section>

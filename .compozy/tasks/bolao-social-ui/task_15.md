@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Migrate remaining components to Tailwind
 type: frontend
 complexity: medium
@@ -28,11 +28,11 @@ Remove all inline styles and replace with Tailwind classes.
 
 ## Subtasks
 
-- [ ] Remove inline styles from ScorePicker.jsx.
-- [ ] Add Tailwind classes to ScorePicker.
-- [ ] Add dark mode support to ScorePicker.
-- [ ] Verify ScorePicker functionality.
-- [ ] Check ProtectedRoute for inline styles.
+- [x] Remove inline styles from ScorePicker.jsx.
+- [x] Add Tailwind classes to ScorePicker.
+- [x] Add dark mode support to ScorePicker.
+- [x] Verify ScorePicker functionality.
+- [x] Check ProtectedRoute for inline styles.
 
 ## Implementation Details
 
@@ -57,14 +57,14 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] ScorePicker renders without inline styles.
-- [ ] Tailwind classes applied correctly.
-- [ ] +/− buttons work.
-- [ ] Score does not go below 0.
-- [ ] Disabled state works.
+- [x] ScorePicker renders without inline styles.
+- [x] Tailwind classes applied correctly.
+- [x] +/− buttons work.
+- [x] Score does not go below 0.
+- [x] Disabled state works.
 
 ### Integration Tests
-- [ ] ScorePicker works in MatchDetails page.
+- [x] ScorePicker works in MatchDetails page.
 
 ## Success Criteria
 

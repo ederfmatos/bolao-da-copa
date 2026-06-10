@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Update App shell with ThemeProvider and routing
 type: frontend
 complexity: medium
@@ -32,13 +32,13 @@ Read TechSpec "App Shell Update" section before starting.
 
 ## Subtasks
 
-- [ ] Update main.jsx to import ThemeProvider and index.css.
-- [ ] Wrap App in ThemeProvider in main.jsx.
-- [ ] Update App.jsx to import BottomNavigation.
-- [ ] Add BottomNavigation to protected routes.
-- [ ] Update route path to /match/:matchId.
-- [ ] Add pb-16 class to page containers.
-- [ ] Verify routing works correctly.
+- [x] Update main.jsx to import ThemeProvider and index.css.
+- [x] Wrap App in ThemeProvider in main.jsx.
+- [x] Update App.jsx to import BottomNavigation.
+- [x] Add BottomNavigation to protected routes.
+- [x] Update route path to /match/:matchId.
+- [x] Add pb-16 class to page containers.
+- [x] Verify routing works correctly.
 
 ## Implementation Details
 
@@ -65,16 +65,16 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] main.jsx imports ThemeProvider and index.css.
-- [ ] App is wrapped in ThemeProvider.
-- [ ] BottomNavigation is rendered on protected routes.
-- [ ] Login route does not have BottomNavigation.
-- [ ] Route /match/:matchId exists.
+- [x] main.jsx imports ThemeProvider and index.css.
+- [x] App is wrapped in ThemeProvider.
+- [x] BottomNavigation is rendered on protected routes.
+- [x] Login route does not have BottomNavigation.
+- [x] Route /match/:matchId exists.
 
 ### Integration Tests
-- [ ] Navigating to /matches shows BottomNavigation.
-- [ ] Navigating to / shows Login without BottomNavigation.
-- [ ] Page content does not overlap with BottomNavigation.
+- [x] Navigating to /matches shows BottomNavigation.
+- [x] Navigating to / shows Login without BottomNavigation.
+- [x] Page content does not overlap with BottomNavigation.
 
 ## Success Criteria
 

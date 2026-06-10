@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Migrate Rules page to Tailwind
 type: frontend
 complexity: low

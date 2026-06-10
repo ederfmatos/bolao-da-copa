@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create PredictionRow component
 type: frontend
 complexity: low
@@ -33,12 +33,12 @@ Read TechSpec "Component Specifications: PredictionRow Component" before startin
 
 ## Subtasks
 
-- [ ] Create PredictionRow.jsx component.
-- [ ] Display avatar, name, and score.
-- [ ] Add isCurrentUser styling (bold name, background highlight).
-- [ ] Add points badge for finished matches.
-- [ ] Color-code points badge.
-- [ ] Style with Tailwind and dark mode.
+- [x] Create PredictionRow.jsx component (already existed from task_08).
+- [x] Display avatar, name, and score.
+- [x] Add isCurrentUser styling (bold name, background highlight).
+- [x] Add points badge for finished matches.
+- [x] Color-code points badge.
+- [x] Style with Tailwind and dark mode.
 
 ## Implementation Details
 
@@ -64,16 +64,19 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Component renders without errors.
-- [ ] Avatar displays with correct src.
-- [ ] Name displays (bold if isCurrentUser).
-- [ ] Score displays as "home × away".
-- [ ] Points badge shows only when isFinished is true.
-- [ ] Points badge color is correct (green=10, blue=7, orange=3, gray=0).
-- [ ] Current user row has distinct background.
+- [x] Component renders without errors.
+- [x] Avatar displays with correct src.
+- [x] Avatar fallback renders initials.
+- [x] Name displays (bold if isCurrentUser).
+- [x] Score displays as "home × away".
+- [x] Points badge shows only when isFinished is true.
+- [x] Points badge hidden when points is null.
+- [x] Points badge color is correct (green=10, blue=7, orange=3, gray=0).
+- [x] Current user row has distinct background.
+- [x] Non-current user uses default background.
 
 ### Integration Tests
-- [ ] Component renders correctly in MatchDetails list.
+- [x] Component renders correctly in MatchDetails list (verified via existing MatchDetails test).
 
 ## Success Criteria
 

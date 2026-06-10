@@ -15,43 +15,37 @@ function ScorePicker({ homeScore, awayScore, onChange, disabled }) {
     if (!disabled && awayScore > 0) onChange(homeScore, awayScore - 1)
   }
 
-  const buttonStyle = {
-    width: '40px',
-    height: '40px',
-    fontSize: '1.5rem',
-    border: '1px solid #ddd',
-    backgroundColor: disabled ? '#f5f5f5' : 'white',
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    borderRadius: '4px',
-  }
-
-  const scoreStyle = {
-    fontSize: '2rem',
-    fontWeight: 'bold',
-    minWidth: '60px',
-    textAlign: 'center',
-  }
+  const btnBase = [
+    'w-10 h-10 text-2xl rounded border flex items-center justify-center transition-colors',
+    disabled
+      ? 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 cursor-not-allowed text-gray-400 dark:text-gray-500'
+      : 'bg-white dark:bg-dark-card border-gray-300 dark:border-dark-border cursor-pointer text-gray-900 dark:text-dark-text hover:bg-gray-50 dark:hover:bg-gray-800',
+  ].join(' ')
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <button onClick={handleHomeDecrement} style={buttonStyle} disabled={disabled}>
+    <div className="flex items-center justify-center gap-8">
+      <div className="flex items-center gap-2">
+        <button onClick={handleHomeDecrement} className={btnBase} disabled={disabled}>
           −
         </button>
-        <div style={scoreStyle}>{homeScore}</div>
-        <button onClick={handleHomeIncrement} style={buttonStyle} disabled={disabled}>
+        <div className="text-3xl font-bold min-w-[60px] text-center text-gray-900 dark:text-dark-text">
+          {homeScore}
+        </div>
+        <button onClick={handleHomeIncrement} className={btnBase} disabled={disabled}>
           +
         </button>
       </div>
 
-      <div style={{ fontSize: '1.5rem', color: '#999' }}>×</div>
+      <div className="text-2xl text-gray-400 dark:text-dark-muted">×</div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <button onClick={handleAwayDecrement} style={buttonStyle} disabled={disabled}>
+      <div className="flex items-center gap-2">
+        <button onClick={handleAwayDecrement} className={btnBase} disabled={disabled}>
           −
         </button>
-        <div style={scoreStyle}>{awayScore}</div>
-        <button onClick={handleAwayIncrement} style={buttonStyle} disabled={disabled}>
+        <div className="text-3xl font-bold min-w-[60px] text-center text-gray-900 dark:text-dark-text">
+          {awayScore}
+        </div>
+        <button onClick={handleAwayIncrement} className={btnBase} disabled={disabled}>
           +
         </button>
       </div>

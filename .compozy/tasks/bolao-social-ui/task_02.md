@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create ThemeContext and ThemeProvider
 type: frontend
 complexity: low
@@ -30,12 +30,12 @@ Create a React context for managing dark/light theme state. The theme should per
 
 ## Subtasks
 
-- [ ] Create src/context/ directory.
-- [ ] Create ThemeContext.jsx with ThemeProvider component.
-- [ ] Implement theme initialization (localStorage → system preference).
-- [ ] Implement useEffect to toggle 'dark' class on documentElement.
-- [ ] Implement toggleTheme function.
-- [ ] Export useTheme hook.
+- [x] Create src/context/ directory.
+- [x] Create ThemeContext.jsx with ThemeProvider component.
+- [x] Implement theme initialization (localStorage → system preference).
+- [x] Implement useEffect to toggle 'dark' class on documentElement.
+- [x] Implement toggleTheme function.
+- [x] Export useTheme hook.
 
 ## Implementation Details
 
@@ -61,17 +61,17 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] ThemeProvider renders children without errors.
-- [ ] useTheme returns { theme, toggleTheme }.
-- [ ] Initial theme is read from localStorage if present.
-- [ ] Initial theme falls back to system preference if no localStorage.
-- [ ] toggleTheme switches between 'light' and 'dark'.
-- [ ] Theme change adds/removes 'dark' class on documentElement.
-- [ ] Theme change persists to localStorage.
+- [x] ThemeProvider renders children without errors.
+- [x] useTheme returns { theme, toggleTheme }.
+- [x] Initial theme is read from localStorage if present.
+- [x] Initial theme falls back to system preference if no localStorage.
+- [x] toggleTheme switches between 'light' and 'dark'.
+- [x] Theme change adds/removes 'dark' class on documentElement.
+- [x] Theme change persists to localStorage.
 
 ### Integration Tests
-- [ ] Wrapping App in ThemeProvider allows useTheme in child components.
-- [ ] Theme persists after page reload.
+- [x] Wrapping App in ThemeProvider allows useTheme in child components.
+- [x] Theme persists after page reload.
 
 ## Success Criteria
 

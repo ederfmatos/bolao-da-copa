@@ -1,36 +1,17 @@
 import { useAuth } from '../hooks/useAuth'
 
 function Login() {
-  const { signInWithGoogle, user } = useAuth()
+  const { signInWithGoogle } = useAuth()
 
   return (
-    <div style={{
-      padding: '2rem',
-      textAlign: 'center',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Bolão Copa 2026</h1>
-      <p style={{ marginBottom: '2rem', color: '#666' }}>
+    <div className="p-8 text-center min-h-screen flex flex-col justify-center items-center">
+      <h1 className="text-2xl mb-4 text-gray-900 dark:text-dark-text">Bolão Copa 2026</h1>
+      <p className="mb-8 text-gray-500 dark:text-dark-muted">
         Faça login para participar do bolão
       </p>
       <button
         onClick={signInWithGoogle}
-        style={{
-          padding: '0.75rem 1.5rem',
-          fontSize: '1rem',
-          backgroundColor: '#4285f4',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-        }}
+        className="px-6 py-3 text-base bg-[#4285f4] text-white border-none rounded cursor-pointer flex items-center gap-2 hover:bg-[#3367d6] transition-colors"
       >
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>

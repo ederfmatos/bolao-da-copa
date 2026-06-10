@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create BottomNavigation component
 type: frontend
 complexity: low

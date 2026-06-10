@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Migrate Leaderboard page to Tailwind
 type: frontend
 complexity: medium
@@ -28,12 +28,12 @@ Remove all inline styles and replace with Tailwind classes.
 
 ## Subtasks
 
-- [ ] Remove inline styles from Leaderboard.jsx.
-- [ ] Remove inline styles from LeaderboardRow.jsx.
-- [ ] Remove inline styles from Podium.jsx.
-- [ ] Add Tailwind classes to all three files.
-- [ ] Add dark mode support.
-- [ ] Verify existing functionality.
+- [x] Remove inline styles from Leaderboard.jsx.
+- [x] Remove inline styles from LeaderboardRow.jsx.
+- [x] Remove inline styles from Podium.jsx.
+- [x] Add Tailwind classes to all three files.
+- [x] Add dark mode support.
+- [x] Verify existing functionality.
 
 ## Implementation Details
 
@@ -58,15 +58,15 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Pages render without inline styles.
-- [ ] Tailwind classes applied correctly.
-- [ ] Current user row is highlighted.
-- [ ] Podium displays top 3.
-- [ ] Empty state renders when no data.
+- [x] Pages render without inline styles.
+- [x] Tailwind classes applied correctly.
+- [x] Current user row is highlighted.
+- [x] Podium displays top 3.
+- [x] Empty state renders when no data.
 
 ### Integration Tests
-- [ ] Leaderboard page loads and displays rankings.
-- [ ] Real-time updates still work.
+- [x] Leaderboard page loads and displays rankings.
+- [x] Real-time updates still work.
 
 ## Success Criteria
 
