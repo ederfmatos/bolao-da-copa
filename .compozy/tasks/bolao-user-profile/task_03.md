@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create UserProfileHeader component
 type: frontend
 complexity: low
@@ -33,11 +33,11 @@ Create a component that displays the user's profile header with avatar, name, to
 
 ## Subtasks
 
-- [ ] Create UserProfileHeader.jsx component
-- [ ] Display avatar using Avatar component
-- [ ] Display name, total points, and rank
-- [ ] Style with Tailwind and dark mode
-- [ ] Add responsive layout
+- [x] Create UserProfileHeader.jsx component
+- [x] Display avatar using Avatar component
+- [x] Display name, total points, and rank
+- [x] Style with Tailwind and dark mode
+- [x] Add responsive layout
 
 ## Implementation Details
 
@@ -61,15 +61,15 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Component renders without errors
-- [ ] Avatar displays correctly
-- [ ] Name displays correctly
-- [ ] Total points displays with correct formatting
-- [ ] Rank displays correctly
-- [ ] Component handles missing avatar gracefully
+- [x] Component renders without errors
+- [x] Avatar displays correctly
+- [x] Name displays correctly
+- [x] Total points displays with correct formatting
+- [x] Rank displays correctly
+- [x] Component handles missing avatar gracefully
 
 ### Integration Tests
-- [ ] Component renders correctly within UserProfile page context
+- [ ] Component renders correctly within UserProfile page context (deferred to task_06)
 
 ## Success Criteria
 

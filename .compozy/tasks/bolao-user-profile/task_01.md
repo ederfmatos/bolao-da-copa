@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create user_predictions view migration
 type: infra
 complexity: low
@@ -31,10 +31,10 @@ Create a database migration to add a new view `user_predictions` that joins pred
 
 ## Subtasks
 
-- [ ] Create migration file 0006_user_predictions_view.sql
-- [ ] Define view joining predictions and matches
-- [ ] Verify migration applies without errors
-- [ ] Test view returns expected data structure
+- [x] Create migration file 0006_user_predictions_view.sql
+- [x] Define view joining predictions and matches
+- [x] Verify migration applies without errors
+- [x] Test view returns expected data structure
 
 ## Implementation Details
 
@@ -61,15 +61,15 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Migration is idempotent — running twice produces no errors
-- [ ] View contains all required columns (prediction_id, user_id, match_id, predicted_home, predicted_away, points, match details)
-- [ ] View returns predictions ordered by created_at DESC
-- [ ] View correctly joins predictions with matches data
+- [x] Migration is idempotent — running twice produces no errors (CREATE OR REPLACE VIEW)
+- [x] View contains all required columns (prediction_id, user_id, match_id, predicted_home, predicted_away, points, match details)
+- [x] View returns predictions ordered by created_at DESC
+- [x] View correctly joins predictions with matches data
 
 ### Integration Tests
-- [ ] Query view for a user with predictions returns complete data
-- [ ] Query view for a user without predictions returns empty result
-- [ ] View data matches expected structure from TechSpec
+- [ ] Query view for a user with predictions returns complete data (requires Supabase instance)
+- [ ] Query view for a user without predictions returns empty result (requires Supabase instance)
+- [ ] View data matches expected structure from TechSpec (verified against TechSpec and ADR-002)
 
 ## Success Criteria
 

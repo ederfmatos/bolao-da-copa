@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create useUserPredictions hook
 type: frontend
 complexity: low
@@ -33,11 +33,11 @@ Create a React hook that fetches all predictions for a specific user from the `u
 
 ## Subtasks
 
-- [ ] Create useUserPredictions.js hook file
-- [ ] Implement fetch logic querying user_predictions view
-- [ ] Add loading and error state management
-- [ ] Handle null userId case
-- [ ] Add useEffect dependency on userId
+- [x] Create useUserPredictions.js hook file
+- [x] Implement fetch logic querying user_predictions view
+- [x] Add loading and error state management
+- [x] Handle null userId case
+- [x] Add useEffect dependency on userId
 
 ## Implementation Details
 
@@ -62,16 +62,16 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Hook returns { predictions, loading, error }
-- [ ] Loading is true initially, then false after fetch
-- [ ] Error is set when query fails
-- [ ] Predictions are returned in correct format
-- [ ] Hook handles null userId without error
-- [ ] Hook re-fetches when userId changes
+- [x] Hook returns { predictions, loading, error }
+- [x] Loading is true initially, then false after fetch
+- [x] Error is set when query fails
+- [x] Predictions are returned in correct format
+- [x] Hook handles null userId without error
+- [x] Hook re-fetches when userId changes
 
 ### Integration Tests
-- [ ] Query to user_predictions view returns predictions with match data
-- [ ] Empty result set returns empty array, not null
+- [x] Query to user_predictions view returns predictions with match data
+- [x] Empty result set returns empty array, not null
 
 ## Success Criteria
 

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 function pointsBadgeColor(points) {
   if (points >= 10) return 'bg-green-500 text-white'
   if (points >= 7) return 'bg-blue-500 text-white'
@@ -6,6 +8,28 @@ function pointsBadgeColor(points) {
 }
 
 function PredictionRow({ prediction, isCurrentUser, isFinished }) {
+  const avatarContent = prediction.user_avatar_url ? (
+    <img
+      src={prediction.user_avatar_url}
+      alt=""
+      className="w-10 h-10 rounded-full object-cover"
+    />
+  ) : (
+    <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300">
+      {prediction.user_name?.charAt(0).toUpperCase() || '?'}
+    </div>
+  )
+
+  const nameContent = (
+    <span
+      className={`text-sm ${
+        isCurrentUser ? 'font-bold text-primary-700 dark:text-primary-500' : 'text-gray-800 dark:text-dark-text'
+      }`}
+    >
+      {prediction.user_name}
+    </span>
+  )
+
   return (
     <div
       className={`flex items-center justify-between p-3 rounded-lg ${
@@ -15,24 +39,17 @@ function PredictionRow({ prediction, isCurrentUser, isFinished }) {
       }`}
     >
       <div className="flex items-center gap-3">
-        {prediction.user_avatar_url ? (
-          <img
-            src={prediction.user_avatar_url}
-            alt=""
-            className="w-10 h-10 rounded-full object-cover"
-          />
+        {isCurrentUser ? (
+          <>
+            {avatarContent}
+            {nameContent}
+          </>
         ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300">
-            {prediction.user_name?.charAt(0).toUpperCase() || '?'}
-          </div>
+          <Link to={`/user/${prediction.user_id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            {avatarContent}
+            {nameContent}
+          </Link>
         )}
-        <span
-          className={`text-sm ${
-            isCurrentUser ? 'font-bold text-primary-700 dark:text-primary-500' : 'text-gray-800 dark:text-dark-text'
-          }`}
-        >
-          {prediction.user_name}
-        </span>
       </div>
 
       <div className="flex items-center gap-2">

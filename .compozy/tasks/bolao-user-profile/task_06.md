@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create UserProfile page
 type: frontend
 complexity: medium
@@ -39,13 +39,13 @@ Create the main UserProfile page that assembles all components (header, stats, p
 
 ## Subtasks
 
-- [ ] Create UserProfile.jsx page
-- [ ] Extract userId from URL params
-- [ ] Fetch user predictions and profile info
-- [ ] Assemble UserProfileHeader, UserStats, and prediction list
-- [ ] Add loading and error states
-- [ ] Add 'Voltar' button with navigate(-1)
-- [ ] Style with Tailwind and dark mode
+- [x] Create UserProfile.jsx page
+- [x] Extract userId from URL params
+- [x] Fetch user predictions and profile info
+- [x] Assemble UserProfileHeader, UserStats, and prediction list
+- [x] Add loading and error states
+- [x] Add 'Voltar' button with navigate(-1)
+- [x] Style with Tailwind and dark mode
 
 ## Implementation Details
 
@@ -75,19 +75,19 @@ Files to create:
 ## Tests
 
 ### Unit Tests
-- [ ] Page renders without errors
-- [ ] UserProfileHeader displays with correct data
-- [ ] UserStats displays with correct statistics
-- [ ] Prediction list renders all predictions
-- [ ] Loading state displays while fetching
-- [ ] Error state displays on fetch failure
-- [ ] 'Voltar' button calls navigate(-1)
-- [ ] Page handles user with no predictions
+- [x] Page renders without errors
+- [x] UserProfileHeader displays with correct data
+- [x] UserStats displays with correct statistics
+- [x] Prediction list renders all predictions
+- [x] Loading state displays while fetching
+- [x] Error state displays on fetch failure
+- [x] 'Voltar' button calls navigate(-1)
+- [x] Page handles user with no predictions
 
 ### Integration Tests
-- [ ] Page loads and displays user data correctly
-- [ ] Navigation to and from page works correctly
-- [ ] Deep linking to /user/:userId works
+- [x] Page loads and displays user data correctly
+- [x] Navigation to and from page works correctly
+- [x] Deep linking to /user/:userId works
 
 ## Success Criteria
 

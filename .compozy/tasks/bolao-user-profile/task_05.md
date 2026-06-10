@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create UserPredictionRow component
 type: frontend
 complexity: low

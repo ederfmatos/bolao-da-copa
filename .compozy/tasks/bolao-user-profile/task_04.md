@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Create UserStats component
 type: frontend
 complexity: low

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Avatar from './Avatar'
 
 function LeaderboardRow({ entry, rank, isCurrentUser }) {
@@ -12,17 +13,19 @@ function LeaderboardRow({ entry, rank, isCurrentUser }) {
         {rank}
       </div>
 
-      <Avatar src={entry.avatar_url} name={entry.name} className="w-10 h-10 mr-4" />
+      <Link to={`/user/${entry.user_id}`} className="flex items-center flex-1 min-w-0 hover:opacity-80 transition-opacity">
+        <Avatar src={entry.avatar_url} name={entry.name} className="w-10 h-10 mr-4" />
 
-      <div className="flex-1 min-w-0">
-        <div className={`truncate ${isCurrentUser ? 'font-bold' : 'font-normal text-gray-900 dark:text-dark-text'}`}>
-          {entry.name}
-          {isCurrentUser && <span className="text-blue-500 dark:text-blue-400"> (você)</span>}
+        <div className="flex-1 min-w-0">
+          <div className={`truncate ${isCurrentUser ? 'font-bold' : 'font-normal text-gray-900 dark:text-dark-text'}`}>
+            {entry.name}
+            {isCurrentUser && <span className="text-blue-500 dark:text-blue-400"> (você)</span>}
+          </div>
+          <div className="text-sm text-gray-400 dark:text-dark-muted">
+            {entry.total_predictions} palpite{entry.total_predictions !== 1 ? 's' : ''}
+          </div>
         </div>
-        <div className="text-sm text-gray-400 dark:text-dark-muted">
-          {entry.total_predictions} palpite{entry.total_predictions !== 1 ? 's' : ''}
-        </div>
-      </div>
+      </Link>
 
       <div className="text-2xl font-bold text-green-500 dark:text-green-400 shrink-0">
         {entry.total_points}
