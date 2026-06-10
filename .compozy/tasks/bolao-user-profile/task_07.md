@@ -1,9 +1,9 @@
 ---
-status: pending
+status: completed
 title: Add route and navigation links
 type: frontend
 complexity: medium
-dependencies: 
+dependencies:
   - task_06
 ---
 

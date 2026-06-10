@@ -1,9 +1,9 @@
 ---
-status: pending
+status: completed
 title: Build verification and visual QA
 type: test
 complexity: low
-dependencies: 
+dependencies:
   - task_07
 ---
 
