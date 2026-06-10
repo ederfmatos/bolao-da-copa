@@ -24,10 +24,13 @@ export function useAuth() {
   }, [])
 
   const signInWithGoogle = () => {
+    const currentPath = window.location.pathname
+    const redirectTo = `${window.location.origin}${currentPath}`
+    
     supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo,
       },
     })
   }
