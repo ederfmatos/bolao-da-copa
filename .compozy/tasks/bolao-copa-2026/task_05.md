@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Football provider interface + football-data.org
 type: backend
 complexity: medium
