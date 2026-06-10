@@ -1,0 +1,40 @@
+{
+  "name": "bolao",
+  "version": "1.0.0",
+  "description": "Aplicação web mobile-first para bolão da Copa do Mundo 2026.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext js,jsx",
+    "format": "prettier --write src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ederfmatos/bolao-da-copa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ederfmatos/bolao-da-copa/issues"
+  },
+  "homepage": "https://github.com/ederfmatos/bolao-da-copa#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.17.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^10.4.1",
+    "prettier": "^3.8.4",
+    "vite": "^8.0.16"
+  }
+}
