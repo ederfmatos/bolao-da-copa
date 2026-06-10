@@ -38,6 +38,29 @@ export function usePredictions() {
   const savePrediction = async (matchId, homeScore, awayScore) => {
     if (!user) throw new Error('User not authenticated')
 
+    // Ensure profile exists before saving prediction
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile) {
+      // Create profile if it doesn't exist
+      const { error: createError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          avatar_url: user.user_metadata?.avatar_url || null,
+        })
+
+      if (createError && createError.code !== '23505') {
+        // 23505 is duplicate key, which is fine
+        throw new Error(`Failed to create profile: ${createError.message}`)
+      }
+    }
+
     const { data, error } = await supabase
       .from('predictions')
       .upsert(
