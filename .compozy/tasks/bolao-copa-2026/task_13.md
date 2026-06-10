@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Rules page
 type: frontend
 complexity: low
