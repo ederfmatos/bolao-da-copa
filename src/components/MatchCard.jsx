@@ -5,6 +5,7 @@ function MatchCard({ match, hasPrediction, predictionCount = 0 }) {
 
   const kickoffDate = new Date(match.kickoff_at)
   const localTime = kickoffDate.toLocaleString('pt-BR', {
+    weekday: 'short',
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',

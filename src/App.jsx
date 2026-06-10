@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
-import ProtectedRoute from './components/ProtectedRoute'
 import BottomNavigation from './components/BottomNavigation'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
@@ -23,42 +22,10 @@ function App() {
       <Routes>
         <Route path="/" element={user ? <Navigate to="/matches" replace /> : <Login />} />
         <Route path="/home" element={<Navigate to="/matches" replace />} />
-        <Route
-          path="/matches"
-          element={
-            <ProtectedRoute>
-              <Matches />
-              <BottomNavigation />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/match/:matchId"
-          element={
-            <ProtectedRoute>
-              <MatchDetails />
-              <BottomNavigation />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/leaderboard"
-          element={
-            <ProtectedRoute>
-              <Leaderboard />
-              <BottomNavigation />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/rules"
-          element={
-            <ProtectedRoute>
-              <Rules />
-              <BottomNavigation />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/matches" element={<><Matches /><BottomNavigation /></>} />
+        <Route path="/match/:matchId" element={<><MatchDetails /><BottomNavigation /></>} />
+        <Route path="/leaderboard" element={<><Leaderboard /><BottomNavigation /></>} />
+        <Route path="/rules" element={<><Rules /><BottomNavigation /></>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
