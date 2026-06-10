@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: API-Football provider + fallback chain
 type: backend
 complexity: medium
