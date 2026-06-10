@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Points calculation utility
 type: backend
 complexity: low
