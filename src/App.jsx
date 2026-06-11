@@ -3,6 +3,7 @@ import { useAuth } from './hooks/useAuth'
 import { useProfile } from './hooks/useProfile'
 import ProtectedRoute from './components/ProtectedRoute'
 import BottomNavigation from './components/BottomNavigation'
+import NotificationPrompt from './components/NotificationPrompt'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import Matches from './pages/Matches.jsx'
@@ -21,6 +22,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pb-16">
+      {user && <NotificationPrompt />}
       <Routes>
         <Route path="/" element={user ? <Navigate to="/matches" replace /> : <Login />} />
         <Route path="/home" element={<Navigate to="/matches" replace />} />

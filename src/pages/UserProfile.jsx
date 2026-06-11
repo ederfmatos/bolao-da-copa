@@ -1,13 +1,16 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useUserPredictions } from '../hooks/useUserPredictions'
 import { useLeaderboard } from '../hooks/useLeaderboard'
+import { useAuth } from '../hooks/useAuth'
 import UserProfileHeader from '../components/UserProfileHeader'
 import UserStats from '../components/UserStats'
 import UserPredictionRow from '../components/UserPredictionRow'
+import NotificationToggle from '../components/NotificationToggle'
 
 function UserProfile() {
   const { userId } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const { predictions, loading: predictionsLoading, error: predictionsError } = useUserPredictions(userId)
   const { leaderboard, loading: leaderboardLoading, error: leaderboardError } = useLeaderboard()
@@ -65,6 +68,8 @@ function UserProfile() {
       />
 
       <UserStats predictions={predictions} />
+
+      {user?.id === userId && <NotificationToggle />}
 
       <div className="pt-2">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-3">

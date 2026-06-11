@@ -22,6 +22,11 @@ vi.mock('../../hooks/useLeaderboard', () => ({
   useLeaderboard: mockUseLeaderboard,
 }))
 
+const mockUseAuth = vi.hoisted(() => vi.fn())
+vi.mock('../../hooks/useAuth', () => ({
+  useAuth: mockUseAuth,
+}))
+
 vi.mock('../../components/UserProfileHeader', () => ({
   default: ({ name, avatarUrl, totalPoints, rank }) => (
     <div data-testid="user-profile-header" data-name={name} data-avatar={avatarUrl} data-points={totalPoints} data-rank={rank}>
@@ -42,6 +47,14 @@ vi.mock('../../components/UserPredictionRow', () => ({
   default: ({ prediction }) => (
     <div data-testid={`prediction-row-${prediction.prediction_id}`}>
       {prediction.home_team} vs {prediction.away_team}
+    </div>
+  ),
+}))
+
+vi.mock('../../components/NotificationToggle', () => ({
+  default: () => (
+    <div data-testid="notification-toggle">
+      Notificações
     </div>
   ),
 }))
@@ -104,6 +117,7 @@ function renderWithRouter(route = '/user/user2') {
 describe('UserProfile', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseAuth.mockReturnValue({ user: { id: 'user2' } })
     mockUseUserPredictions.mockReturnValue({
       predictions: defaultPredictions,
       loading: false,
@@ -243,6 +257,20 @@ describe('UserProfile', () => {
     await waitFor(() => {
       const header = screen.getByTestId('user-profile-header')
       expect(header).not.toHaveAttribute('data-avatar')
+    })
+  })
+
+  it('NotificationToggle component is rendered on own profile', async () => {
+    renderWithRouter('/user/user2')
+    await waitFor(() => {
+      expect(screen.getByTestId('notification-toggle')).toBeInTheDocument()
+    })
+  })
+
+  it('NotificationToggle component is NOT rendered on other user profile', async () => {
+    renderWithRouter('/user/user1')
+    await waitFor(() => {
+      expect(screen.queryByTestId('notification-toggle')).not.toBeInTheDocument()
     })
   })
 })

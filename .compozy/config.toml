@@ -1,0 +1,11 @@
+# Compozy Configuration
+# https://compozy.dev/docs/configuration
+
+# Default runtime and model for task execution
+[defaults]
+ide = "opencode"
+model = "opencode-go/qwen3.7-plus"
+
+# Task types allowed in this project
+[tasks]
+types = ["frontend", "backend", "infra", "test", "docs", "refactor", "chore", "bugfix"]
