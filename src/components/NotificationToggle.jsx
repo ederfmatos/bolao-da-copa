@@ -1,7 +1,9 @@
 import { useNotifications } from '../hooks/useNotifications'
+import { useNotificationHistory } from '../hooks/useNotificationHistory'
 
-function NotificationToggle() {
+function NotificationToggle({ onViewHistory }) {
   const { permission, subscribed, loading, error, requestPermission, unsubscribe } = useNotifications()
+  const { unreadCount } = useNotificationHistory()
 
   const handleToggle = async () => {
     if (loading) return
@@ -67,6 +69,23 @@ function NotificationToggle() {
         <p className="mt-3 text-xs text-red-600 dark:text-red-400">
           {error}
         </p>
+      )}
+
+      {subscribed && onViewHistory && (
+        <button
+          onClick={onViewHistory}
+          className="mt-3 w-full flex items-center justify-center gap-2 py-2 px-3 text-sm font-medium text-primary-600 dark:text-primary-500 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Ver histórico
+          {unreadCount > 0 && (
+            <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
       )}
     </div>
   )

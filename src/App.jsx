@@ -4,7 +4,6 @@ import { useProfile } from './hooks/useProfile'
 import ProtectedRoute from './components/ProtectedRoute'
 import BottomNavigation from './components/BottomNavigation'
 import NotificationPrompt from './components/NotificationPrompt'
-import NotificationBell from './components/NotificationBell'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import Matches from './pages/Matches.jsx'
@@ -23,13 +22,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg pb-16">
-      {user && (
-        <header className="sticky top-0 z-40 bg-white dark:bg-dark-card border-b border-gray-200 dark:border-dark-border">
-          <div className="flex items-center justify-end px-4 h-12 max-w-lg mx-auto">
-            <NotificationBell />
-          </div>
-        </header>
-      )}
       {user && <NotificationPrompt />}
       <Routes>
         <Route path="/" element={user ? <Navigate to="/matches" replace /> : <Login />} />
