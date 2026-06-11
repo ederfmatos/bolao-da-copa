@@ -1,6 +1,7 @@
 import { serve } from './serve.ts'
 import { createClient } from './supabaseClient.ts'
 import { calculatePoints } from '../_shared/calculatePoints.ts'
+import { mapTeamName } from './teamMapping.ts'
 
 interface Match {
   id: string
@@ -40,21 +41,6 @@ async function fetchMatchesFromApi(apiKey: string): Promise<any[]> {
 
   const data = await response.json()
   return data.matches || []
-}
-
-function mapMatch(match: any): Match {
-  return {
-    id: match.id.toString(),
-    home_team: match.homeTeam?.shortName || match.homeTeam?.name || 'TBD',
-    away_team: match.awayTeam?.shortName || match.awayTeam?.name || 'TBD',
-    home_flag: null,
-    away_flag: null,
-    group_name: match.group || match.stage || 'Group Stage',
-    kickoff_at: match.utcDate,
-    status: mapStatus(match.status),
-    home_score: match.score?.fullTime?.home ?? null,
-    away_score: match.score?.fullTime?.away ?? null,
-  }
 }
 
 async function triggerPostMatchNotification(
@@ -135,45 +121,109 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     const apiMatches = await fetchMatchesFromApi(apiKey)
     console.log(`Fetched ${apiMatches.length} matches from API`)
 
-    const matches = apiMatches.map(mapMatch)
+    // Buscar todas as partidas do seed de uma vez
+    const { data: seedMatches, error: seedError } = await supabase
+      .from('matches')
+      .select('*')
+
+    if (seedError) {
+      throw new Error(`Failed to fetch seed matches: ${seedError.message}`)
+    }
+
+    console.log(`Found ${seedMatches.length} seed matches`)
+
+    // Criar um map para busca rápida por kickoff_at normalizado
+    const seedMatchesByKickoff = new Map<string, any[]>()
+    for (const seed of seedMatches) {
+      // Normalizar formato de data para comparação
+      const key = new Date(seed.kickoff_at).toISOString()
+      if (!seedMatchesByKickoff.has(key)) {
+        seedMatchesByKickoff.set(key, [])
+      }
+      seedMatchesByKickoff.get(key)!.push(seed)
+    }
+
     const newlyFinished: string[] = []
+    let updatedCount = 0
+    let notFoundCount = 0
 
-    for (const match of matches) {
-      const { data: existing, error: fetchError } = await supabase
-        .from('matches')
-        .select('status')
-        .eq('id', match.id)
-        .single()
+    for (const apiMatch of apiMatches) {
+      const homeTeamPt = mapTeamName(apiMatch.homeTeam?.shortName || apiMatch.homeTeam?.name || 'TBD')
+      const awayTeamPt = mapTeamName(apiMatch.awayTeam?.shortName || apiMatch.awayTeam?.name || 'TBD')
+      const kickoffAt = apiMatch.utcDate
+      const status = mapStatus(apiMatch.status)
+      const homeScore = apiMatch.score?.fullTime?.home ?? null
+      const awayScore = apiMatch.score?.fullTime?.away ?? null
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        console.error(`Error fetching match ${match.id}:`, fetchError)
+      // Buscar partida correspondente no seed
+      const normalizedKickoff = new Date(kickoffAt).toISOString()
+      const candidates = seedMatchesByKickoff.get(normalizedKickoff) || []
+      
+      let seedMatch = null
+      
+      // Tentar match exato por nomes
+      for (const candidate of candidates) {
+        if (candidate.home_team === homeTeamPt && candidate.away_team === awayTeamPt) {
+          seedMatch = candidate
+          break
+        }
+      }
+
+      // Se não encontrou, tentar match parcial (para partidas com nomes ligeiramente diferentes)
+      if (!seedMatch && candidates.length > 0) {
+        seedMatch = candidates[0]
+      }
+
+      if (!seedMatch) {
+        console.warn(`Could not find seed match for: ${homeTeamPt} vs ${awayTeamPt} at ${kickoffAt}`)
+        notFoundCount++
         continue
       }
 
-      const wasFinished = existing?.status === 'finished'
-      const isNowFinished = match.status === 'finished'
+      const wasFinished = seedMatch.status === 'finished'
+      const isNowFinished = status === 'finished'
 
       if (!wasFinished && isNowFinished) {
-        newlyFinished.push(match.id)
+        newlyFinished.push(seedMatch.id)
       }
 
-      const { error: upsertError } = await supabase
+      // Atualizar a partida
+      const { error: updateError } = await supabase
         .from('matches')
-        .upsert(match, { onConflict: 'id' })
+        .update({
+          status: status,
+          home_score: homeScore,
+          away_score: awayScore,
+        })
+        .eq('id', seedMatch.id)
 
-      if (upsertError) {
-        console.error(`Error upserting match ${match.id}:`, upsertError)
+      if (updateError) {
+        console.error(`Error updating match ${seedMatch.id}:`, updateError)
+      } else {
+        updatedCount++
       }
     }
 
-    console.log(`Upserted ${matches.length} matches`)
+    console.log(`Updated ${updatedCount} matches, ${notFoundCount} not found`)
     console.log(`Newly finished: ${newlyFinished.length}`)
 
     let totalPredictionsUpdated = 0
 
     for (const matchId of newlyFinished) {
-      const match = matches.find((m) => m.id === matchId)
-      if (!match || match.home_score === null || match.away_score === null) continue
+      const apiMatch = apiMatches.find(m => {
+        const homeTeamPt = mapTeamName(m.homeTeam?.shortName || m.homeTeam?.name || 'TBD')
+        const awayTeamPt = mapTeamName(m.awayTeam?.shortName || m.awayTeam?.name || 'TBD')
+        const seedMatch = seedMatches.find(s => s.id === matchId)
+        return seedMatch && 
+               seedMatch.home_team === homeTeamPt && 
+               seedMatch.away_team === awayTeamPt &&
+               seedMatch.kickoff_at === m.utcDate
+      })
+
+      if (!apiMatch || apiMatch.score?.fullTime?.home === null || apiMatch.score?.fullTime?.away === null) continue
+
+      const seedMatch = seedMatches.find(s => s.id === matchId)
+      if (!seedMatch) continue
 
       const { data: predictions, error: fetchError } = await supabase
         .from('predictions')
@@ -193,7 +243,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       for (const prediction of predictions) {
         const points = calculatePoints(
           { home: prediction.home_score, away: prediction.away_score },
-          { home: match.home_score, away: match.away_score }
+          { home: apiMatch.score.fullTime.home, away: apiMatch.score.fullTime.away }
         )
 
         const { error: updateError } = await supabase
@@ -210,15 +260,13 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       console.log(`Updated ${predictions.length} predictions for match ${matchId}`)
 
-      if (match.home_score !== null && match.away_score !== null) {
-        triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
-          id: match.id,
-          home_team: match.home_team,
-          away_team: match.away_team,
-          home_score: match.home_score,
-          away_score: match.away_score,
-        })
-      }
+      triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
+        id: matchId,
+        home_team: seedMatch.home_team,
+        away_team: seedMatch.away_team,
+        home_score: apiMatch.score.fullTime.home,
+        away_score: apiMatch.score.fullTime.away,
+      })
     }
 
     console.log(`Total predictions updated: ${totalPredictionsUpdated}`)
@@ -226,7 +274,8 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     return new Response(
       JSON.stringify({
         success: true,
-        matchesUpserted: matches.length,
+        matchesUpdated: updatedCount,
+        matchesNotFound: notFoundCount,
         newlyFinished: newlyFinished.length,
         newlyFinishedIds: newlyFinished,
         predictionsUpdated: totalPredictionsUpdated,
