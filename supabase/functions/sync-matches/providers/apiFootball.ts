@@ -64,12 +64,13 @@ export class ApiFootballProvider implements FootballProvider {
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || Deno.env.get('API_FOOTBALL_KEY') || ''
-    if (!this.apiKey) {
-      throw new Error('API_FOOTBALL_KEY environment variable is required')
-    }
   }
 
   async fetchMatches(): Promise<MatchResult[]> {
+    if (!this.apiKey) {
+      throw new Error('API_FOOTBALL_KEY environment variable is required')
+    }
+
     const url = `${this.baseUrl}/fixtures?league=1&season=2026`
     
     const response = await fetch(url, {

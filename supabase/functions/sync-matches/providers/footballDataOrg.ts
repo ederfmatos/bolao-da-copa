@@ -26,9 +26,7 @@ interface FootballDataOrgMatch {
 }
 
 interface FootballDataOrgResponse {
-  resultSets: {
-    matches: FootballDataOrgMatch[]
-  }
+  matches: FootballDataOrgMatch[]
 }
 
 function mapStatus(status: string): MatchStatus {
@@ -52,12 +50,13 @@ export class FootballDataOrgProvider implements FootballProvider {
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || Deno.env.get('FOOTBALL_DATA_API_KEY') || ''
-    if (!this.apiKey) {
-      throw new Error('FOOTBALL_DATA_API_KEY environment variable is required')
-    }
   }
 
   async fetchMatches(): Promise<MatchResult[]> {
+    if (!this.apiKey) {
+      throw new Error('FOOTBALL_DATA_API_KEY environment variable is required')
+    }
+
     const url = `${this.baseUrl}/competitions/WC/matches`
     
     const response = await fetch(url, {
@@ -74,11 +73,11 @@ export class FootballDataOrgProvider implements FootballProvider {
 
     const data: FootballDataOrgResponse = await response.json()
     
-    if (!data.resultSets?.matches) {
+    if (!data.matches) {
       return []
     }
 
-    return data.resultSets.matches.map((match) => this.mapMatch(match))
+    return data.matches.map((match) => this.mapMatch(match))
   }
 
   private mapMatch(match: FootballDataOrgMatch): MatchResult {

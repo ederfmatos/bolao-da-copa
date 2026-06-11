@@ -1,6 +1,5 @@
 import { serve } from './serve.ts'
 import { createClient } from './supabaseClient.ts'
-import { fetchWithFallback, defaultChain } from './providers/index.ts'
 import { calculatePoints } from '../_shared/calculatePoints.ts'
 
 interface Match {
@@ -14,6 +13,48 @@ interface Match {
   status: string
   home_score: number | null
   away_score: number | null
+}
+
+function mapStatus(status: string): string {
+  const statusMap: Record<string, string> = {
+    SCHEDULED: 'scheduled',
+    TIMED: 'scheduled',
+    IN_PLAY: 'live',
+    LIVE: 'live',
+    PAUSED: 'live',
+    FINISHED: 'finished',
+    POSTPONED: 'scheduled',
+    CANCELLED: 'scheduled',
+  }
+  return statusMap[status] || 'scheduled'
+}
+
+async function fetchMatchesFromApi(apiKey: string): Promise<any[]> {
+  const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches', {
+    headers: { 'X-Auth-Token': apiKey }
+  })
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status} ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return data.matches || []
+}
+
+function mapMatch(match: any): Match {
+  return {
+    id: match.id.toString(),
+    home_team: match.homeTeam?.shortName || match.homeTeam?.name || 'TBD',
+    away_team: match.awayTeam?.shortName || match.awayTeam?.name || 'TBD',
+    home_flag: null,
+    away_flag: null,
+    group_name: match.group || match.stage || 'Group Stage',
+    kickoff_at: match.utcDate,
+    status: mapStatus(match.status),
+    home_score: match.score?.fullTime?.home ?? null,
+    away_score: match.score?.fullTime?.away ?? null,
+  }
 }
 
 async function triggerPostMatchNotification(
@@ -82,29 +123,22 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const apiKey = Deno.env.get('FOOTBALL_DATA_API_KEY')
+
+    if (!apiKey) {
+      throw new Error('FOOTBALL_DATA_API_KEY environment variable is required')
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
 
-    console.log('Fetching matches from providers...')
-    const matches = await fetchWithFallback(defaultChain)
-    console.log(`Fetched ${matches.length} matches`)
+    console.log('Fetching matches from API...')
+    const apiMatches = await fetchMatchesFromApi(apiKey)
+    console.log(`Fetched ${apiMatches.length} matches from API`)
 
+    const matches = apiMatches.map(mapMatch)
     const newlyFinished: string[] = []
 
     for (const match of matches) {
-      const matchData: Match = {
-        id: match.id,
-        home_team: match.homeTeam,
-        away_team: match.awayTeam,
-        home_flag: match.homeFlag || null,
-        away_flag: match.awayFlag || null,
-        group_name: match.groupName,
-        kickoff_at: match.kickoffAt,
-        status: match.status,
-        home_score: match.homeScore,
-        away_score: match.awayScore,
-      }
-
       const { data: existing, error: fetchError } = await supabase
         .from('matches')
         .select('status')
@@ -125,7 +159,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       const { error: upsertError } = await supabase
         .from('matches')
-        .upsert(matchData, { onConflict: 'id' })
+        .upsert(match, { onConflict: 'id' })
 
       if (upsertError) {
         console.error(`Error upserting match ${match.id}:`, upsertError)
@@ -139,7 +173,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
     for (const matchId of newlyFinished) {
       const match = matches.find((m) => m.id === matchId)
-      if (!match || match.homeScore === null || match.awayScore === null) continue
+      if (!match || match.home_score === null || match.away_score === null) continue
 
       const { data: predictions, error: fetchError } = await supabase
         .from('predictions')
@@ -159,7 +193,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       for (const prediction of predictions) {
         const points = calculatePoints(
           { home: prediction.home_score, away: prediction.away_score },
-          { home: match.homeScore, away: match.awayScore }
+          { home: match.home_score, away: match.away_score }
         )
 
         const { error: updateError } = await supabase
@@ -176,13 +210,13 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       console.log(`Updated ${predictions.length} predictions for match ${matchId}`)
 
-      if (match.homeScore !== null && match.awayScore !== null) {
+      if (match.home_score !== null && match.away_score !== null) {
         triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
           id: match.id,
-          home_team: match.homeTeam,
-          away_team: match.awayTeam,
-          home_score: match.homeScore,
-          away_score: match.awayScore,
+          home_team: match.home_team,
+          away_team: match.away_team,
+          home_score: match.home_score,
+          away_score: match.away_score,
         })
       }
     }
