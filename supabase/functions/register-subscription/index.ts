@@ -132,21 +132,11 @@ export async function handleRegisterSubscription(req: Request): Promise<Response
         return jsonResponse({ success: false, error: 'endpoint is required' }, 400)
       }
 
-      const { data: existing, error: fetchError } = await supabase
-        .from('push_subscriptions')
-        .select('id')
-        .eq('endpoint', body.endpoint)
-        .eq('user_id', user.id)
-        .single()
-
-      if (fetchError || !existing) {
-        return jsonResponse({ success: false, error: 'Subscription not found' }, 404)
-      }
-
       const { error: deleteError } = await supabase
         .from('push_subscriptions')
         .delete()
-        .eq('id', existing.id)
+        .eq('endpoint', body.endpoint)
+        .eq('user_id', user.id)
 
       if (deleteError) {
         console.error(JSON.stringify({ event: 'delete_error', error: deleteError.message, timestamp: new Date().toISOString() }))

@@ -53,11 +53,24 @@ function authenticateServiceRole(req: Request): { valid: boolean; error?: string
     return { valid: false, error: 'Service role key not configured' }
   }
 
-  if (token !== serviceRoleKey) {
-    return { valid: false, error: 'Unauthorized: service role key required' }
+  if (token === serviceRoleKey) {
+    return { valid: true }
   }
 
-  return { valid: true }
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) {
+      return { valid: false, error: 'Unauthorized: service role key required' }
+    }
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    if (payload.role === 'service_role') {
+      return { valid: true }
+    }
+  } catch {
+    // ignore
+  }
+
+  return { valid: false, error: 'Unauthorized: service role key required' }
 }
 
 function getBrasiliaToday(): string {
