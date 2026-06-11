@@ -176,7 +176,7 @@ async function handleDailyDigest(
 
   return sendToSubscriptions(subscriptions, () => ({
     title: 'Jogos de hoje!',
-    body: `${matches.length} jogo(s) hoje: \n${matchLines.join('\n')}`,
+    body: `${matches.length} jogo(s) hoje: ${matchLines.join(', ')}`,
     data: { url: '/', type: 'daily-digest' },
   }))
 }

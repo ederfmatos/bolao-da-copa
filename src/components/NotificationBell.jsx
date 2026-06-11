@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import { useNotificationHistory } from '../hooks/useNotificationHistory'
 
 function formatTime(timestamp) {
@@ -37,16 +36,11 @@ function getTypeColor(type) {
 }
 
 export function NotificationDrawer({ isOpen, onClose }) {
-  const navigate = useNavigate()
   const { notifications, loading, markAsRead, markAllAsRead, clearAll } = useNotificationHistory()
 
   const handleNotificationClick = (notification) => {
     if (!notification.read) {
       markAsRead(notification.id)
-    }
-    onClose()
-    if (notification.url) {
-      navigate(notification.url)
     }
   }
 
