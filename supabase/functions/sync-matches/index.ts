@@ -43,6 +43,46 @@ async function fetchMatchesFromApi(apiKey: string): Promise<any[]> {
   return data.matches || []
 }
 
+async function fetchScoreFromFallbackApi(
+  apiKey: string,
+  date: string,
+  homeTeam: string,
+  awayTeam: string
+): Promise<{ home: number | null; away: number | null } | null> {
+  try {
+    const response = await fetch(`https://v3.football.api-sports.io/fixtures?date=${date}`, {
+      headers: { 'x-apisports-key': apiKey }
+    })
+
+    if (!response.ok) {
+      console.warn(`API-Football error: ${response.status} ${response.statusText}`)
+      return null
+    }
+
+    const data = await response.json()
+    const match = data.response?.find((m: any) => {
+      const home = m.teams.home.name.toLowerCase()
+      const away = m.teams.away.name.toLowerCase()
+      return (
+        (home.includes(homeTeam.toLowerCase()) || homeTeam.toLowerCase().includes(home)) &&
+        (away.includes(awayTeam.toLowerCase()) || awayTeam.toLowerCase().includes(away))
+      )
+    })
+
+    if (match && match.goals) {
+      return {
+        home: match.goals.home,
+        away: match.goals.away
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.warn('API-Football fallback failed:', error)
+    return null
+  }
+}
+
 async function triggerPostMatchNotification(
   supabaseUrl: string,
   serviceRoleKey: string,
@@ -146,14 +186,32 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     const newlyFinished: string[] = []
     let updatedCount = 0
     let notFoundCount = 0
+    const fallbackApiKey = Deno.env.get('API_FOOTBALL_KEY')
 
     for (const apiMatch of apiMatches) {
       const homeTeamPt = mapTeamName(apiMatch.homeTeam?.shortName || apiMatch.homeTeam?.name || 'TBD')
       const awayTeamPt = mapTeamName(apiMatch.awayTeam?.shortName || apiMatch.awayTeam?.name || 'TBD')
       const kickoffAt = apiMatch.utcDate
       const status = mapStatus(apiMatch.status)
-      const homeScore = apiMatch.score?.fullTime?.home ?? null
-      const awayScore = apiMatch.score?.fullTime?.away ?? null
+      let homeScore = apiMatch.score?.fullTime?.home ?? null
+      let awayScore = apiMatch.score?.fullTime?.away ?? null
+
+      // Fallback: se status é FINISHED mas placar está null, tentar API-Football
+      if (status === 'finished' && (homeScore === null || awayScore === null) && fallbackApiKey) {
+        console.log(`Score missing for ${homeTeamPt} vs ${awayTeamPt}, trying fallback API...`)
+        const matchDate = kickoffAt.split('T')[0]
+        const fallbackScore = await fetchScoreFromFallbackApi(
+          fallbackApiKey,
+          matchDate,
+          apiMatch.homeTeam?.name || homeTeamPt,
+          apiMatch.awayTeam?.name || awayTeamPt
+        )
+        if (fallbackScore) {
+          homeScore = fallbackScore.home
+          awayScore = fallbackScore.away
+          console.log(`Fallback score found: ${homeScore} x ${awayScore}`)
+        }
+      }
 
       // Buscar partida correspondente no seed
       const normalizedKickoff = new Date(kickoffAt).toISOString()
@@ -210,20 +268,20 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     let totalPredictionsUpdated = 0
 
     for (const matchId of newlyFinished) {
-      const apiMatch = apiMatches.find(m => {
-        const homeTeamPt = mapTeamName(m.homeTeam?.shortName || m.homeTeam?.name || 'TBD')
-        const awayTeamPt = mapTeamName(m.awayTeam?.shortName || m.awayTeam?.name || 'TBD')
-        const seedMatch = seedMatches.find(s => s.id === matchId)
-        return seedMatch && 
-               seedMatch.home_team === homeTeamPt && 
-               seedMatch.away_team === awayTeamPt &&
-               seedMatch.kickoff_at === m.utcDate
-      })
-
-      if (!apiMatch || apiMatch.score?.fullTime?.home === null || apiMatch.score?.fullTime?.away === null) continue
-
       const seedMatch = seedMatches.find(s => s.id === matchId)
       if (!seedMatch) continue
+
+      // Buscar placar atualizado do banco (pode ter sido atualizado pelo fallback)
+      const { data: updatedMatch, error: matchError } = await supabase
+        .from('matches')
+        .select('home_score, away_score')
+        .eq('id', matchId)
+        .single()
+
+      if (matchError || !updatedMatch || updatedMatch.home_score === null || updatedMatch.away_score === null) {
+        console.log(`No score available for match ${matchId}, skipping predictions`)
+        continue
+      }
 
       const { data: predictions, error: fetchError } = await supabase
         .from('predictions')
@@ -243,7 +301,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       for (const prediction of predictions) {
         const points = calculatePoints(
           { home: prediction.home_score, away: prediction.away_score },
-          { home: apiMatch.score.fullTime.home, away: apiMatch.score.fullTime.away }
+          { home: updatedMatch.home_score, away: updatedMatch.away_score }
         )
 
         const { error: updateError } = await supabase
@@ -264,8 +322,8 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
         id: matchId,
         home_team: seedMatch.home_team,
         away_team: seedMatch.away_team,
-        home_score: apiMatch.score.fullTime.home,
-        away_score: apiMatch.score.fullTime.away,
+        home_score: updatedMatch.home_score,
+        away_score: updatedMatch.away_score,
       })
     }
 
