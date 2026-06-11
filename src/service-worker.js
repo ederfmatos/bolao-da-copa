@@ -96,8 +96,8 @@ self.addEventListener('push', (event) => {
 
         return self.registration.showNotification(data.title, {
           body: data.body,
-          icon: '/pwa-192x192.png',
-          badge: '/pwa-192x192.png',
+          icon: self.location.origin + '/pwa-192x192.png',
+          badge: self.location.origin + '/pwa-192x192.png',
           data: data.data,
         })
       })()
