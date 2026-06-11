@@ -187,56 +187,58 @@ function MatchDetails() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-3">
-          Seu palpite
-        </h2>
-        {!user ? (
-          <div className="text-center py-4">
-            <p className="text-sm text-gray-500 dark:text-dark-muted mb-3">
-              Faça login para salvar seu palpite
-            </p>
-            <button
-              onClick={signInWithGoogle}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
-            >
-              Entrar com Google
-            </button>
-          </div>
-        ) : (
-          <>
-            <ScorePicker
-              homeScore={homeScore}
-              awayScore={awayScore}
-              onChange={(h, a) => {
-                setHomeScore(h)
-                setAwayScore(a)
-              }}
-              disabled={!isEditable}
-            />
-            {isEditable && (
+      {isEditable && (
+        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-3">
+            Seu palpite
+          </h2>
+          {!user ? (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500 dark:text-dark-muted mb-3">
+                Faça login para salvar seu palpite
+              </p>
               <button
-                onClick={handleSave}
-                disabled={saving}
-                className="mt-4 w-full py-2.5 px-4 rounded-lg text-white font-medium text-sm transition-colors bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+                onClick={signInWithGoogle}
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
-                {saving ? 'Salvando...' : 'Salvar Palpite'}
+                Entrar com Google
               </button>
-            )}
-            {message && (
-              <div
-                className={`mt-3 p-3 rounded-lg text-sm text-center ${
-                  message.type === 'success'
-                    ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700'
-                    : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700'
-                }`}
-              >
-                {message.text}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+            </div>
+          ) : (
+            <>
+              <ScorePicker
+                homeScore={homeScore}
+                awayScore={awayScore}
+                onChange={(h, a) => {
+                  setHomeScore(h)
+                  setAwayScore(a)
+                }}
+                disabled={!isEditable}
+              />
+              {isEditable && (
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="mt-4 w-full py-2.5 px-4 rounded-lg text-white font-medium text-sm transition-colors bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+                >
+                  {saving ? 'Salvando...' : 'Salvar Palpite'}
+                </button>
+              )}
+              {message && (
+                <div
+                  className={`mt-3 p-3 rounded-lg text-sm text-center ${
+                    message.type === 'success'
+                      ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700'
+                      : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700'
+                  }`}
+                >
+                  {message.text}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
         <div className="flex items-center justify-between mb-3">

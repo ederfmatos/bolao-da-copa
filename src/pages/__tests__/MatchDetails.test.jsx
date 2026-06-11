@@ -141,20 +141,21 @@ describe('MatchDetails', () => {
     })
   })
 
-  it('user prediction section is read-only for closed matches', async () => {
+  it('user prediction section is hidden for closed matches', async () => {
     mockState.resolveRef.current = {
       data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
       error: null,
     }
     renderWithRouter()
     await waitFor(() => {
-      expect(screen.getByTestId('score-picker')).toBeInTheDocument()
+      expect(screen.getByText(/encerrados/)).toBeInTheDocument()
     })
+    expect(screen.queryByTestId('score-picker')).not.toBeInTheDocument()
     expect(screen.queryByText('Salvar Palpite')).not.toBeInTheDocument()
-    expect(screen.getByText(/encerrados/)).toBeInTheDocument()
+    expect(screen.queryByText('Seu palpite')).not.toBeInTheDocument()
   })
 
-  it('user prediction section is read-only for finished matches', async () => {
+  it('user prediction section is hidden for finished matches', async () => {
     mockState.resolveRef.current = {
       data: {
         ...defaultMatch,
@@ -169,9 +170,9 @@ describe('MatchDetails', () => {
     await waitFor(() => {
       expect(screen.getByText('Finalizada')).toBeInTheDocument()
     })
+    expect(screen.queryByTestId('score-picker')).not.toBeInTheDocument()
     expect(screen.queryByText('Salvar Palpite')).not.toBeInTheDocument()
-    const scorePicker = screen.getByTestId('score-picker')
-    expect(scorePicker.getAttribute('data-disabled')).toBe('true')
+    expect(screen.queryByText('Seu palpite')).not.toBeInTheDocument()
   })
 
   it('shows final result for finished matches', async () => {
