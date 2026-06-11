@@ -184,6 +184,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     }
 
     const newlyFinished: string[] = []
+    const scoreUpdated: string[] = []
     let updatedCount = 0
     let notFoundCount = 0
     const fallbackApiKey = Deno.env.get('API_FOOTBALL_KEY')
@@ -240,9 +241,13 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       const wasFinished = seedMatch.status === 'finished'
       const isNowFinished = status === 'finished'
+      const scoreChanged = seedMatch.home_score !== homeScore || seedMatch.away_score !== awayScore
 
       if (!wasFinished && isNowFinished) {
         newlyFinished.push(seedMatch.id)
+      } else if (wasFinished && isNowFinished && scoreChanged && homeScore !== null && awayScore !== null) {
+        // Partida já estava finalizada mas o placar foi atualizado
+        scoreUpdated.push(seedMatch.id)
       }
 
       // Atualizar a partida
@@ -264,10 +269,14 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
     console.log(`Updated ${updatedCount} matches, ${notFoundCount} not found`)
     console.log(`Newly finished: ${newlyFinished.length}`)
+    console.log(`Score updated: ${scoreUpdated.length}`)
+
+    // Combinar partidas recém-finalizadas com partidas que tiveram placar atualizado
+    const matchesToProcess = [...newlyFinished, ...scoreUpdated]
 
     let totalPredictionsUpdated = 0
 
-    for (const matchId of newlyFinished) {
+    for (const matchId of matchesToProcess) {
       const seedMatch = seedMatches.find(s => s.id === matchId)
       if (!seedMatch) continue
 
@@ -318,13 +327,16 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       console.log(`Updated ${predictions.length} predictions for match ${matchId}`)
 
-      triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
-        id: matchId,
-        home_team: seedMatch.home_team,
-        away_team: seedMatch.away_team,
-        home_score: updatedMatch.home_score,
-        away_score: updatedMatch.away_score,
-      })
+      // Só enviar notificação para partidas recém-finalizadas (não para placar atualizado)
+      if (newlyFinished.includes(matchId)) {
+        triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
+          id: matchId,
+          home_team: seedMatch.home_team,
+          away_team: seedMatch.away_team,
+          home_score: updatedMatch.home_score,
+          away_score: updatedMatch.away_score,
+        })
+      }
     }
 
     console.log(`Total predictions updated: ${totalPredictionsUpdated}`)
@@ -336,6 +348,8 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
         matchesNotFound: notFoundCount,
         newlyFinished: newlyFinished.length,
         newlyFinishedIds: newlyFinished,
+        scoreUpdated: scoreUpdated.length,
+        scoreUpdatedIds: scoreUpdated,
         predictionsUpdated: totalPredictionsUpdated,
       }),
       {
