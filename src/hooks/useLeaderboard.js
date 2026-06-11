@@ -12,7 +12,6 @@ export function useLeaderboard() {
         const { data, error } = await supabase
           .from('leaderboard')
           .select('*')
-          .order('total_points', { ascending: false })
 
         if (error) throw error
 

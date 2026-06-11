@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import PredictionRow from '../PredictionRow'
 
 const basePrediction = {
@@ -20,7 +21,11 @@ function renderRow(overrides = {}) {
     isCurrentUser: overrides.isCurrentUser ?? false,
     isFinished: overrides.isFinished ?? false,
   }
-  return render(<PredictionRow {...props} />)
+  return render(
+    <MemoryRouter>
+      <PredictionRow {...props} />
+    </MemoryRouter>,
+  )
 }
 
 describe('PredictionRow', () => {

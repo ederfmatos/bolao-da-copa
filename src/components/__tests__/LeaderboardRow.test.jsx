@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import LeaderboardRow from '../LeaderboardRow'
 
 const baseEntry = {
@@ -11,12 +12,14 @@ const baseEntry = {
 
 function renderRow(props = {}) {
   return render(
-    <LeaderboardRow
-      entry={baseEntry}
-      rank={1}
-      isCurrentUser={false}
-      {...props}
-    />,
+    <MemoryRouter>
+      <LeaderboardRow
+        entry={baseEntry}
+        rank={1}
+        isCurrentUser={false}
+        {...props}
+      />
+    </MemoryRouter>,
   )
 }
 

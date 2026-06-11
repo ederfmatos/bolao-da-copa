@@ -32,12 +32,15 @@ vi.mock('../../components/Podium', () => ({
   ),
 }))
 
-const mockEntry = (id, points) => ({
+const mockEntry = (id, points, tiebreakers = {}) => ({
   user_id: id,
   name: `Player${id}`,
   avatar_url: null,
   total_points: points,
   total_predictions: 5,
+  exact_score_count: tiebreakers.exact_score_count ?? 0,
+  winner_with_diff_count: tiebreakers.winner_with_diff_count ?? 0,
+  winner_correct_count: tiebreakers.winner_correct_count ?? 0,
 })
 
 function renderLeaderboard() {
@@ -206,5 +209,23 @@ describe('Leaderboard page', () => {
     renderLeaderboard()
     expect(screen.getByText('Player1')).toBeInTheDocument()
     expect(screen.getByTestId('leaderboard-row-1').getAttribute('data-current')).toBe('false')
+  })
+
+  it('renders entries in order provided by backend (tiebreakers applied server-side)', () => {
+    mockUseLeaderboard.mockReturnValue({
+      leaderboard: [
+        mockEntry('u1', 30, { exact_score_count: 2, winner_with_diff_count: 1, winner_correct_count: 3 }),
+        mockEntry('u2', 30, { exact_score_count: 1, winner_with_diff_count: 2, winner_correct_count: 2 }),
+        mockEntry('u3', 30, { exact_score_count: 1, winner_with_diff_count: 1, winner_correct_count: 4 }),
+        mockEntry('u4', 25, { exact_score_count: 0, winner_with_diff_count: 3, winner_correct_count: 1 }),
+      ],
+      loading: false,
+      error: null,
+    })
+    renderLeaderboard()
+    expect(screen.getByTestId('leaderboard-row-u1').getAttribute('data-rank')).toBe('1')
+    expect(screen.getByTestId('leaderboard-row-u2').getAttribute('data-rank')).toBe('2')
+    expect(screen.getByTestId('leaderboard-row-u3').getAttribute('data-rank')).toBe('3')
+    expect(screen.getByTestId('leaderboard-row-u4').getAttribute('data-rank')).toBe('4')
   })
 })
