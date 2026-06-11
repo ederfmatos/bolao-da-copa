@@ -66,10 +66,10 @@ describe('MatchCard', () => {
     expect(card.className).toContain('cursor-pointer')
   })
 
-  it('does not show click cursor for finished match', () => {
+  it('shows click cursor for finished match', () => {
     const { container } = renderCard({ match: { status: 'finished' } })
     const card = container.firstChild
-    expect(card.className).not.toContain('cursor-pointer')
+    expect(card.className).toContain('cursor-pointer')
   })
 
   it('applies opacity for finished match', () => {
@@ -158,15 +158,29 @@ describe('MatchCard', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/match/match-1')
   })
 
-  it('does not navigate on click for finished match', () => {
+  it('navigates on click for finished match', () => {
     const { container } = renderCard({ match: { status: 'finished' } })
     fireEvent.click(container.firstChild)
-    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(mockNavigate).toHaveBeenCalledWith('/match/match-1')
   })
 
-  it('does not navigate on click for live match', () => {
+  it('navigates on click for live match', () => {
     const { container } = renderCard({ match: { status: 'live' } })
     fireEvent.click(container.firstChild)
-    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(mockNavigate).toHaveBeenCalledWith('/match/match-1')
+  })
+
+  it('navigates on click for closed match (kickoff within 1 hour)', () => {
+    const thirtyMinutesFromNow = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+    const { container } = renderCard({ match: { kickoff_at: thirtyMinutesFromNow, status: 'scheduled' } })
+    fireEvent.click(container.firstChild)
+    expect(mockNavigate).toHaveBeenCalledWith('/match/match-1')
+  })
+
+  it('shows click cursor for closed match (kickoff within 1 hour)', () => {
+    const thirtyMinutesFromNow = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+    const { container } = renderCard({ match: { kickoff_at: thirtyMinutesFromNow, status: 'scheduled' } })
+    const card = container.firstChild
+    expect(card.className).toContain('cursor-pointer')
   })
 })

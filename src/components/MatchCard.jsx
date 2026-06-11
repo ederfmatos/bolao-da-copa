@@ -24,26 +24,16 @@ function MatchCard({ match, hasPrediction, predictionCount = 0 }) {
     finished: 'Encerrado',
   }
 
-  const now = new Date()
-  const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
-  const kickoffTime = new Date(match.kickoff_at)
-
-  const isClosed = kickoffTime <= oneHourFromNow || match.status === 'live'
   const isFinished = match.status === 'finished'
-  const isClickable = !isClosed && !isFinished
 
   const handleClick = () => {
-    if (isClickable) {
-      navigate(`/match/${match.id}`)
-    }
+    navigate(`/match/${match.id}`)
   }
 
   return (
     <div
       onClick={handleClick}
-      className={`p-4 mb-3 bg-white dark:bg-dark-card rounded-lg shadow relative ${
-        isClickable ? 'cursor-pointer' : ''
-      } ${isFinished ? 'opacity-70' : ''}`}
+      className={`p-4 mb-3 bg-white dark:bg-dark-card rounded-lg shadow relative cursor-pointer ${isFinished ? 'opacity-70' : ''}`}
     >
       {hasPrediction && (
         <div className="absolute top-2 right-2 bg-primary-500 text-white px-2 py-1 rounded text-xs">
