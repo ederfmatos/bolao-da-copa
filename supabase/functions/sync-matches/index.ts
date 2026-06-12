@@ -250,13 +250,13 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
         scoreUpdated.push(seedMatch.id)
       }
 
-      // Atualizar a partida
+      // Atualizar a partida — só sobrescrever placar se API retornou valor válido
       const { error: updateError } = await supabase
         .from('matches')
         .update({
           status: status,
-          home_score: homeScore,
-          away_score: awayScore,
+          ...(homeScore !== null && { home_score: homeScore }),
+          ...(awayScore !== null && { away_score: awayScore }),
         })
         .eq('id', seedMatch.id)
 
