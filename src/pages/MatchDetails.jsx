@@ -241,65 +241,48 @@ function MatchDetails() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text">
-            Palpites da galera
-          </h2>
-          {canSeeOtherPredictions && (
+      {canSeeOtherPredictions && (
+        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text">
+              Palpites da galera
+            </h2>
             <span className="text-xs text-gray-500 dark:text-dark-muted bg-gray-100 dark:bg-dark-border px-2 py-0.5 rounded-full">
               {allPredictions.length} {allPredictions.length === 1 ? 'palpite' : 'palpites'}
             </span>
+          </div>
+
+          {socialLoading ? (
+            <div className="text-center text-sm text-gray-400 py-4">Carregando palpites...</div>
+          ) : otherPredictions.length === 0 && !userPrediction ? (
+            <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
+              Nenhum palpite ainda. Seja o primeiro!
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {userPrediction && (
+                <PredictionRow
+                  prediction={{
+                    ...userPrediction,
+                    user_name: user?.user_metadata?.full_name || 'Você',
+                    user_avatar_url: user?.user_metadata?.avatar_url || null,
+                  }}
+                  isCurrentUser
+                  isFinished={isFinished}
+                />
+              )}
+              {otherPredictions.map((p) => (
+                <PredictionRow
+                  key={p.prediction_id}
+                  prediction={p}
+                  isCurrentUser={false}
+                  isFinished={isFinished}
+                />
+              ))}
+            </div>
           )}
         </div>
-
-        {socialLoading ? (
-          <div className="text-center text-sm text-gray-400 py-4">Carregando palpites...</div>
-        ) : !canSeeOtherPredictions ? (
-          <>
-            {userPrediction && (
-              <PredictionRow
-                prediction={{
-                  ...userPrediction,
-                  user_name: user?.user_metadata?.full_name || 'Você',
-                  user_avatar_url: user?.user_metadata?.avatar_url || null,
-                }}
-                isCurrentUser
-                isFinished={isFinished}
-              />
-            )}
-            <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
-              🔒 Os palpites serão revelados após o encerramento das apostas
-            </div>
-          </>
-        ) : otherPredictions.length === 0 && !userPrediction ? (
-          <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
-            Nenhum palpite ainda. Seja o primeiro!
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {userPrediction && (
-              <PredictionRow
-                prediction={{
-                  ...userPrediction,
-                  user_name: user?.user_metadata?.full_name || 'Você',
-                  user_avatar_url: user?.user_metadata?.avatar_url || null,
-                }}
-                isCurrentUser
-                isFinished={isFinished}
-              />
-            )}
-            {otherPredictions.map((p) => (
-              <PredictionRow
-                key={p.prediction_id}
-                prediction={p}
-                isCurrentUser={false}
-                isFinished={isFinished}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }
