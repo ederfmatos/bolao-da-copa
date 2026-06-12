@@ -74,6 +74,7 @@ function MatchDetails() {
   const isDeadlinePassed = matchTimes && now >= matchTimes.oneHourBefore
   const isEditable = !isFinished && !isLive && !isDeadlinePassed
   const isWithinThreeHours = matchTimes && now >= matchTimes.threeHoursBefore && !isDeadlinePassed && !isLive && !isFinished
+  const canSeeOtherPredictions = isDeadlinePassed || isLive || isFinished
 
   const otherPredictions = allPredictions.filter((p) => p.user_id !== user?.id)
 
@@ -245,13 +246,32 @@ function MatchDetails() {
           <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text">
             Palpites da galera
           </h2>
-          <span className="text-xs text-gray-500 dark:text-dark-muted bg-gray-100 dark:bg-dark-border px-2 py-0.5 rounded-full">
-            {allPredictions.length} {allPredictions.length === 1 ? 'palpite' : 'palpites'}
-          </span>
+          {canSeeOtherPredictions && (
+            <span className="text-xs text-gray-500 dark:text-dark-muted bg-gray-100 dark:bg-dark-border px-2 py-0.5 rounded-full">
+              {allPredictions.length} {allPredictions.length === 1 ? 'palpite' : 'palpites'}
+            </span>
+          )}
         </div>
 
         {socialLoading ? (
           <div className="text-center text-sm text-gray-400 py-4">Carregando palpites...</div>
+        ) : !canSeeOtherPredictions ? (
+          <>
+            {userPrediction && (
+              <PredictionRow
+                prediction={{
+                  ...userPrediction,
+                  user_name: user?.user_metadata?.full_name || 'Você',
+                  user_avatar_url: user?.user_metadata?.avatar_url || null,
+                }}
+                isCurrentUser
+                isFinished={isFinished}
+              />
+            )}
+            <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
+              🔒 Os palpites serão revelados após o encerramento das apostas
+            </div>
+          </>
         ) : otherPredictions.length === 0 && !userPrediction ? (
           <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
             Nenhum palpite ainda. Seja o primeiro!
