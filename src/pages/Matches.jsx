@@ -100,12 +100,12 @@ function Matches() {
         </div>
       )}
 
-      {openMatches.length > 0 && (
+      {closedMatches.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl mb-3 text-primary-600 dark:text-primary-500">
-            Abertas para Palpite ({openMatches.length})
+          <h2 className="text-xl mb-3 text-accent-orange dark:text-orange-400">
+            Fechadas ({closedMatches.length})
           </h2>
-          {openMatches.map((match) => (
+          {closedMatches.map((match) => (
             <MatchCard
               key={match.id}
               match={match}
@@ -116,12 +116,12 @@ function Matches() {
         </section>
       )}
 
-      {closedMatches.length > 0 && (
+      {openMatches.length > 0 && (
         <section className="mb-8">
-          <h2 className="text-xl mb-3 text-accent-orange dark:text-orange-400">
-            Fechadas ({closedMatches.length})
+          <h2 className="text-xl mb-3 text-primary-600 dark:text-primary-500">
+            Abertas para Palpite ({openMatches.length})
           </h2>
-          {closedMatches.map((match) => (
+          {openMatches.map((match) => (
             <MatchCard
               key={match.id}
               match={match}
