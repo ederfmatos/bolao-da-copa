@@ -175,7 +175,7 @@ describe('MatchDetails', () => {
     expect(screen.queryByText('Seu palpite')).not.toBeInTheDocument()
   })
 
-  it('shows final result for finished matches', async () => {
+  it('shows score inline with team names for finished matches', async () => {
     mockState.resolveRef.current = {
       data: {
         ...defaultMatch,
@@ -188,9 +188,10 @@ describe('MatchDetails', () => {
     }
     renderWithRouter()
     await waitFor(() => {
-      expect(screen.getByText('Resultado')).toBeInTheDocument()
+      expect(screen.getByText(/Brasil/)).toBeInTheDocument()
     })
     expect(screen.getByText('3 × 1')).toBeInTheDocument()
+    expect(screen.queryByText('Resultado')).not.toBeInTheDocument()
   })
 
   it('social predictions list renders PredictionRow for each prediction', async () => {
