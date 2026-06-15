@@ -1,5 +1,9 @@
 export const BONUS_DEADLINE = new Date('2026-06-18T16:00:00Z')
 
+// Ativar quando o bracket real for conhecido (pós-fase de grupos).
+// Também atualizar bracketHalf em TEAMS com os lados corretos.
+export const BRACKET_DETERMINED = false
+
 export const TEAMS = [
   { name: 'África do Sul', flag: '🇿🇦', bracketHalf: 'LEFT' },
   { name: 'Alemanha', flag: '🇩🇪', bracketHalf: 'LEFT' },
@@ -53,8 +57,12 @@ export const TEAMS = [
 
 export function getValidTeams(position, picks) {
   const taken = Object.values(picks).filter(Boolean)
-  const { first } = picks
 
+  if (!BRACKET_DETERMINED) {
+    return TEAMS.filter(t => !taken.includes(t.name))
+  }
+
+  const { first } = picks
   if (position === 'first') return TEAMS.filter(t => !taken.includes(t.name))
 
   const firstHalf = first ? TEAMS.find(t => t.name === first)?.bracketHalf : null
@@ -70,6 +78,7 @@ export function getValidTeams(position, picks) {
 }
 
 export function deriveFourthPlace(picks) {
+  if (!BRACKET_DETERMINED) return null
   const { first, second, third } = picks
   if (!first || !second || !third) return null
   const thirdHalf = TEAMS.find(t => t.name === third)?.bracketHalf

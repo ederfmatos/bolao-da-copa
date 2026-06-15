@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useBonusPrediction } from '../hooks/useBonusPrediction'
 import { useAllBonusPredictions } from '../hooks/useAllBonusPredictions'
-import { getValidTeams, deriveFourthPlace, TEAMS } from '../lib/bracketData'
+import { getValidTeams, TEAMS } from '../lib/bracketData'
 import TeamPicker from '../components/TeamPicker'
 import BonusScorePanel from '../components/BonusScorePanel'
 import Avatar from '../components/Avatar'
 import BonusPredictionRow from '../components/BonusPredictionRow'
 
-const STEP_LABELS = ['Campeão', 'Vice-campeão', '3º lugar']
-const STEP_POSITIONS = ['first', 'second', 'third']
+const STEP_LABELS = ['Campeão', 'Vice-campeão', '3º lugar', '4º lugar']
+const STEP_POSITIONS = ['first', 'second', 'third', 'fourth']
 
 function FinalPrediction() {
   const { prediction, isPastDeadline, savePrediction, loading, error } = useBonusPrediction()
@@ -31,32 +31,17 @@ function FinalPrediction() {
     }
   }, [prediction, isPastDeadline])
 
-  useEffect(() => {
-    if (picks.first && picks.second && picks.third && !picks.fourth) {
-      const fourth = deriveFourthPlace(picks)
-      if (fourth) {
-        setPicks(prev => ({ ...prev, fourth }))
-      }
-    }
-  }, [picks.first, picks.second, picks.third, picks.fourth])
-
   const handleSelectTeam = (teamName) => {
     const position = STEP_POSITIONS[activeStep]
     const newPicks = { ...picks, [position]: teamName }
 
-    if (position === 'third') {
-      newPicks.fourth = null
-      const fourth = deriveFourthPlace(newPicks)
-      if (fourth) newPicks.fourth = fourth
-    }
-
     setPicks(newPicks)
     setShowPicker(false)
 
-    if (activeStep < 2) {
+    if (activeStep < STEP_POSITIONS.length - 1) {
       setActiveStep(prev => prev + 1)
     } else {
-      setActiveStep(3)
+      setActiveStep(STEP_POSITIONS.length)
     }
   }
 
@@ -253,29 +238,9 @@ function FinalPrediction() {
             </div>
           )
         })}
-
-        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-card border border-gray-200 dark:border-dark-border">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
-              4º lugar
-            </span>
-            {picks.fourth ? (
-              <span className="flex items-center gap-1">
-                <span>{TEAMS.find(t => t.name === picks.fourth)?.flag}</span>
-                <span className="text-sm text-gray-600 dark:text-dark-muted">
-                  {picks.fourth}
-                </span>
-              </span>
-            ) : (
-              <span className="text-xs text-gray-400 dark:text-dark-muted">
-                Preenchido automaticamente
-              </span>
-            )}
-          </div>
-        </div>
       </div>
 
-      {activeStep === 3 && (
+      {activeStep === STEP_POSITIONS.length && (
         <button
           onClick={handleSave}
           disabled={!isReadyToSave || saving}

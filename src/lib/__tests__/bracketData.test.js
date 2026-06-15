@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { TEAMS, BONUS_DEADLINE, getValidTeams, deriveFourthPlace } from '../bracketData'
+import { TEAMS, BONUS_DEADLINE, BRACKET_DETERMINED, getValidTeams, deriveFourthPlace } from '../bracketData'
 
 describe('BONUS_DEADLINE', () => {
   test('exporta data correta (2026-06-18T16:00:00Z)', () => {
@@ -38,25 +38,30 @@ describe('TEAMS', () => {
   })
 })
 
-describe('getValidTeams', () => {
+describe('BRACKET_DETERMINED', () => {
+  test('está desativado (false) enquanto o bracket real não é conhecido', () => {
+    expect(BRACKET_DETERMINED).toBe(false)
+  })
+})
+
+describe('getValidTeams (BRACKET_DETERMINED = false)', () => {
   test('first com picks vazio → retorna todos os 48 times', () => {
     const valid = getValidTeams('first', {})
     expect(valid.length).toBe(48)
   })
 
-  test('second com first=Brasil (LEFT) → retorna apenas times RIGHT', () => {
-    const valid = getValidTeams('second', { first: 'Brasil' })
-    expect(valid.every(t => t.bracketHalf === 'RIGHT')).toBe(true)
-  })
-
-  test('second com first=Espanha (RIGHT) → retorna apenas times LEFT', () => {
-    const valid = getValidTeams('second', { first: 'Espanha' })
-    expect(valid.every(t => t.bracketHalf === 'LEFT')).toBe(true)
-  })
-
-  test('second com first=Brasil → não contém Brasil', () => {
+  test('second com first=Brasil → retorna todos exceto Brasil (sem filtro de bracketHalf)', () => {
     const valid = getValidTeams('second', { first: 'Brasil' })
     expect(valid.find(t => t.name === 'Brasil')).toBeUndefined()
+    expect(valid.some(t => t.bracketHalf === 'LEFT')).toBe(true)
+    expect(valid.some(t => t.bracketHalf === 'RIGHT')).toBe(true)
+  })
+
+  test('second com first=Espanha → retorna todos exceto Espanha (sem filtro de bracketHalf)', () => {
+    const valid = getValidTeams('second', { first: 'Espanha' })
+    expect(valid.find(t => t.name === 'Espanha')).toBeUndefined()
+    expect(valid.some(t => t.bracketHalf === 'LEFT')).toBe(true)
+    expect(valid.some(t => t.bracketHalf === 'RIGHT')).toBe(true)
   })
 
   test('third com picks [Brasil, Espanha] → não contém Brasil nem Espanha', () => {
@@ -65,37 +70,19 @@ describe('getValidTeams', () => {
     expect(valid.find(t => t.name === 'Espanha')).toBeUndefined()
   })
 
-  test('third → permite times de ambas as metades', () => {
-    const valid = getValidTeams('third', { first: 'Brasil', second: 'Espanha' })
-    expect(valid.some(t => t.bracketHalf === 'LEFT')).toBe(true)
-    expect(valid.some(t => t.bracketHalf === 'RIGHT')).toBe(true)
-  })
-
-  test('fourth → retorna array vazio', () => {
-    expect(getValidTeams('fourth', { first: 'Brasil', second: 'Espanha' })).toEqual([])
+  test('fourth com picks [Brasil, Espanha, Argentina] → retorna todos os demais', () => {
+    const valid = getValidTeams('fourth', { first: 'Brasil', second: 'Espanha', third: 'Argentina' })
+    expect(valid.find(t => t.name === 'Brasil')).toBeUndefined()
+    expect(valid.find(t => t.name === 'Espanha')).toBeUndefined()
+    expect(valid.find(t => t.name === 'Argentina')).toBeUndefined()
+    expect(valid.length).toBe(45)
   })
 })
 
-describe('deriveFourthPlace', () => {
-  test('com first=Brasil, second=Espanha, third=Argentina → retorna time RIGHT diferente de Espanha', () => {
-    const result = deriveFourthPlace({ first: 'Brasil', second: 'Espanha', third: 'Argentina' })
-    expect(result).not.toBeNull()
-    const team = TEAMS.find(t => t.name === result)
-    expect(team?.bracketHalf).toBe('RIGHT')
-    expect(result).not.toBe('Espanha')
-    expect(result).not.toBe('Brasil')
-    expect(result).not.toBe('Argentina')
-  })
-
-  test('com first=Brasil, second=Espanha → retorna null (3º ausente)', () => {
+describe('deriveFourthPlace (BRACKET_DETERMINED = false)', () => {
+  test('sempre retorna null enquanto BRACKET_DETERMINED = false', () => {
+    expect(deriveFourthPlace({ first: 'Brasil', second: 'Espanha', third: 'Argentina' })).toBeNull()
     expect(deriveFourthPlace({ first: 'Brasil', second: 'Espanha' })).toBeNull()
-  })
-
-  test('com first=Brasil, second=Espanha, third=null → retorna null', () => {
-    expect(deriveFourthPlace({ first: 'Brasil', second: 'Espanha', third: null })).toBeNull()
-  })
-
-  test('com picks vazio → retorna null', () => {
     expect(deriveFourthPlace({})).toBeNull()
   })
 })
