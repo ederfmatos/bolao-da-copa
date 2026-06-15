@@ -117,8 +117,9 @@ function MatchDetails() {
         backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
         height: el.scrollHeight,
         width: el.scrollWidth,
-        onclone: (_, doc) => {
-          const all = doc.querySelectorAll('*')
+        onclone: (_, clonedEl) => {
+          clonedEl.style.padding = '12px'
+          const all = clonedEl.querySelectorAll('*')
           for (const n of all) n.style.overflow = 'visible'
         },
       })
@@ -182,7 +183,7 @@ function MatchDetails() {
         ← Voltar
       </button>
 
-      <div ref={captureRef} className="space-y-4 p-3">
+      <div ref={captureRef} className="space-y-4">
       <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-5 relative">
         {canSeeOtherPredictions && (
           <button

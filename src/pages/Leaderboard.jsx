@@ -23,8 +23,9 @@ function Leaderboard() {
         backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
         height: el.scrollHeight,
         width: el.scrollWidth,
-        onclone: (_, doc) => {
-          const all = doc.querySelectorAll('*')
+        onclone: (_, clonedEl) => {
+          clonedEl.style.padding = '12px'
+          const all = clonedEl.querySelectorAll('*')
           for (const n of all) n.style.overflow = 'visible'
         },
       })
@@ -77,14 +78,14 @@ function Leaderboard() {
 
   return (
     <div className="p-4 max-w-xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
+      <div className="relative mb-4">
         <h1 className="text-2xl text-center text-gray-900 dark:text-dark-text">
           Classificação
         </h1>
         <button
           onClick={handleShare}
           disabled={sharing}
-          className="p-2 rounded-full bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+          className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-full bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
           title="Compartilhar"
         >
           {sharing ? (
@@ -100,7 +101,7 @@ function Leaderboard() {
         </button>
       </div>
 
-      <div ref={captureRef} className="space-y-2 p-3">
+      <div ref={captureRef}>
         {top3.length === 3 && <Podium top3={top3} />}
 
         {top3.map((entry, idx) => (
