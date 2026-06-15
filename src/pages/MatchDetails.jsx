@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { usePredictions } from '../hooks/usePredictions'
+import { formatTimeRemaining } from '../lib/timeUtils'
 import { useMatchPredictions } from '../hooks/useMatchPredictions'
 import ScorePicker from '../components/ScorePicker'
 import PredictionRow from '../components/PredictionRow'
@@ -169,7 +170,7 @@ function MatchDetails() {
 
       {isWithinThreeHours && (
         <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg text-center text-sm text-yellow-700 dark:text-yellow-300">
-          ⚠️ Atenção: partida começando em menos de 3 horas!
+          ⚠️ Atenção: partida começando em {formatTimeRemaining(matchTimes.kickoffTime)}
         </div>
       )}
 
@@ -227,11 +228,10 @@ function MatchDetails() {
               )}
               {message && (
                 <div
-                  className={`mt-3 p-3 rounded-lg text-sm text-center ${
-                    message.type === 'success'
+                  className={`mt-3 p-3 rounded-lg text-sm text-center ${message.type === 'success'
                       ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700'
                       : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700'
-                  }`}
+                    }`}
                 >
                   {message.text}
                 </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { usePredictions } from '../hooks/usePredictions'
+import { formatTimeRemaining } from '../lib/timeUtils'
 import ScorePicker from '../components/ScorePicker'
 
 function Predict() {
@@ -123,7 +124,7 @@ function Predict() {
 
         {isWithinThreeHours && !isClosed && (
           <div style={{ padding: '0.75rem', backgroundColor: '#fff3cd', borderRadius: '4px', marginBottom: '1rem', textAlign: 'center' }}>
-            ⚠️ Atenção: partida começando em menos de 3 horas!
+            ⚠️ Atenção: partida começando em {formatTimeRemaining(kickoffTime)}
           </div>
         )}
 
