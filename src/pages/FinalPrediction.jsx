@@ -110,11 +110,11 @@ function FinalPrediction() {
   if (isPastDeadline) {
     const currentTeams = prediction
       ? {
-          firstPlace: prediction.first_place,
-          secondPlace: prediction.second_place,
-          thirdPlace: prediction.third_place,
-          fourthPlace: prediction.fourth_place,
-        }
+        firstPlace: prediction.first_place,
+        secondPlace: prediction.second_place,
+        thirdPlace: prediction.third_place,
+        fourthPlace: prediction.fourth_place,
+      }
       : null
 
     return (
@@ -219,13 +219,12 @@ function FinalPrediction() {
                   setShowPicker(true)
                 }
               }}
-              className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-                isActive
+              className={`flex items-center justify-between p-3 rounded-lg transition-colors ${isActive
                   ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-300 dark:border-primary-700'
                   : picked
                     ? 'bg-gray-50 dark:bg-dark-card border border-gray-200 dark:border-dark-border'
                     : 'bg-gray-50 dark:bg-dark-card border border-gray-200 dark:border-dark-border'
-              } ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                } ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
@@ -288,11 +287,10 @@ function FinalPrediction() {
 
       {message && (
         <div
-          className={`p-3 rounded-lg text-sm text-center ${
-            message.type === 'success'
+          className={`p-3 rounded-lg text-sm text-center ${message.type === 'success'
               ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700'
               : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700'
-          }`}
+            }`}
         >
           {message.text}
         </div>

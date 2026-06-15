@@ -184,172 +184,172 @@ function MatchDetails() {
       </button>
 
       <div ref={captureRef} className="space-y-4">
-      <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-5 relative">
-        {canSeeOtherPredictions && (
-          <button
-            onClick={handleShare}
-            disabled={sharing}
-            className="absolute top-3 right-3 p-2 rounded-full bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-            title="Compartilhar"
-          >
-            {sharing ? (
-              <svg className="animate-spin w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5 text-gray-500 dark:text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-            )}
-          </button>
-        )}
-        <div className="text-center mb-2">
-          {match.group_name && (
-            <div className="text-xs text-gray-500 dark:text-dark-muted uppercase tracking-wide mb-1">
-              {match.group_name}
-            </div>
-          )}
-          <div className="flex items-start justify-center gap-3 text-lg font-bold text-gray-900 dark:text-dark-text flex-nowrap whitespace-nowrap">
-            <span className="flex flex-col items-center leading-tight">
-              <span>{match.home_flag}</span>
-              <span>{match.home_team}</span>
-            </span>
-            {isFinished && match.home_score != null ? (
-              <span className="tabular-nums whitespace-nowrap">
-                {match.home_score} × {match.away_score}
-              </span>
-            ) : (
-              <span className="text-gray-400">×</span>
-            )}
-            <span className="flex flex-col items-center leading-tight">
-              <span>{match.away_flag}</span>
-              <span>{match.away_team}</span>
-            </span>
-          </div>
-          <div className="text-sm text-gray-500 dark:text-dark-muted mt-1">
-            {localTime}
-          </div>
-          {isFinished && (
-            <div className="mt-2 inline-block px-3 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">
-              Finalizada
-            </div>
-          )}
-          {isLive && (
-            <div className="mt-2 inline-block px-3 py-0.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs font-medium rounded-full">
-              Ao vivo
-            </div>
-          )}
-        </div>
-      </div>
-
-      {isWithinThreeHours && (
-        <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg text-center text-sm text-yellow-700 dark:text-yellow-300">
-          ⚠️ Atenção: partida começando em {formatTimeRemaining(matchTimes.kickoffTime)}
-        </div>
-      )}
-
-      {!isEditable && !isFinished && !isLive && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-center text-sm text-red-700 dark:text-red-300">
-          🔒 Palpites encerrados para esta partida
-        </div>
-      )}
-
-      {isEditable && (
-        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-3">
-            Seu palpite
-          </h2>
-          {!user ? (
-            <div className="text-center py-4">
-              <p className="text-sm text-gray-500 dark:text-dark-muted mb-3">
-                Faça login para salvar seu palpite
-              </p>
-              <button
-                onClick={signInWithGoogle}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                Entrar com Google
-              </button>
-            </div>
-          ) : (
-            <>
-              <ScorePicker
-                homeScore={homeScore}
-                awayScore={awayScore}
-                onChange={(h, a) => {
-                  setHomeScore(h)
-                  setAwayScore(a)
-                }}
-                disabled={!isEditable}
-              />
-              {isEditable && (
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="mt-4 w-full py-2.5 px-4 rounded-lg text-white font-medium text-sm transition-colors bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
-                >
-                  {saving ? 'Salvando...' : 'Salvar Palpite'}
-                </button>
+        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-5 relative">
+          {canSeeOtherPredictions && (
+            <button
+              onClick={handleShare}
+              disabled={sharing}
+              className="absolute top-3 right-3 p-2 rounded-full bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+              title="Compartilhar"
+            >
+              {sharing ? (
+                <svg className="animate-spin w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-gray-500 dark:text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
               )}
-              {message && (
-                <div
-                  className={`mt-3 p-3 rounded-lg text-sm text-center ${message.type === 'success'
+            </button>
+          )}
+          <div className="text-center mb-2">
+            {match.group_name && (
+              <div className="text-xs text-gray-500 dark:text-dark-muted uppercase tracking-wide mb-1">
+                {match.group_name}
+              </div>
+            )}
+            <div className="flex items-start justify-center gap-3 text-lg font-bold text-gray-900 dark:text-dark-text flex-nowrap whitespace-nowrap">
+              <span className="flex flex-col items-center leading-tight">
+                <span>{match.home_flag}</span>
+                <span>{match.home_team}</span>
+              </span>
+              {isFinished && match.home_score != null ? (
+                <span className="tabular-nums whitespace-nowrap">
+                  {match.home_score} × {match.away_score}
+                </span>
+              ) : (
+                <span className="text-gray-400">×</span>
+              )}
+              <span className="flex flex-col items-center leading-tight">
+                <span>{match.away_flag}</span>
+                <span>{match.away_team}</span>
+              </span>
+            </div>
+            <div className="text-sm text-gray-500 dark:text-dark-muted mt-1">
+              {localTime}
+            </div>
+            {isFinished && (
+              <div className="mt-2 inline-block px-3 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">
+                Finalizada
+              </div>
+            )}
+            {isLive && (
+              <div className="mt-2 inline-block px-3 py-0.5 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs font-medium rounded-full">
+                Ao vivo
+              </div>
+            )}
+          </div>
+        </div>
+
+        {isWithinThreeHours && (
+          <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg text-center text-sm text-yellow-700 dark:text-yellow-300">
+            ⚠️ Atenção: partida começando em {formatTimeRemaining(matchTimes.kickoffTime)}
+          </div>
+        )}
+
+        {!isEditable && !isFinished && !isLive && (
+          <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-center text-sm text-red-700 dark:text-red-300">
+            🔒 Palpites encerrados para esta partida
+          </div>
+        )}
+
+        {isEditable && (
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-3">
+              Seu palpite
+            </h2>
+            {!user ? (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500 dark:text-dark-muted mb-3">
+                  Faça login para salvar seu palpite
+                </p>
+                <button
+                  onClick={signInWithGoogle}
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Entrar com Google
+                </button>
+              </div>
+            ) : (
+              <>
+                <ScorePicker
+                  homeScore={homeScore}
+                  awayScore={awayScore}
+                  onChange={(h, a) => {
+                    setHomeScore(h)
+                    setAwayScore(a)
+                  }}
+                  disabled={!isEditable}
+                />
+                {isEditable && (
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="mt-4 w-full py-2.5 px-4 rounded-lg text-white font-medium text-sm transition-colors bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed"
+                  >
+                    {saving ? 'Salvando...' : 'Salvar Palpite'}
+                  </button>
+                )}
+                {message && (
+                  <div
+                    className={`mt-3 p-3 rounded-lg text-sm text-center ${message.type === 'success'
                       ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700'
                       : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700'
-                    }`}
-                >
-                  {message.text}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
-
-      {canSeeOtherPredictions && (
-        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text">
-              Palpites da galera
-            </h2>
-            <span className="text-xs text-gray-500 dark:text-dark-muted bg-gray-100 dark:bg-dark-border px-2 py-0.5 rounded-full">
-              {allPredictions.length} {allPredictions.length === 1 ? 'palpite' : 'palpites'}
-            </span>
+                      }`}
+                  >
+                    {message.text}
+                  </div>
+                )}
+              </>
+            )}
           </div>
+        )}
 
-          {socialLoading ? (
-            <div className="text-center text-sm text-gray-400 py-4">Carregando palpites...</div>
-          ) : otherPredictions.length === 0 && !userPrediction ? (
-            <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
-              Nenhum palpite ainda. Seja o primeiro!
+        {canSeeOtherPredictions && (
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text">
+                Palpites da galera
+              </h2>
+              <span className="text-xs text-gray-500 dark:text-dark-muted bg-gray-100 dark:bg-dark-border px-2 py-0.5 rounded-full">
+                {allPredictions.length} {allPredictions.length === 1 ? 'palpite' : 'palpites'}
+              </span>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {userPrediction && (
-                <PredictionRow
-                  prediction={{
-                    ...userPrediction,
-                    user_name: user?.user_metadata?.full_name || 'Você',
-                    user_avatar_url: user?.user_metadata?.avatar_url || null,
-                  }}
-                  isCurrentUser
-                  isFinished={isFinished}
-                />
-              )}
-              {otherPredictions.map((p) => (
-                <PredictionRow
-                  key={p.prediction_id}
-                  prediction={p}
-                  isCurrentUser={false}
-                  isFinished={isFinished}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+
+            {socialLoading ? (
+              <div className="text-center text-sm text-gray-400 py-4">Carregando palpites...</div>
+            ) : otherPredictions.length === 0 && !userPrediction ? (
+              <div className="text-center text-sm text-gray-400 dark:text-dark-muted py-4">
+                Nenhum palpite ainda. Seja o primeiro!
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {userPrediction && (
+                  <PredictionRow
+                    prediction={{
+                      ...userPrediction,
+                      user_name: user?.user_metadata?.full_name || 'Você',
+                      user_avatar_url: user?.user_metadata?.avatar_url || null,
+                    }}
+                    isCurrentUser
+                    isFinished={isFinished}
+                  />
+                )}
+                {otherPredictions.map((p) => (
+                  <PredictionRow
+                    key={p.prediction_id}
+                    prediction={p}
+                    isCurrentUser={false}
+                    isFinished={isFinished}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

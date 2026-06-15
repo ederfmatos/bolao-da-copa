@@ -24,7 +24,6 @@ function Leaderboard() {
         height: el.scrollHeight,
         width: el.scrollWidth,
         onclone: (_, clonedEl) => {
-          clonedEl.style.padding = '12px'
           const all = clonedEl.querySelectorAll('*')
           for (const n of all) n.style.overflow = 'visible'
         },
