@@ -17,10 +17,11 @@ describe('BottomNavigation', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument()
   })
 
-  it('renders three navigation tabs', () => {
+  it('renders four navigation tabs', () => {
     renderWithProviders(<BottomNavigation />)
     expect(screen.getByText('Partidas')).toBeInTheDocument()
     expect(screen.getByText('Classificação')).toBeInTheDocument()
+    expect(screen.getByText('Bônus')).toBeInTheDocument()
     expect(screen.getByText('Regras')).toBeInTheDocument()
   })
 
@@ -39,6 +40,7 @@ describe('BottomNavigation', () => {
     renderWithProviders(<BottomNavigation />)
     expect(screen.getByText('⚽')).toBeInTheDocument()
     expect(screen.getByText('🏆')).toBeInTheDocument()
+    expect(screen.getByText('🏅')).toBeInTheDocument()
     expect(screen.getByText('📋')).toBeInTheDocument()
   })
 
@@ -115,5 +117,11 @@ describe('navigation', () => {
     renderWithProviders(<BottomNavigation />)
     const link = screen.getByText('Regras').closest('a')
     expect(link).toHaveAttribute('href', '/rules')
+  })
+
+  it('Bônus link points to /final-prediction', () => {
+    renderWithProviders(<BottomNavigation />)
+    const link = screen.getByText('Bônus').closest('a')
+    expect(link).toHaveAttribute('href', '/final-prediction')
   })
 })

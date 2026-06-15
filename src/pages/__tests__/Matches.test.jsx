@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Matches from '../Matches'
 
@@ -245,5 +245,62 @@ describe('Matches page', () => {
     const { container } = renderMatches()
     const pageContainer = container.querySelector('.p-4.max-w-xl.mx-auto')
     expect(pageContainer).toBeInTheDocument()
+  })
+
+  describe('bonus prediction banner', () => {
+    beforeEach(() => {
+      localStorage.clear()
+    })
+
+    it('renders bonus banner when deadline has not passed and banner not dismissed', () => {
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.getByText(/Palpite Bônus/)).toBeInTheDocument()
+    })
+
+    it('does not render bonus banner when localStorage has bonus_banner_dismissed', () => {
+      localStorage.setItem('bonus_banner_dismissed', 'true')
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.queryByText(/Palpite Bônus/)).not.toBeInTheDocument()
+    })
+
+    it('does not render bonus banner when deadline has passed', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-06-19T00:00:00Z'))
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.queryByText(/Palpite Bônus/)).not.toBeInTheDocument()
+      vi.useRealTimers()
+    })
+
+    it('dismisses banner and sets localStorage when close button is clicked', () => {
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.getByText(/Palpite Bônus/)).toBeInTheDocument()
+      fireEvent.click(screen.getByLabelText('Fechar banner'))
+      expect(localStorage.getItem('bonus_banner_dismissed')).toBe('true')
+      expect(screen.queryByText(/Palpite Bônus/)).not.toBeInTheDocument()
+    })
   })
 })

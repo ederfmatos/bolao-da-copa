@@ -11,6 +11,7 @@ import MatchDetails from './pages/MatchDetails.jsx'
 import Leaderboard from './pages/Leaderboard.jsx'
 import Rules from './pages/Rules.jsx'
 import UserProfile from './pages/UserProfile.jsx'
+import FinalPrediction from './pages/FinalPrediction.jsx'
 
 function App() {
   const { user, loading } = useAuth()
@@ -30,6 +31,7 @@ function App() {
         <Route path="/match/:matchId" element={<><MatchDetails /><BottomNavigation /></>} />
         <Route path="/leaderboard" element={<><Leaderboard /><BottomNavigation /></>} />
         <Route path="/rules" element={<><Rules /><BottomNavigation /></>} />
+        <Route path="/final-prediction" element={<><FinalPrediction /><BottomNavigation /></>} />
         <Route path="/user/:userId" element={<ProtectedRoute><><UserProfile /><BottomNavigation /></></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -1,5 +1,14 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import Rules from '../Rules'
+
+function renderRules() {
+  return render(
+    <MemoryRouter>
+      <Rules />
+    </MemoryRouter>,
+  )
+}
 
 const scenarioTitles = [
   'Placar Exato',
@@ -9,15 +18,27 @@ const scenarioTitles = [
   'Resultado Errado',
 ]
 
-function renderRules() {
-  return render(<Rules />)
-}
-
 describe('Rules page', () => {
   it('renders without inline styles', () => {
     const { container } = renderRules()
     const elementsWithStyle = container.querySelectorAll('[style]')
     expect(elementsWithStyle.length).toBe(0)
+  })
+
+  it('renders Palpite Bônus section', () => {
+    renderRules()
+    expect(screen.getByRole('heading', { name: /Palpite Bônus/ })).toBeInTheDocument()
+  })
+
+  it('renders bonus scoring info', () => {
+    renderRules()
+    expect(screen.getByText(/250 pts/)).toBeInTheDocument()
+  })
+
+  it('contains link to /final-prediction', () => {
+    renderRules()
+    const link = screen.getByRole('link', { name: /Fazer Palpite Bônus/i })
+    expect(link).toHaveAttribute('href', '/final-prediction')
   })
 
   it('renders page title', () => {

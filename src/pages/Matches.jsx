@@ -1,12 +1,17 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useMatches } from '../hooks/useMatches'
 import { usePredictions } from '../hooks/usePredictions'
 import { useMatchFilters } from '../hooks/useMatchFilters'
+import { BONUS_DEADLINE } from '../lib/bracketData'
 import MatchCard from '../components/MatchCard'
 import MatchFilters from '../components/MatchFilters'
 
 function Matches() {
   const [showFilters, setShowFilters] = useState(false)
+  const [bannerDismissed, setBannerDismissed] = useState(
+    () => localStorage.getItem('bonus_banner_dismissed') === 'true'
+  )
   const { matches, predictionCounts, loading, error } = useMatches()
   const { predictions } = usePredictions()
   const {
@@ -46,6 +51,8 @@ function Matches() {
 
   const predictedMatchIds = new Set(predictions.map((p) => p.match_id))
 
+  const showBonusBanner = !bannerDismissed && new Date() < BONUS_DEADLINE
+
   const hasActiveFilters = filters.team || filters.date || filters.group
   const activeFiltersCount = [filters.team, filters.date, filters.group].filter(Boolean).length
   const noResults = filteredMatches.length === 0 && hasActiveFilters
@@ -82,6 +89,24 @@ function Matches() {
           onClearFilters={clearFilters}
           onClose={() => setShowFilters(false)}
         />
+      )}
+
+      {showBonusBanner && (
+        <div className="p-4 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg mb-4 flex items-center justify-between">
+          <Link to="/final-prediction" className="text-yellow-800 dark:text-yellow-200 hover:underline">
+            🏅 Palpite Bônus: escolha as 4 seleções finalistas da Copa 2026
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.setItem('bonus_banner_dismissed', 'true')
+              setBannerDismissed(true)
+            }}
+            className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200 ml-2"
+            aria-label="Fechar banner"
+          >
+            ✕
+          </button>
+        </div>
       )}
 
       {noResults && (

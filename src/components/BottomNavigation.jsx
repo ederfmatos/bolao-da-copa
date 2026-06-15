@@ -7,6 +7,7 @@ function BottomNavigation() {
   const tabs = [
     { to: '/matches', label: 'Partidas', icon: '⚽' },
     { to: '/leaderboard', label: 'Classificação', icon: '🏆' },
+    { to: '/final-prediction', label: 'Bônus', icon: '🏅' },
     { to: '/rules', label: 'Regras', icon: '📋' },
   ]
 
