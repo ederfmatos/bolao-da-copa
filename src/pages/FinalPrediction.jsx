@@ -218,6 +218,12 @@ function FinalPrediction() {
 
   return (
     <div className="p-4 max-w-lg mx-auto space-y-4">
+      <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-3">
+        <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
+          ⏰ Você pode editar seu palpite até <strong>quinta-feira, 18/06 às 13:00</strong>
+        </p>
+      </div>
+
       <h1 className="text-xl font-bold text-gray-900 dark:text-dark-text">
         Palpite Bônus
       </h1>
