@@ -5,6 +5,7 @@ import { getValidTeams, deriveFourthPlace, TEAMS } from '../lib/bracketData'
 import TeamPicker from '../components/TeamPicker'
 import BonusScorePanel from '../components/BonusScorePanel'
 import Avatar from '../components/Avatar'
+import BonusPredictionRow from '../components/BonusPredictionRow'
 
 const STEP_LABELS = ['Campeão', 'Vice-campeão', '3º lugar']
 const STEP_POSITIONS = ['first', 'second', 'third']
@@ -159,8 +160,8 @@ function FinalPrediction() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text mb-3">
+        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border overflow-hidden">
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text p-4 pb-0">
             Palpites de todos
           </h2>
           {allLoading ? (
@@ -172,38 +173,9 @@ function FinalPrediction() {
               Nenhum palpite enviado
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="divide-y divide-gray-100 dark:divide-dark-border">
               {allPredictions.map(p => (
-                <div key={p.userId} className="flex items-center gap-3 p-2">
-                  <Avatar src={p.avatarUrl} name={p.userName} className="w-8 h-8" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-dark-text truncate">
-                      {p.userName}
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-dark-muted">
-                      <span>
-                        {TEAMS.find(t => t.name === p.firstPlace)?.flag} {p.firstPlace}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        {TEAMS.find(t => t.name === p.secondPlace)?.flag} {p.secondPlace}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        {TEAMS.find(t => t.name === p.thirdPlace)?.flag} {p.thirdPlace}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        {TEAMS.find(t => t.name === p.fourthPlace)?.flag} {p.fourthPlace}
-                      </span>
-                      {p.bonusPoints > 0 && (
-                        <span className="ml-1 px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-xs">
-                          ✓ {p.bonusPoints} pts
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <BonusPredictionRow key={p.userId} prediction={p} />
               ))}
             </div>
           )}
