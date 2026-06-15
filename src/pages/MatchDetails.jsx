@@ -109,11 +109,18 @@ function MatchDetails() {
     if (!captureRef.current) return
     setSharing(true)
     try {
+      const el = captureRef.current
       const isDark = document.documentElement.classList.contains('dark')
-      const canvas = await html2canvas(captureRef.current, {
+      const canvas = await html2canvas(el, {
         useCORS: true,
         scale: 2,
         backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+        height: el.scrollHeight,
+        width: el.scrollWidth,
+        onclone: (_, doc) => {
+          const all = doc.querySelectorAll('*')
+          for (const n of all) n.style.overflow = 'visible'
+        },
       })
 
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
