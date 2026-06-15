@@ -58,7 +58,7 @@ function PredictionRow({ prediction, isCurrentUser, isFinished }) {
         </span>
         {isFinished && prediction.points != null && (
           <span
-            className={`text-xs font-bold px-2 py-0.5 rounded-full ${pointsBadgeColor(prediction.points)}`}
+            className={`text-xs font-bold px-2 py-1 inline-flex items-center justify-center rounded-full ${pointsBadgeColor(prediction.points)}`}
           >
             {prediction.points}pts
           </span>

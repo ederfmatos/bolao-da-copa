@@ -109,10 +109,11 @@ function MatchDetails() {
     if (!captureRef.current) return
     setSharing(true)
     try {
+      const isDark = document.documentElement.classList.contains('dark')
       const canvas = await html2canvas(captureRef.current, {
         useCORS: true,
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
       })
 
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
@@ -174,7 +175,7 @@ function MatchDetails() {
         ← Voltar
       </button>
 
-      <div ref={captureRef} className="space-y-4">
+      <div ref={captureRef} className="space-y-4 p-3">
       <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-5 relative">
         {canSeeOtherPredictions && (
           <button
