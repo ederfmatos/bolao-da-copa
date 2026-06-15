@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
+import html2canvas from 'html2canvas'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
@@ -22,6 +23,8 @@ function MatchDetails() {
   const [awayScore, setAwayScore] = useState(0)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState(null)
+  const [sharing, setSharing] = useState(false)
+  const captureRef = useRef(null)
 
   useEffect(() => {
     if (!matchId) return
@@ -102,6 +105,41 @@ function MatchDetails() {
     }
   }
 
+  const handleShare = async () => {
+    if (!captureRef.current) return
+    setSharing(true)
+    try {
+      const canvas = await html2canvas(captureRef.current, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: '#ffffff',
+      })
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+      if (!blob) throw new Error('Falha ao gerar imagem')
+
+      const file = new File([blob], `partida-${match.id}.png`, { type: 'image/png' })
+      const shareText = `Confira os palpites para ${match.home_team} × ${match.away_team}!`
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: shareText, text: shareText })
+      } else if (navigator.share) {
+        await navigator.share({ title: shareText, text: shareText, url: window.location.href })
+      } else {
+        const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + window.location.href)}`
+        window.open(url, '_blank', 'noopener')
+        const link = document.createElement('a')
+        link.href = canvas.toDataURL('image/png')
+        link.download = `partida-${match.id}.png`
+        link.click()
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') console.error('Share error:', err)
+    } finally {
+      setSharing(false)
+    }
+  }
+
   if (matchLoading) {
     return (
       <div className="p-8 text-center text-gray-500 dark:text-dark-muted">
@@ -136,7 +174,27 @@ function MatchDetails() {
         ← Voltar
       </button>
 
-      <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-5">
+      <div ref={captureRef} className="space-y-4">
+      <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-5 relative">
+        {canSeeOtherPredictions && (
+          <button
+            onClick={handleShare}
+            disabled={sharing}
+            className="absolute top-3 right-3 p-2 rounded-full bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+            title="Compartilhar"
+          >
+            {sharing ? (
+              <svg className="animate-spin w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 text-gray-500 dark:text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            )}
+          </button>
+        )}
         <div className="text-center mb-2">
           {match.group_name && (
             <div className="text-xs text-gray-500 dark:text-dark-muted uppercase tracking-wide mb-1">
@@ -282,6 +340,7 @@ function MatchDetails() {
           )}
         </div>
       )}
+    </div>
     </div>
   )
 }
