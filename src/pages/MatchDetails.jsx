@@ -147,7 +147,13 @@ function MatchDetails() {
             <span className="flex items-center gap-2">
               {match.home_flag} {match.home_team}
             </span>
-            <span className="text-gray-400">×</span>
+            {isFinished && match.home_score != null ? (
+              <span className="tabular-nums">
+                {match.home_score} × {match.away_score}
+              </span>
+            ) : (
+              <span className="text-gray-400">×</span>
+            )}
             <span className="flex items-center gap-2">
               {match.away_flag} {match.away_team}
             </span>
@@ -177,15 +183,6 @@ function MatchDetails() {
       {!isEditable && !isFinished && !isLive && (
         <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-center text-sm text-red-700 dark:text-red-300">
           🔒 Palpites encerrados para esta partida
-        </div>
-      )}
-
-      {isFinished && match.home_score != null && (
-        <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4 text-center">
-          <div className="text-sm text-gray-500 dark:text-dark-muted mb-1">Resultado</div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-dark-text">
-            {match.home_score} × {match.away_score}
-          </div>
         </div>
       )}
 
