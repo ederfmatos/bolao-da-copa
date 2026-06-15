@@ -41,3 +41,6 @@ lerna-debug.log*
 .comozy/
 .vercel
 supabase/.temp/
+
+# Graphify
+graphify-out/
