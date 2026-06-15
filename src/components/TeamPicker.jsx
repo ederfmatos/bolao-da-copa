@@ -64,7 +64,7 @@ function TeamPicker({ teams, onSelect, onClose }) {
                 className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors ${
                   index === focusedIndex
                     ? 'bg-primary-100 dark:bg-primary-900/30'
-                    : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                    : 'hover:bg-gray-100 dark:hover:bg-dark-border'
                 } text-gray-900 dark:text-dark-text`}
               >
                 <span className="text-xl">{team.flag}</span>

@@ -251,8 +251,8 @@ function FinalPrediction() {
                 isActive
                   ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-300 dark:border-primary-700'
                   : picked
-                    ? 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-dark-border'
-                    : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-dark-border'
+                    ? 'bg-gray-50 dark:bg-dark-card border border-gray-200 dark:border-dark-border'
+                    : 'bg-gray-50 dark:bg-dark-card border border-gray-200 dark:border-dark-border'
               } ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <div className="flex items-center gap-2">
@@ -283,7 +283,7 @@ function FinalPrediction() {
           )
         })}
 
-        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-dark-border">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-card border border-gray-200 dark:border-dark-border">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-gray-900 dark:text-dark-text">
               4º lugar
