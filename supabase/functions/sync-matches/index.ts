@@ -1,6 +1,7 @@
 import { serve } from './serve.ts'
 import { createClient } from './supabaseClient.ts'
 import { calculatePoints } from '../_shared/calculatePoints.ts'
+import { calculateBonusPoints } from '../_shared/calculateBonusPoints.ts'
 import { mapTeamName } from './teamMapping.ts'
 
 interface Match {
@@ -139,6 +140,90 @@ async function triggerPostMatchNotification(
       timestamp: new Date().toISOString(),
     }))
   }
+}
+
+export async function recalculateBonusPoints(
+  supabase: ReturnType<typeof createClient>
+): Promise<void> {
+  const { data: keyMatches, error: matchError } = await supabase
+    .from('matches')
+    .select('group_name, home_team, away_team, home_score, away_score, status')
+    .in('group_name', ['Final', 'Terceiro Lugar'])
+
+  if (matchError) {
+    console.error(JSON.stringify({
+      event: 'bonus_points_recalculation_failed',
+      error: matchError.message,
+    }))
+    return
+  }
+
+  const standings: { first?: string; second?: string; third?: string; fourth?: string } = {}
+
+  const finalMatch = keyMatches?.find((m: any) => m.group_name === 'Final')
+  if (finalMatch?.status === 'finished' && finalMatch.home_score != null && finalMatch.away_score != null) {
+    if (finalMatch.home_score > finalMatch.away_score) {
+      standings.first = finalMatch.home_team
+      standings.second = finalMatch.away_team
+    } else {
+      standings.first = finalMatch.away_team
+      standings.second = finalMatch.home_team
+    }
+  }
+
+  const thirdMatch = keyMatches?.find((m: any) => m.group_name === 'Terceiro Lugar')
+  if (thirdMatch?.status === 'finished' && thirdMatch.home_score != null && thirdMatch.away_score != null) {
+    if (thirdMatch.home_score > thirdMatch.away_score) {
+      standings.third = thirdMatch.home_team
+      standings.fourth = thirdMatch.away_team
+    } else {
+      standings.third = thirdMatch.away_team
+      standings.fourth = thirdMatch.home_team
+    }
+  }
+
+  const { data: bonusPredictions, error: fetchError } = await supabase
+    .from('bonus_predictions')
+    .select('id, first_place, second_place, third_place, fourth_place')
+
+  if (fetchError) {
+    console.error(JSON.stringify({
+      event: 'bonus_points_fetch_failed',
+      error: fetchError.message,
+    }))
+    return
+  }
+
+  let updatedCount = 0
+
+  for (const row of bonusPredictions || []) {
+    const bonusPoints = calculateBonusPoints(
+      {
+        first_place: row.first_place,
+        second_place: row.second_place,
+        third_place: row.third_place,
+        fourth_place: row.fourth_place,
+      },
+      standings,
+    )
+
+    const { error: updateError } = await supabase
+      .from('bonus_predictions')
+      .update({ bonus_points: bonusPoints })
+      .eq('id', row.id)
+
+    if (updateError) {
+      console.error(`Error updating bonus_prediction ${row.id}:`, updateError)
+    } else {
+      updatedCount++
+    }
+  }
+
+  console.log(JSON.stringify({
+    event: 'bonus_points_recalculated',
+    updated_count: updatedCount,
+    standings,
+  }))
 }
 
 export async function handleSyncMatches(req: Request): Promise<Response> {
@@ -340,6 +425,16 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     }
 
     console.log(`Total predictions updated: ${totalPredictionsUpdated}`)
+
+    const triggerMatchIds = [...newlyFinished, ...scoreUpdated]
+    const bonusTriggered = (seedMatches || []).some(
+      (m: any) => triggerMatchIds.includes(m.id) &&
+        (m.group_name === 'Final' || m.group_name === 'Terceiro Lugar'),
+    )
+
+    if (bonusTriggered) {
+      await recalculateBonusPoints(supabase)
+    }
 
     return new Response(
       JSON.stringify({

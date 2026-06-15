@@ -25,6 +25,12 @@ vi.mock('../../_shared/calculatePoints', () => ({
   calculatePoints: (...args: unknown[]) => mockCalculatePoints(...args),
 }))
 
+const mockCalculateBonusPoints = vi.fn()
+
+vi.mock('../../_shared/calculateBonusPoints', () => ({
+  calculateBonusPoints: (...args: unknown[]) => mockCalculateBonusPoints(...args),
+}))
+
 const mockEnvVars: Record<string, string> = {}
 
 const fakeDeno = {
@@ -102,10 +108,11 @@ beforeEach(async () => {
 
   mockEnvVars['SUPABASE_URL'] = 'https://test.supabase.co'
   mockEnvVars['SUPABASE_SERVICE_ROLE_KEY'] = 'test-service-role-key'
+  mockEnvVars['FOOTBALL_DATA_API_KEY'] = 'test-api-key'
 
   mockFetchWithFallback.mockResolvedValue([])
   mockCalculatePoints.mockReturnValue(3)
-  mockFetch.mockResolvedValue({ ok: true, text: vi.fn().mockResolvedValue('') })
+  mockFetch.mockResolvedValue({ ok: true, json: async () => ({ matches: [] }) })
 
   vi.resetModules()
 
@@ -771,6 +778,212 @@ describe('sync-matches edge function', () => {
       })
 
       consoleSpy.mockRestore()
+    })
+  })
+
+  describe('bonus points trigger', () => {
+    function setupSeedMatches(seedMatches: any[]) {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          matches: [{
+            utcDate: '2026-07-19T16:00:00Z',
+            status: 'FINISHED',
+            homeTeam: { name: 'Brazil', shortName: 'Brazil' },
+            awayTeam: { name: 'Argentina', shortName: 'Argentina' },
+            score: { fullTime: { home: 2, away: 1 } },
+          }],
+        }),
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'matches') {
+          return {
+            select: vi.fn((columns: string) => {
+              if (!columns || columns === '*') {
+                return Promise.resolve({ data: seedMatches, error: null })
+              }
+              return {
+                eq: vi.fn(() => ({
+                  single: vi.fn().mockResolvedValue({
+                    data: { home_score: 2, away_score: 1 },
+                    error: null,
+                  }),
+                })),
+                in: vi.fn().mockResolvedValue({ data: [], error: null }),
+              }
+            }),
+            upsert: vi.fn().mockResolvedValue({ error: null }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ error: null }),
+            }),
+          }
+        }
+        if (table === 'predictions') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ error: null }),
+            }),
+          }
+        }
+        if (table === 'bonus_predictions') {
+          return {
+            select: vi.fn().mockResolvedValue({
+              data: [{ id: 'bp-1', first_place: 'Brasil', second_place: 'Argentina', third_place: 'França', fourth_place: 'Alemanha' }],
+              error: null,
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ error: null }),
+            }),
+          }
+        }
+        return {}
+      })
+
+      mockCreateClient.mockReturnValue({ from: mockFrom })
+    }
+
+    test('trigger when Final match is newly finished', async () => {
+      setupSeedMatches([
+        { id: 'seed-final', home_team: 'Brasil', away_team: 'Argentina', group_name: 'Final', kickoff_at: '2026-07-19T16:00:00Z', status: 'live', home_score: null, away_score: null },
+      ])
+
+      const req = new Request('https://example.com/functions/v1/sync-matches', { method: 'POST' })
+      const res = await handleSyncMatches(req)
+
+      expect(res.status).toBe(200)
+      expect(mockCalculateBonusPoints).toHaveBeenCalled()
+    })
+
+    test('trigger when Terceiro Lugar match is newly finished', async () => {
+      setupSeedMatches([
+        { id: 'seed-third', home_team: 'França', away_team: 'Alemanha', group_name: 'Terceiro Lugar', kickoff_at: '2026-07-19T16:00:00Z', status: 'live', home_score: null, away_score: null },
+      ])
+
+      const req = new Request('https://example.com/functions/v1/sync-matches', { method: 'POST' })
+      const res = await handleSyncMatches(req)
+
+      expect(res.status).toBe(200)
+      expect(mockCalculateBonusPoints).toHaveBeenCalled()
+    })
+
+    test('NOT triggered when only group stage matches finish', async () => {
+      setupSeedMatches([
+        { id: 'seed-group', home_team: 'Brasil', away_team: 'Argentina', group_name: 'Group A', kickoff_at: '2026-07-19T16:00:00Z', status: 'live', home_score: null, away_score: null },
+      ])
+
+      const req = new Request('https://example.com/functions/v1/sync-matches', { method: 'POST' })
+      const res = await handleSyncMatches(req)
+
+      expect(res.status).toBe(200)
+      expect(mockCalculateBonusPoints).not.toHaveBeenCalled()
+    })
+
+    test('NOT triggered when no matches finish', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          matches: [{
+            utcDate: '2026-07-19T16:00:00Z',
+            status: 'TIMED',
+            homeTeam: { name: 'Brazil', shortName: 'Brazil' },
+            awayTeam: { name: 'Argentina', shortName: 'Argentina' },
+            score: { fullTime: { home: null, away: null } },
+          }],
+        }),
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'matches') {
+          return {
+            select: vi.fn((columns: string) => {
+              if (!columns || columns === '*') {
+                return Promise.resolve({
+                  data: [{ id: 'seed-final', home_team: 'Brasil', away_team: 'Argentina', group_name: 'Final', kickoff_at: '2026-07-19T16:00:00Z', status: 'live', home_score: null, away_score: null }],
+                  error: null,
+                })
+              }
+              return { eq: vi.fn(() => ({ single: vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }) })), in: vi.fn().mockResolvedValue({ data: [], error: null }) }
+            }),
+            upsert: vi.fn().mockResolvedValue({ error: null }),
+            update: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+          }
+        }
+        return {}
+      })
+      mockCreateClient.mockReturnValue({ from: mockFrom })
+
+      const req = new Request('https://example.com/functions/v1/sync-matches', { method: 'POST' })
+      const res = await handleSyncMatches(req)
+
+      expect(res.status).toBe(200)
+      expect(mockCalculateBonusPoints).not.toHaveBeenCalled()
+    })
+
+    test('trigger with scoreUpdated for Final match', async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          matches: [{
+            utcDate: '2026-07-19T16:00:00Z',
+            status: 'FINISHED',
+            homeTeam: { name: 'Brazil', shortName: 'Brazil' },
+            awayTeam: { name: 'Argentina', shortName: 'Argentina' },
+            score: { fullTime: { home: 3, away: 2 } },
+          }],
+        }),
+      })
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'matches') {
+          return {
+            select: vi.fn((columns: string) => {
+              if (!columns || columns === '*') {
+                return Promise.resolve({
+                  data: [{ id: 'seed-final', home_team: 'Brasil', away_team: 'Argentina', group_name: 'Final', kickoff_at: '2026-07-19T16:00:00Z', status: 'finished', home_score: 2, away_score: 1 }],
+                  error: null,
+                })
+              }
+              return {
+                eq: vi.fn(() => ({
+                  single: vi.fn().mockResolvedValue({
+                    data: { home_score: 3, away_score: 2 },
+                    error: null,
+                  }),
+                })),
+                in: vi.fn().mockResolvedValue({ data: [], error: null }),
+              }
+            }),
+            upsert: vi.fn().mockResolvedValue({ error: null }),
+            update: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+          }
+        }
+        if (table === 'predictions') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ data: [{ id: 'pred-1', user_id: 'user-1', home_score: 3, away_score: 2 }], error: null }),
+            }),
+            update: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+          }
+        }
+        if (table === 'bonus_predictions') {
+          return {
+            select: vi.fn().mockResolvedValue({ data: [{ id: 'bp-1', first_place: 'Brasil', second_place: 'Argentina', third_place: 'França', fourth_place: 'Alemanha' }], error: null }),
+            update: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+          }
+        }
+        return {}
+      })
+      mockCreateClient.mockReturnValue({ from: mockFrom })
+
+      const req = new Request('https://example.com/functions/v1/sync-matches', { method: 'POST' })
+      const res = await handleSyncMatches(req)
+
+      expect(res.status).toBe(200)
+      expect(mockCalculateBonusPoints).toHaveBeenCalled()
     })
   })
 
