@@ -114,16 +114,16 @@ describe('PredictionRow', () => {
       expect(badge.className).toContain('bg-blue-500')
     })
 
-    it('is orange for 3 points', () => {
-      renderRow({ isFinished: true, prediction: { points: 3 } })
-      const badge = screen.getByText('3pts')
-      expect(badge.className).toContain('bg-orange-500')
-    })
-
-    it('is orange for 5 points', () => {
+    it('is blue for 5 points', () => {
       renderRow({ isFinished: true, prediction: { points: 5 } })
       const badge = screen.getByText('5pts')
-      expect(badge.className).toContain('bg-orange-500')
+      expect(badge.className).toContain('bg-blue-500')
+    })
+
+    it('is gray for 3 points', () => {
+      renderRow({ isFinished: true, prediction: { points: 3 } })
+      const badge = screen.getByText('3pts')
+      expect(badge.className).toContain('bg-gray-400')
     })
 
     it('is gray for 0 points', () => {

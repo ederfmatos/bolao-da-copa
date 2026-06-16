@@ -11,16 +11,8 @@ export function calculatePoints(
   const predictedWinner = Math.sign(predictedDiff)
   const actualWinner = Math.sign(actualDiff)
 
-  if (predictedWinner === 0 && actualWinner === 0) {
-    return 7
-  }
-
-  if (predictedWinner === actualWinner && predictedDiff === actualDiff) {
-    return 7
-  }
-
   if (predictedWinner === actualWinner) {
-    return 3
+    return 5
   }
 
   return 0
