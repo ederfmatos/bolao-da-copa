@@ -5,6 +5,8 @@ function pointsBadgeColor(points) {
   return 'bg-gray-400 text-white'
 }
 
+import { Link } from 'react-router-dom'
+
 function UserPredictionRow({ prediction }) {
   const isFinished = prediction.match_status === 'finished'
 
@@ -18,7 +20,11 @@ function UserPredictionRow({ prediction }) {
   })
 
   return (
-    <div className="p-4 mb-3 bg-white dark:bg-dark-card rounded-lg shadow-sm">
+    <Link
+      to={`/match/${prediction.match_id}`}
+      className="block mb-3"
+    >
+    <div className="p-4 bg-white dark:bg-dark-card rounded-lg shadow-sm hover:shadow-md transition-shadow">
       <div className="mb-2 text-sm text-gray-500 dark:text-dark-muted">
         {prediction.group_name} &bull; {localTime}
       </div>
@@ -71,6 +77,7 @@ function UserPredictionRow({ prediction }) {
         </div>
       )}
     </div>
+    </Link>
   )
 }
 

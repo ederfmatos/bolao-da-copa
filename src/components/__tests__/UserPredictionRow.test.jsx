@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import UserPredictionRow from '../UserPredictionRow'
 
 const finishedPrediction = {
@@ -34,7 +35,11 @@ const nullActualPrediction = {
 }
 
 function renderRow(prediction) {
-  return render(<UserPredictionRow prediction={prediction} />)
+  return render(
+    <MemoryRouter>
+      <UserPredictionRow prediction={prediction} />
+    </MemoryRouter>
+  )
 }
 
 describe('UserPredictionRow', () => {
