@@ -10,9 +10,15 @@ function Rules() {
       example: 'Palpite: 2×1 | Resultado: 2×1',
     },
     {
+      points: 7,
+      title: 'Vencedor + Saldo de Gols',
+      description: 'Acertar o vencedor e a diferença de gols (placar diferente)',
+      example: 'Palpite: 2×0 | Resultado: 3×1',
+    },
+    {
       points: 5,
       title: 'Resultado Correto',
-      description: 'Acertar o vencedor ou o empate (placar diferente)',
+      description: 'Acertar o vencedor ou o empate (diferença de gols diferente)',
       example: 'Palpite: 1×0 | Resultado: 3×1 · Palpite: 1×1 | Resultado: 2×2',
     },
     {
@@ -26,6 +32,7 @@ function Rules() {
   const scenarioStyles = [
     { border: 'border-l-green-500', text: 'text-green-500' },
     { border: 'border-l-blue-500', text: 'text-blue-500' },
+    { border: 'border-l-orange-500', text: 'text-orange-500' },
     { border: 'border-l-accent-red', text: 'text-accent-red' },
   ]
 
