@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.js",
     "lint": "eslint src --ext js,jsx",
     "format": "prettier --write src"
   },
