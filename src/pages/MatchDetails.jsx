@@ -65,17 +65,17 @@ function MatchDetails() {
     if (!match) return null
 
     const kickoffTime = new Date(match.kickoff_at)
-    const oneHourBefore = new Date(kickoffTime.getTime() - 60 * 60 * 1000)
+    const fifteenMinutesBefore = new Date(kickoffTime.getTime() - 15 * 60 * 1000)
     const threeHoursBefore = new Date(kickoffTime.getTime() - 3 * 60 * 60 * 1000)
 
-    return { kickoffTime, oneHourBefore, threeHoursBefore }
+    return { kickoffTime, fifteenMinutesBefore, threeHoursBefore }
   }, [match])
 
   const now = useMemo(() => new Date(), [])
 
   const isFinished = match?.status === 'finished'
   const isLive = match?.status === 'live'
-  const isDeadlinePassed = matchTimes && now >= matchTimes.oneHourBefore
+  const isDeadlinePassed = matchTimes && now >= matchTimes.fifteenMinutesBefore
   const isEditable = !isFinished && !isLive && !isDeadlinePassed
   const isWithinThreeHours = matchTimes && now >= matchTimes.threeHoursBefore && !isDeadlinePassed && !isLive && !isFinished
   const canSeeOtherPredictions = isDeadlinePassed || isLive || isFinished
@@ -95,7 +95,7 @@ function MatchDetails() {
       if (error.message.includes('deadline') || error.code === '42501') {
         setMessage({
           type: 'error',
-          text: 'Prazo encerrado. Não é possível salvar palpites com menos de 1 hora para o início da partida.',
+          text: 'Prazo encerrado. Não é possível salvar palpites com menos de 15 minutos para o início da partida.',
         })
       } else {
         setMessage({ type: 'error', text: `Erro ao salvar: ${error.message}` })

@@ -54,7 +54,7 @@ function Rules() {
           ⏰ Prazo para Palpites
         </h2>
         <p className="mt-2 text-sm text-gray-600 dark:text-dark-muted">
-          Os palpites devem ser enviados com pelo menos <strong>1 hora de antecedência</strong> antes do início da partida. Após esse prazo, os palpites são bloqueados automaticamente.
+          Os palpites devem ser enviados com pelo menos <strong>15 minutos de antecedência</strong> antes do início da partida. Após esse prazo, os palpites são bloqueados automaticamente.
         </p>
       </div>
 

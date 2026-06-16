@@ -22,6 +22,7 @@ vi.mock('../../lib/bracketData', () => {
       if (position === 'second')
         return teams.filter(t => t.bracketHalf === oppositeHalf && !taken.includes(t.name))
       if (position === 'third') return teams.filter(t => !taken.includes(t.name))
+      if (position === 'fourth') return teams.filter(t => !taken.includes(t.name))
       return []
     }),
     deriveFourthPlace: vi.fn((picks) => {
@@ -279,7 +280,7 @@ describe('FinalPrediction', () => {
       expect(picker).not.toHaveTextContent('Espanha')
     })
 
-    it('após selecionar 3º → fourth é preenchido e Confirmar Palpite aparece', () => {
+    it('após selecionar 3º → 4º lugar aparece para seleção manual e Confirmar Palpite aparece após selecioná-lo', () => {
       render(<FinalPrediction />)
 
       fireEvent.click(screen.getByText(/1º lugar.*Campeão/))
@@ -291,7 +292,9 @@ describe('FinalPrediction', () => {
       fireEvent.click(screen.getByText(/3º lugar/))
       fireEvent.click(screen.getByText('Argentina'))
 
-      expect(screen.getByText('Portugal')).toBeInTheDocument()
+      fireEvent.click(screen.getByText(/4º lugar/))
+      fireEvent.click(screen.getByText('Portugal'))
+
       expect(screen.getByText('Confirmar Palpite')).toBeInTheDocument()
     })
 
@@ -313,6 +316,9 @@ describe('FinalPrediction', () => {
 
       fireEvent.click(screen.getByText(/3º lugar/))
       fireEvent.click(screen.getByText('Argentina'))
+
+      fireEvent.click(screen.getByText(/4º lugar/))
+      fireEvent.click(screen.getByText('Portugal'))
 
       fireEvent.click(screen.getByText('Confirmar Palpite'))
 
@@ -345,6 +351,9 @@ describe('FinalPrediction', () => {
       fireEvent.click(screen.getByText(/3º lugar/))
       fireEvent.click(screen.getByText('Argentina'))
 
+      fireEvent.click(screen.getByText(/4º lugar/))
+      fireEvent.click(screen.getByText('Portugal'))
+
       fireEvent.click(screen.getByText('Confirmar Palpite'))
 
       await waitFor(() => {
@@ -365,6 +374,9 @@ describe('FinalPrediction', () => {
 
       fireEvent.click(screen.getByText(/3º lugar/))
       fireEvent.click(screen.getByText('Argentina'))
+
+      fireEvent.click(screen.getByText(/4º lugar/))
+      fireEvent.click(screen.getByText('Portugal'))
 
       fireEvent.click(screen.getByText('Confirmar Palpite'))
 
@@ -387,6 +399,9 @@ describe('FinalPrediction', () => {
 
       fireEvent.click(screen.getByText(/3º lugar/))
       fireEvent.click(screen.getByText('Argentina'))
+
+      fireEvent.click(screen.getByText(/4º lugar/))
+      fireEvent.click(screen.getByText('Portugal'))
 
       fireEvent.click(screen.getByText('Confirmar Palpite'))
 

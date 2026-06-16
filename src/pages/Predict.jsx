@@ -49,10 +49,10 @@ function Predict() {
   const now = new Date()
   const kickoffTime = match ? new Date(match.kickoff_at) : null
   const threeHoursBefore = kickoffTime ? new Date(kickoffTime.getTime() - 3 * 60 * 60 * 1000) : null
-  const oneHourBefore = kickoffTime ? new Date(kickoffTime.getTime() - 60 * 60 * 1000) : null
-  
-  const isWithinThreeHours = threeHoursBefore && now >= threeHoursBefore && now < oneHourBefore
-  const isClosed = oneHourBefore && now >= oneHourBefore
+  const fifteenMinutesBefore = kickoffTime ? new Date(kickoffTime.getTime() - 15 * 60 * 1000) : null
+
+  const isWithinThreeHours = threeHoursBefore && now >= threeHoursBefore && now < fifteenMinutesBefore
+  const isClosed = fifteenMinutesBefore && now >= fifteenMinutesBefore
 
   const handleSave = async () => {
     if (isClosed) return
@@ -68,7 +68,7 @@ function Predict() {
       if (error.message.includes('deadline') || error.code === '42501') {
         setMessage({
           type: 'error',
-          text: 'Prazo encerrado. Não é possível salvar palpites com menos de 1 hora para o início da partida.',
+          text: 'Prazo encerrado. Não é possível salvar palpites com menos de 15 minutos para o início da partida.',
         })
       } else {
         setMessage({ type: 'error', text: `Erro ao salvar: ${error.message}` })

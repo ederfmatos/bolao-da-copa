@@ -55,7 +55,7 @@ describe('Rules page', () => {
 
   it('shows deadline notice', () => {
     renderRules()
-    expect(screen.getByText(/1 hora de antecedência/)).toBeInTheDocument()
+    expect(screen.getByText(/15 minutos de antecedência/)).toBeInTheDocument()
   })
 
   it('shows tip box', () => {
