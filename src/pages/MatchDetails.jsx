@@ -210,23 +210,25 @@ function MatchDetails() {
                 {match.group_name}
               </div>
             )}
+
             <div className="flex items-start justify-center gap-3 text-lg font-bold text-gray-900 dark:text-dark-text flex-nowrap whitespace-nowrap">
-              <span className="flex flex-col items-center leading-tight">
+              <span className="flex flex-col items-center leading-tight flex-1">
                 <span>{match.home_flag}</span>
                 <span>{match.home_team}</span>
               </span>
               {isFinished && match.home_score != null ? (
-                <span className="tabular-nums whitespace-nowrap">
+                <span className="tabular-nums whitespace-nowrap justify-center self-center">
                   {match.home_score} × {match.away_score}
                 </span>
               ) : (
                 <span className="text-gray-400">×</span>
               )}
-              <span className="flex flex-col items-center leading-tight">
+              <span className="flex flex-col items-center leading-tight flex-1">
                 <span>{match.away_flag}</span>
                 <span>{match.away_team}</span>
               </span>
             </div>
+
             <div className="text-sm text-gray-500 dark:text-dark-muted mt-1">
               {localTime}
             </div>
