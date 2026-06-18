@@ -7,19 +7,31 @@ function GroupTable({ groupName, teams }) {
       <div className="px-3 py-2 bg-gray-50 dark:bg-dark-border">
         <h2 className="text-sm font-bold text-gray-700 dark:text-dark-text">{groupName}</h2>
       </div>
-      <table className="w-full text-xs">
+      <table className="w-full text-xs table-fixed">
+        <colgroup>
+          <col style={{ width: '6%' }} />
+          <col style={{ width: '34%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+          <col style={{ width: '7.5%' }} />
+        </colgroup>
         <thead>
           <tr className="text-gray-400 dark:text-dark-muted border-b border-gray-100 dark:border-dark-border">
-            <th className="text-left px-3 py-1.5 font-medium w-6">#</th>
-            <th className="text-left px-2 py-1.5 font-medium">Seleção</th>
-            <th className="text-center px-1 py-1.5 font-medium">J</th>
-            <th className="text-center px-1 py-1.5 font-medium">V</th>
-            <th className="text-center px-1 py-1.5 font-medium">E</th>
-            <th className="text-center px-1 py-1.5 font-medium">D</th>
-            <th className="text-center px-1 py-1.5 font-medium">GP</th>
-            <th className="text-center px-1 py-1.5 font-medium">GC</th>
-            <th className="text-center px-1 py-1.5 font-medium">SG</th>
-            <th className="text-center px-2 py-1.5 font-medium text-primary-600">Pts</th>
+            <th className="text-left pl-3 py-1.5 font-medium">#</th>
+            <th className="text-left pl-1 py-1.5 font-medium">Seleção</th>
+            <th className="text-center py-1.5 font-medium">J</th>
+            <th className="text-center py-1.5 font-medium">V</th>
+            <th className="text-center py-1.5 font-medium">E</th>
+            <th className="text-center py-1.5 font-medium">D</th>
+            <th className="text-center py-1.5 font-medium">GP</th>
+            <th className="text-center py-1.5 font-medium">GC</th>
+            <th className="text-center py-1.5 font-medium">SG</th>
+            <th className="text-center py-1.5 font-medium text-primary-600">Pts</th>
           </tr>
         </thead>
         <tbody>
@@ -32,25 +44,25 @@ function GroupTable({ groupName, teams }) {
                   qualifies ? 'bg-green-50 dark:bg-green-900/10' : ''
                 }`}
               >
-                <td className="px-3 py-2 text-gray-400 dark:text-dark-muted">{idx + 1}</td>
-                <td className="px-2 py-2">
-                  <span className="flex items-center gap-1.5">
+                <td className="pl-3 py-2 text-gray-400 dark:text-dark-muted">{idx + 1}</td>
+                <td className="pl-1 py-2">
+                  <span className="flex items-center gap-1">
                     <span>{team.flag}</span>
-                    <span className={`font-medium ${qualifies ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-dark-text'}`}>
+                    <span className={`font-medium truncate ${qualifies ? 'text-green-700 dark:text-green-400' : 'text-gray-800 dark:text-dark-text'}`}>
                       {team.team}
                     </span>
                   </span>
                 </td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.played}</td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.won}</td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.drawn}</td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.lost}</td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.goals_for}</td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.goals_against}</td>
-                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">{team.played}</td>
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">{team.won}</td>
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">{team.drawn}</td>
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">{team.lost}</td>
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">{team.goals_for}</td>
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">{team.goals_against}</td>
+                <td className="text-center py-2 text-gray-600 dark:text-dark-muted">
                   {team.goal_diff > 0 ? `+${team.goal_diff}` : team.goal_diff}
                 </td>
-                <td className="text-center px-2 py-2 font-bold text-primary-600">{team.points}</td>
+                <td className="text-center py-2 font-bold text-primary-600">{team.points}</td>
               </tr>
             )
           })}
