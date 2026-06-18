@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useBonusPrediction } from '../hooks/useBonusPrediction'
 import { useAllBonusPredictions } from '../hooks/useAllBonusPredictions'
-import { getValidTeams, TEAMS } from '../lib/bracketData'
+import { getValidTeams, TEAMS, BONUS_DEADLINE } from '../lib/bracketData'
 import TeamPicker from '../components/TeamPicker'
 import BonusScorePanel from '../components/BonusScorePanel'
 import Avatar from '../components/Avatar'
@@ -173,11 +173,17 @@ function FinalPrediction() {
   const validTeams = currentPosition ? getValidTeams(currentPosition, picks) : []
   const isReadyToSave = !!(picks.first && picks.second && picks.third && picks.fourth)
 
+  const deadlineFormatted = BONUS_DEADLINE.toLocaleDateString('pt-BR', {
+    weekday: 'long', day: '2-digit', month: '2-digit', timeZone: 'America/Sao_Paulo',
+  }) + ' às ' + BONUS_DEADLINE.toLocaleTimeString('pt-BR', {
+    hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo',
+  })
+
   return (
     <div className="p-4 max-w-lg mx-auto space-y-4">
       <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-3">
         <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-          ⏰ Você pode editar seu palpite até <strong>quinta-feira, 18/06 às 13:00</strong>
+          ⏰ Você pode editar seu palpite até <strong>{deadlineFormatted}</strong>
         </p>
       </div>
 

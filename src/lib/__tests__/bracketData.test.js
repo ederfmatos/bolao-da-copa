@@ -2,9 +2,9 @@ import { describe, test, expect } from 'vitest'
 import { TEAMS, BONUS_DEADLINE, SCORER_DEADLINE, BRACKET_DETERMINED, getValidTeams, deriveFourthPlace } from '../bracketData'
 
 describe('BONUS_DEADLINE', () => {
-  test('exporta data correta (2026-06-18T16:00:00Z)', () => {
+  test('exporta data correta (2026-06-21T21:00:00Z)', () => {
     expect(BONUS_DEADLINE).toBeInstanceOf(Date)
-    expect(BONUS_DEADLINE.toISOString()).toBe('2026-06-18T16:00:00.000Z')
+    expect(BONUS_DEADLINE.toISOString()).toBe('2026-06-21T21:00:00.000Z')
   })
 })
 
@@ -13,16 +13,12 @@ describe('SCORER_DEADLINE', () => {
     expect(SCORER_DEADLINE).toBeInstanceOf(Date)
   })
 
-  test('exporta data correta (2026-06-12T00:00:00Z)', () => {
-    expect(SCORER_DEADLINE.toISOString()).toBe('2026-06-12T00:00:00.000Z')
+  test('exporta data correta (2026-06-21T21:00:00Z)', () => {
+    expect(SCORER_DEADLINE.toISOString()).toBe('2026-06-21T21:00:00.000Z')
   })
 
-  test('não é igual a BONUS_DEADLINE', () => {
-    expect(SCORER_DEADLINE.getTime()).not.toBe(BONUS_DEADLINE.getTime())
-  })
-
-  test('é anterior a BONUS_DEADLINE', () => {
-    expect(SCORER_DEADLINE.getTime()).toBeLessThan(BONUS_DEADLINE.getTime())
+  test('é igual a BONUS_DEADLINE (mesmo prazo)', () => {
+    expect(SCORER_DEADLINE.getTime()).toBe(BONUS_DEADLINE.getTime())
   })
 })
 
@@ -65,7 +61,7 @@ describe('BRACKET_DETERMINED', () => {
 describe('Existing exports integrity', () => {
   test('BONUS_DEADLINE continua exportado e inalterado', () => {
     expect(BONUS_DEADLINE).toBeInstanceOf(Date)
-    expect(BONUS_DEADLINE.toISOString()).toBe('2026-06-18T16:00:00.000Z')
+    expect(BONUS_DEADLINE.toISOString()).toBe('2026-06-21T21:00:00.000Z')
   })
 
   test('TEAMS continua exportado com 48 elementos', () => {

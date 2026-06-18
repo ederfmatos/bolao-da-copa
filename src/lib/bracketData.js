@@ -1,4 +1,4 @@
-export const BONUS_DEADLINE = new Date('2026-06-18T16:00:00Z')
+export const BONUS_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
 export const SCORER_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
