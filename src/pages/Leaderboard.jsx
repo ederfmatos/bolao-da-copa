@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { useAuth } from '../hooks/useAuth'
@@ -10,6 +11,7 @@ function Leaderboard() {
   const { user } = useAuth()
   const [sharing, setSharing] = useState(false)
   const captureRef = useRef(null)
+  const navigate = useNavigate()
 
   const handleShare = async () => {
     if (!captureRef.current) return
@@ -78,6 +80,15 @@ function Leaderboard() {
   return (
     <div className="p-4 max-w-xl mx-auto">
       <div className="relative mb-4">
+        <button
+          onClick={() => navigate('/grupos')}
+          className="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full bg-gray-100 dark:bg-dark-border hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          title="Grupos"
+        >
+          <svg className="w-5 h-5 text-gray-500 dark:text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M10 6v12M14 6v12M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" />
+          </svg>
+        </button>
         <h1 className="text-2xl text-center text-gray-900 dark:text-dark-text">
           Classificação
         </h1>

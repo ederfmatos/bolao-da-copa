@@ -13,6 +13,7 @@ import Rules from './pages/Rules.jsx'
 import UserProfile from './pages/UserProfile.jsx'
 import FinalPrediction from './pages/FinalPrediction.jsx'
 import Artilheiro from './pages/Artilheiro.jsx'
+import Grupos from './pages/Grupos.jsx'
 
 function App() {
   const { user, loading } = useAuth()
@@ -33,6 +34,7 @@ function App() {
         <Route path="/leaderboard" element={<><Leaderboard /><BottomNavigation /></>} />
         <Route path="/rules" element={<><Rules /><BottomNavigation /></>} />
         <Route path="/artilheiro" element={<><Artilheiro /><BottomNavigation /></>} />
+        <Route path="/grupos" element={<><Grupos /><BottomNavigation /></>} />
         <Route path="/final-prediction" element={<><FinalPrediction /><BottomNavigation /></>} />
         <Route path="/user/:userId" element={<ProtectedRoute><><UserProfile /><BottomNavigation /></></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
