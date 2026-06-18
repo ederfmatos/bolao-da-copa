@@ -8,6 +8,8 @@ import { formatTimeRemaining } from '../lib/timeUtils'
 import { useMatchPredictions } from '../hooks/useMatchPredictions'
 import ScorePicker from '../components/ScorePicker'
 import PredictionRow from '../components/PredictionRow'
+import TeamHistory from '../components/TeamHistory'
+import { useTeamHistory } from '../hooks/useTeamHistory'
 
 function MatchDetails() {
   const { matchId } = useParams()
@@ -81,6 +83,8 @@ function MatchDetails() {
   const canSeeOtherPredictions = isDeadlinePassed || isLive || isFinished
 
   const otherPredictions = allPredictions.filter((p) => p.user_id !== user?.id)
+
+  const { homeHistory, awayHistory } = useTeamHistory(match, isEditable)
 
   const handleSave = async () => {
     if (!isEditable) return
@@ -244,6 +248,34 @@ function MatchDetails() {
             )}
           </div>
         </div>
+
+        {isEditable && (homeHistory.length > 0 || awayHistory.length > 0) && (
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
+            <h2 className="text-xs font-semibold text-gray-400 dark:text-dark-muted uppercase tracking-wide mb-3">
+              Jogos anteriores
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs font-semibold text-primary-600 dark:text-primary-400 mb-2">
+                  {match.home_flag} {match.home_team}
+                </div>
+                <TeamHistory history={homeHistory} teamName={match.home_team} />
+                {homeHistory.length === 0 && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">Sem jogos anteriores</p>
+                )}
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-primary-600 dark:text-primary-400 mb-2">
+                  {match.away_flag} {match.away_team}
+                </div>
+                <TeamHistory history={awayHistory} teamName={match.away_team} />
+                {awayHistory.length === 0 && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 italic">Sem jogos anteriores</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {isWithinThreeHours && (
           <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg text-center text-sm text-yellow-700 dark:text-yellow-300">
