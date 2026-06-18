@@ -16,6 +16,8 @@ function GroupTable({ groupName, teams }) {
             <th className="text-center px-1 py-1.5 font-medium">V</th>
             <th className="text-center px-1 py-1.5 font-medium">E</th>
             <th className="text-center px-1 py-1.5 font-medium">D</th>
+            <th className="text-center px-1 py-1.5 font-medium">GP</th>
+            <th className="text-center px-1 py-1.5 font-medium">GC</th>
             <th className="text-center px-1 py-1.5 font-medium">SG</th>
             <th className="text-center px-2 py-1.5 font-medium text-primary-600">Pts</th>
           </tr>
@@ -43,6 +45,8 @@ function GroupTable({ groupName, teams }) {
                 <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.won}</td>
                 <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.drawn}</td>
                 <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.lost}</td>
+                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.goals_for}</td>
+                <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">{team.goals_against}</td>
                 <td className="text-center px-1 py-2 text-gray-600 dark:text-dark-muted">
                   {team.goal_diff > 0 ? `+${team.goal_diff}` : team.goal_diff}
                 </td>
