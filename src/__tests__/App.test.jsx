@@ -36,6 +36,10 @@ vi.mock('../pages/FinalPrediction.jsx', () => ({
   default: () => <div data-testid="final-prediction-page">FinalPrediction</div>,
 }))
 
+vi.mock('../pages/Artilheiro.jsx', () => ({
+  default: () => <div data-testid="artilheiro-page">Artilheiro</div>,
+}))
+
 async function renderApp(route, authState = { user: null, loading: false }) {
   mockUseAuth.mockReturnValue(authState)
 
@@ -96,6 +100,12 @@ describe('App routing', () => {
   it('renders /rules with BottomNavigation', async () => {
     await renderApp('/rules', { user: { id: 'u1' }, loading: false })
     expect(screen.getByTestId('rules-page')).toBeInTheDocument()
+    expect(screen.getByRole('navigation')).toBeInTheDocument()
+  })
+
+  it('renders /artilheiro with BottomNavigation', async () => {
+    await renderApp('/artilheiro', { user: { id: 'u1' }, loading: false })
+    expect(screen.getByTestId('artilheiro-page')).toBeInTheDocument()
     expect(screen.getByRole('navigation')).toBeInTheDocument()
   })
 

@@ -1,13 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { useTheme } from '../context/ThemeContext'
 
 function BottomNavigation() {
-  const { theme, toggleTheme } = useTheme()
-
   const tabs = [
     { to: '/matches', label: 'Partidas', icon: '⚽' },
     { to: '/leaderboard', label: 'Classificação', icon: '🏆' },
     { to: '/final-prediction', label: 'Bônus', icon: '🏅' },
+    { to: '/artilheiro', label: 'Artilheiro', icon: '🥅' },
     { to: '/rules', label: 'Regras', icon: '📋' },
   ]
 
@@ -30,14 +28,6 @@ function BottomNavigation() {
             <span>{tab.label}</span>
           </NavLink>
         ))}
-        <button
-          onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
-          className="flex flex-col items-center justify-center w-full h-full text-xs text-gray-500 dark:text-dark-muted"
-        >
-          <span className="text-xl mb-1">{theme === 'dark' ? '☀️' : '🌙'}</span>
-          <span aria-hidden="true">Tema</span>
-        </button>
       </div>
     </nav>
   )

@@ -226,6 +226,191 @@ export async function recalculateBonusPoints(
   }))
 }
 
+const SCORER_POINTS = 20
+
+export async function updateScorerGoals(
+  supabase: ReturnType<typeof createClient>,
+  apiKey: string,
+  fallbackApiKey?: string,
+): Promise<void> {
+  try {
+    let players: Array<{ id: number; goals: number }> = []
+
+    const response = await fetch('https://api.football-data.org/v4/competitions/WC/scorers', {
+      headers: { 'X-Auth-Token': apiKey },
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      if (data.scorers?.length > 0) {
+        players = data.scorers.map((s: any) => ({
+          id: s.player.id,
+          goals: s.goals ?? 0,
+        }))
+      }
+    }
+
+    if (players.length === 0 && fallbackApiKey) {
+      const fallbackResponse = await fetch(
+        'https://v3.football.api-sports.io/players/topscorers?league=1&season=2026',
+        { headers: { 'x-apisports-key': fallbackApiKey } },
+      )
+
+      if (fallbackResponse.ok) {
+        const data = await fallbackResponse.json()
+        if (data.response?.length > 0) {
+          players = data.response.map((s: any) => ({
+            id: s.player.id,
+            goals: s.statistics?.[0]?.goals?.total ?? 0,
+          }))
+        }
+      }
+    }
+
+    if (players.length === 0) {
+      console.error(JSON.stringify({
+        event: 'scorer_goals_update_failed',
+        error: 'Both APIs returned empty or failed',
+        timestamp: new Date().toISOString(),
+      }))
+      return
+    }
+
+    const { data: scorerPlayers, error: fetchError } = await supabase
+      .from('scorer_players')
+      .select('id, football_data_id, api_sports_id')
+
+    if (fetchError) {
+      console.error(JSON.stringify({
+        event: 'scorer_goals_update_failed',
+        error: fetchError.message,
+        timestamp: new Date().toISOString(),
+      }))
+      return
+    }
+
+    const apiPlayerMap = new Map<number, number>()
+    for (const p of players) {
+      apiPlayerMap.set(p.id, p.goals)
+    }
+
+    const updates: Array<{ id: string; goals: number }> = []
+    for (const sp of scorerPlayers || []) {
+      const goals = apiPlayerMap.get(sp.football_data_id) ?? apiPlayerMap.get(sp.api_sports_id)
+      if (goals !== undefined) {
+        updates.push({ id: sp.id, goals })
+      }
+    }
+
+    if (updates.length > 0) {
+      const { error: upsertError } = await supabase
+        .from('scorer_players')
+        .upsert(updates)
+
+      if (upsertError) {
+        console.error(JSON.stringify({
+          event: 'scorer_goals_update_failed',
+          error: upsertError.message,
+          timestamp: new Date().toISOString(),
+        }))
+        return
+      }
+    }
+
+    console.log(JSON.stringify({
+      event: 'scorer_goals_updated',
+      player_count: updates.length,
+      timestamp: new Date().toISOString(),
+    }))
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: 'scorer_goals_update_failed',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString(),
+    }))
+  }
+}
+
+export async function recalculateScorerPoints(
+  supabase: ReturnType<typeof createClient>,
+): Promise<void> {
+  try {
+    const { data: players, error: playersError } = await supabase
+      .from('scorer_players')
+      .select('id, name, goals')
+
+    if (playersError) {
+      console.error(JSON.stringify({
+        event: 'scorer_points_recalculation_failed',
+        error: playersError.message,
+      }))
+      return
+    }
+
+    if (!players || players.length === 0) {
+      console.log(JSON.stringify({
+        event: 'scorer_points_recalculated',
+        warning: 'No scorer_players found',
+        user_count: 0,
+      }))
+      return
+    }
+
+    const allZero = players.every((p: any) => !p.goals || p.goals === 0)
+    if (allZero) {
+      console.log(JSON.stringify({
+        event: 'scorer_points_recalculated',
+        warning: 'No scorer_players have goals > 0',
+        user_count: 0,
+      }))
+      return
+    }
+
+    const maxGoals = Math.max(...players.map((p: any) => p.goals || 0))
+    const topScorers = players.filter((p: any) => (p.goals || 0) === maxGoals)
+    const topScorerIds = topScorers.map((p: any) => p.id)
+
+    const { data: predictions, error: predictionsError } = await supabase
+      .from('scorer_predictions')
+      .select('id, player_id')
+
+    if (predictionsError) {
+      console.error(JSON.stringify({
+        event: 'scorer_points_recalculation_failed',
+        error: predictionsError.message,
+      }))
+      return
+    }
+
+    let awardedCount = 0
+    for (const pred of predictions || []) {
+      const points = topScorerIds.includes(pred.player_id) ? SCORER_POINTS : 0
+      const { error: updateError } = await supabase
+        .from('scorer_predictions')
+        .update({ scorer_points: points })
+        .eq('id', pred.id)
+
+      if (updateError) {
+        console.error(`Error updating scorer_prediction ${pred.id}:`, updateError)
+      } else if (points > 0) {
+        awardedCount++
+      }
+    }
+
+    console.log(JSON.stringify({
+      event: 'scorer_points_recalculated',
+      winner_players: topScorers.map((p: any) => p.name),
+      winner_goals: maxGoals,
+      user_count: awardedCount,
+    }))
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: 'scorer_points_recalculation_failed',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }))
+  }
+}
+
 export async function handleSyncMatches(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
@@ -434,6 +619,12 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
     if (bonusTriggered) {
       await recalculateBonusPoints(supabase)
+    }
+
+    await updateScorerGoals(supabase, apiKey, fallbackApiKey)
+
+    if (bonusTriggered) {
+      await recalculateScorerPoints(supabase)
     }
 
     return new Response(

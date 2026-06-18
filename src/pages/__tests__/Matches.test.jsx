@@ -12,6 +12,11 @@ vi.mock('../../hooks/usePredictions', () => ({
   usePredictions: mockUsePredictions,
 }))
 
+const mockUseScorerPrediction = vi.hoisted(() => vi.fn())
+vi.mock('../../hooks/useScorerPrediction', () => ({
+  useScorerPrediction: mockUseScorerPrediction,
+}))
+
 vi.mock('../../components/MatchCard', () => ({
   default: ({ match, hasPrediction, predictionCount }) => (
     <div
@@ -88,6 +93,13 @@ describe('Matches page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockUsePredictions.mockReturnValue({ predictions: [] })
+    mockUseScorerPrediction.mockReturnValue({
+      prediction: null,
+      isPastDeadline: false,
+      savePrediction: vi.fn(),
+      loading: false,
+      error: null,
+    })
   })
 
   it('shows loading state', () => {
@@ -301,6 +313,100 @@ describe('Matches page', () => {
       fireEvent.click(screen.getByLabelText('Fechar banner'))
       expect(localStorage.getItem('bonus_banner_dismissed')).toBe('true')
       expect(screen.queryByText(/Palpite Bônus/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('artilheiro CTA card', () => {
+    it('renders CTA card when deadline is open and no pick saved', () => {
+      mockUseScorerPrediction.mockReturnValue({
+        prediction: null,
+        isPastDeadline: false,
+        savePrediction: vi.fn(),
+        loading: false,
+        error: null,
+      })
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.getByText(/Palpite no artilheiro ainda aberto/)).toBeInTheDocument()
+    })
+
+    it('shows "Palpite enviado!" variant when user already has a pick', () => {
+      mockUseScorerPrediction.mockReturnValue({
+        prediction: { id: 'p1', player_id: 'pl1' },
+        isPastDeadline: false,
+        savePrediction: vi.fn(),
+        loading: false,
+        error: null,
+      })
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.getByText(/Palpite no artilheiro enviado/)).toBeInTheDocument()
+    })
+
+    it('does NOT render CTA card when past deadline', () => {
+      mockUseScorerPrediction.mockReturnValue({
+        prediction: null,
+        isPastDeadline: true,
+        savePrediction: vi.fn(),
+        loading: false,
+        error: null,
+      })
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      expect(screen.queryByText(/Palpite no artilheiro/)).not.toBeInTheDocument()
+    })
+
+    it('contains a link pointing to /artilheiro', () => {
+      mockUseScorerPrediction.mockReturnValue({
+        prediction: null,
+        isPastDeadline: false,
+        savePrediction: vi.fn(),
+        loading: false,
+        error: null,
+      })
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      const link = screen.getByRole('link', { name: /escolher/i })
+      expect(link).toHaveAttribute('href', '/artilheiro')
+    })
+
+    it('shows "Ver detalhes" link when user has a pick', () => {
+      mockUseScorerPrediction.mockReturnValue({
+        prediction: { id: 'p1', player_id: 'pl1' },
+        isPastDeadline: false,
+        savePrediction: vi.fn(),
+        loading: false,
+        error: null,
+      })
+      mockUseMatches.mockReturnValue({
+        matches: [],
+        predictionCounts: {},
+        loading: false,
+        error: null,
+      })
+      renderMatches()
+      const link = screen.getByRole('link', { name: /ver detalhes/i })
+      expect(link).toHaveAttribute('href', '/artilheiro')
     })
   })
 })

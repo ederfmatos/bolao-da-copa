@@ -27,6 +27,12 @@ vi.mock('../../hooks/useAuth', () => ({
   useAuth: mockUseAuth,
 }))
 
+const mockToggleTheme = vi.hoisted(() => vi.fn())
+const mockUseTheme = vi.hoisted(() => vi.fn(() => ({ theme: 'light', toggleTheme: mockToggleTheme })))
+vi.mock('../../context/ThemeContext', () => ({
+  useTheme: mockUseTheme,
+}))
+
 vi.mock('../../components/UserProfileHeader', () => ({
   default: ({ name, avatarUrl, totalPoints, rank }) => (
     <div data-testid="user-profile-header" data-name={name} data-avatar={avatarUrl} data-points={totalPoints} data-rank={rank}>
@@ -271,6 +277,47 @@ describe('UserProfile', () => {
     renderWithRouter('/user/user1')
     await waitFor(() => {
       expect(screen.queryByTestId('notification-toggle')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('theme toggle', () => {
+    beforeEach(() => {
+      mockToggleTheme.mockClear()
+      mockUseTheme.mockReturnValue({ theme: 'light', toggleTheme: mockToggleTheme })
+    })
+
+    it('renders a theme toggle control (button)', async () => {
+      renderWithRouter('/user/user2')
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /ativar modo escuro/i })).toBeInTheDocument()
+      })
+    })
+
+    it('renders moon icon and "Modo escuro" text in light mode', async () => {
+      mockUseTheme.mockReturnValue({ theme: 'light', toggleTheme: mockToggleTheme })
+      renderWithRouter('/user/user2')
+      await waitFor(() => {
+        expect(screen.getByText('🌙')).toBeInTheDocument()
+        expect(screen.getByText('Modo escuro')).toBeInTheDocument()
+      })
+    })
+
+    it('renders sun icon and "Modo claro" text in dark mode', async () => {
+      mockUseTheme.mockReturnValue({ theme: 'dark', toggleTheme: mockToggleTheme })
+      renderWithRouter('/user/user2')
+      await waitFor(() => {
+        expect(screen.getByText('☀️')).toBeInTheDocument()
+        expect(screen.getByText('Modo claro')).toBeInTheDocument()
+      })
+    })
+
+    it('clicking the theme toggle calls toggleTheme', async () => {
+      renderWithRouter('/user/user2')
+      await waitFor(() => {
+        const toggle = screen.getByRole('button', { name: /ativar modo escuro/i })
+        toggle.click()
+        expect(mockToggleTheme).toHaveBeenCalledTimes(1)
+      })
     })
   })
 })

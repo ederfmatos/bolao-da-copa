@@ -1,13 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import { ThemeProvider } from '../../context/ThemeContext'
 import BottomNavigation from '../BottomNavigation'
 
 function renderWithProviders(ui, { route = '/matches' } = {}) {
   return render(
-    <ThemeProvider>
-      <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
-    </ThemeProvider>
+    <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
   )
 }
 
@@ -17,23 +14,31 @@ describe('BottomNavigation', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument()
   })
 
-  it('renders four navigation tabs', () => {
+  it('renders five navigation tabs', () => {
     renderWithProviders(<BottomNavigation />)
     expect(screen.getByText('Partidas')).toBeInTheDocument()
     expect(screen.getByText('Classificação')).toBeInTheDocument()
     expect(screen.getByText('Bônus')).toBeInTheDocument()
+    expect(screen.getByText('Artilheiro')).toBeInTheDocument()
     expect(screen.getByText('Regras')).toBeInTheDocument()
   })
 
-  it('renders theme toggle button with accessible label', () => {
+  it('renders exactly 5 NavLink elements', () => {
     renderWithProviders(<BottomNavigation />)
-    expect(screen.getByRole('button', { name: /ativar modo escuro/i })).toBeInTheDocument()
+    const links = screen.getAllByRole('link')
+    expect(links).toHaveLength(5)
   })
 
-  it('theme toggle button label changes with theme', () => {
-    localStorage.setItem('theme', 'dark')
+  it('renders a link with to="/artilheiro" and label "Artilheiro"', () => {
     renderWithProviders(<BottomNavigation />)
-    expect(screen.getByRole('button', { name: /ativar modo claro/i })).toBeInTheDocument()
+    const link = screen.getByText('Artilheiro').closest('a')
+    expect(link).toHaveAttribute('href', '/artilheiro')
+  })
+
+  it('does NOT render a standalone theme toggle button', () => {
+    renderWithProviders(<BottomNavigation />)
+    expect(screen.queryByRole('button', { name: /ativar modo escuro/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /ativar modo claro/i })).not.toBeInTheDocument()
   })
 
   it('renders emoji icons for each tab', () => {
@@ -41,6 +46,7 @@ describe('BottomNavigation', () => {
     expect(screen.getByText('⚽')).toBeInTheDocument()
     expect(screen.getByText('🏆')).toBeInTheDocument()
     expect(screen.getByText('🏅')).toBeInTheDocument()
+    expect(screen.getByText('🥅')).toBeInTheDocument()
     expect(screen.getByText('📋')).toBeInTheDocument()
   })
 
@@ -63,40 +69,11 @@ describe('BottomNavigation', () => {
     const matchesLink = screen.getByText('Partidas').closest('a')
     expect(matchesLink.className).toContain('text-gray-500')
   })
-})
 
-describe('theme toggle', () => {
-  beforeEach(() => {
-    localStorage.clear()
-    document.documentElement.classList.remove('dark')
-  })
-
-  it('renders moon icon in light mode', () => {
-    localStorage.setItem('theme', 'light')
-    renderWithProviders(<BottomNavigation />)
-    expect(screen.getByText('🌙')).toBeInTheDocument()
-  })
-
-  it('renders sun icon in dark mode', () => {
-    localStorage.setItem('theme', 'dark')
-    renderWithProviders(<BottomNavigation />)
-    expect(screen.getByText('☀️')).toBeInTheDocument()
-  })
-
-  it('switches from light to dark on toggle click', () => {
-    localStorage.setItem('theme', 'light')
-    renderWithProviders(<BottomNavigation />)
-    expect(screen.getByText('🌙')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /ativar modo escuro/i }))
-    expect(screen.getByText('☀️')).toBeInTheDocument()
-  })
-
-  it('switches from dark to light on toggle click', () => {
-    localStorage.setItem('theme', 'dark')
-    renderWithProviders(<BottomNavigation />)
-    expect(screen.getByText('☀️')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /ativar modo claro/i }))
-    expect(screen.getByText('🌙')).toBeInTheDocument()
+  it('applies active class to Artilheiro tab when on /artilheiro', () => {
+    renderWithProviders(<BottomNavigation />, { route: '/artilheiro' })
+    const artilheiroLink = screen.getByText('Artilheiro').closest('a')
+    expect(artilheiroLink.className).toContain('text-primary-600')
   })
 })
 
@@ -113,15 +90,21 @@ describe('navigation', () => {
     expect(link).toHaveAttribute('href', '/leaderboard')
   })
 
-  it('Regras link points to /rules', () => {
-    renderWithProviders(<BottomNavigation />)
-    const link = screen.getByText('Regras').closest('a')
-    expect(link).toHaveAttribute('href', '/rules')
-  })
-
   it('Bônus link points to /final-prediction', () => {
     renderWithProviders(<BottomNavigation />)
     const link = screen.getByText('Bônus').closest('a')
     expect(link).toHaveAttribute('href', '/final-prediction')
+  })
+
+  it('Artilheiro link points to /artilheiro', () => {
+    renderWithProviders(<BottomNavigation />)
+    const link = screen.getByText('Artilheiro').closest('a')
+    expect(link).toHaveAttribute('href', '/artilheiro')
+  })
+
+  it('Regras link points to /rules', () => {
+    renderWithProviders(<BottomNavigation />)
+    const link = screen.getByText('Regras').closest('a')
+    expect(link).toHaveAttribute('href', '/rules')
   })
 })

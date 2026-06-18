@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useMatches } from '../hooks/useMatches'
 import { usePredictions } from '../hooks/usePredictions'
 import { useMatchFilters } from '../hooks/useMatchFilters'
+import { useScorerPrediction } from '../hooks/useScorerPrediction'
 import { BONUS_DEADLINE } from '../lib/bracketData'
 import MatchCard from '../components/MatchCard'
 import MatchFilters from '../components/MatchFilters'
@@ -14,6 +15,8 @@ function Matches() {
   )
   const { matches, predictionCounts, loading, error } = useMatches()
   const { predictions } = usePredictions()
+  const { prediction, isPastDeadline } = useScorerPrediction()
+
   const {
     filters,
     availableTeams,
@@ -106,6 +109,42 @@ function Matches() {
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {!isPastDeadline && (
+        <div className="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-lg border border-primary-200 dark:border-primary-800 mb-4 flex items-center justify-between">
+          {prediction ? (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚽</span>
+                <span className="text-primary-700 dark:text-primary-300">
+                  Palpite no artilheiro enviado!
+                </span>
+              </div>
+              <Link
+                to="/artilheiro"
+                className="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium"
+              >
+                Ver detalhes
+              </Link>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-lg">⚽</span>
+                <span className="text-primary-700 dark:text-primary-300">
+                  Palpite no artilheiro ainda aberto!
+                </span>
+              </div>
+              <Link
+                to="/artilheiro"
+                className="text-sm bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-lg transition-colors font-medium"
+              >
+                Escolher
+              </Link>
+            </>
+          )}
         </div>
       )}
 

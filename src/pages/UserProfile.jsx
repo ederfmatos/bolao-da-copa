@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useUserPredictions } from '../hooks/useUserPredictions'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../context/ThemeContext'
 import UserProfileHeader from '../components/UserProfileHeader'
 import UserStats from '../components/UserStats'
 import UserPredictionRow from '../components/UserPredictionRow'
@@ -15,6 +16,7 @@ function UserProfile() {
   const { user } = useAuth()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
+  const { theme, toggleTheme } = useTheme()
   const { predictions, loading: predictionsLoading, error: predictionsError } = useUserPredictions(userId)
   const { leaderboard, loading: leaderboardLoading, error: leaderboardError } = useLeaderboard()
 
@@ -56,12 +58,22 @@ function UserProfile() {
 
   return (
     <div className="p-4 max-w-lg mx-auto space-y-4">
-      <button
-        onClick={() => navigate(-1)}
-        className="text-sm text-gray-500 dark:text-dark-muted hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-      >
-        ← Voltar
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-sm text-gray-500 dark:text-dark-muted hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+        >
+          ← Voltar
+        </button>
+        <button
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+          className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-500 dark:text-dark-muted hover:text-gray-700 dark:hover:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors"
+        >
+          <span>{theme === 'dark' ? '☀️' : '🌙'}</span>
+          <span>{theme === 'dark' ? 'Modo claro' : 'Modo escuro'}</span>
+        </button>
+      </div>
 
       <UserProfileHeader
         name={leaderboardEntry.name}
