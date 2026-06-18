@@ -234,6 +234,7 @@ function Artilheiro() {
                   nationality={player.nationality}
                   position={player.position}
                   goals={player.goals}
+                  photo_url={player.photo_url}
                   isSelected={player.id === selectedPlayerId}
                   onClick={() => handleSelectPlayer(player.id)}
                   disabled={saving}

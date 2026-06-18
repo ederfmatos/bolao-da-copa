@@ -4,6 +4,7 @@ function ScorerPlayerCard({
   nationality,
   position,
   goals,
+  photo_url,
   isSelected = false,
   onClick,
   disabled = false,
@@ -30,8 +31,20 @@ function ScorerPlayerCard({
         </div>
       )}
 
-      <div className="text-center mb-2">
-        <span className="text-3xl">{flag}</span>
+      <div className="flex justify-center mb-2">
+        {photo_url ? (
+          <img
+            src={photo_url}
+            alt={name}
+            className="w-16 h-16 rounded-full object-cover object-top border-2 border-gray-100 dark:border-dark-border"
+            onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling.style.display = 'flex' }}
+          />
+        ) : null}
+        <span
+          className={`text-3xl w-16 h-16 rounded-full bg-gray-100 dark:bg-dark-border flex items-center justify-center ${photo_url ? 'hidden' : 'flex'}`}
+        >
+          {flag}
+        </span>
       </div>
 
       <div className="text-center">
