@@ -6,8 +6,10 @@ import { useAuth } from '../hooks/useAuth'
 import { usePredictions } from '../hooks/usePredictions'
 import { formatTimeRemaining } from '../lib/timeUtils'
 import { useMatchPredictions } from '../hooks/useMatchPredictions'
+import { useLeaderboard } from '../hooks/useLeaderboard'
 import ScorePicker from '../components/ScorePicker'
 import PredictionRow from '../components/PredictionRow'
+import Avatar from '../components/Avatar'
 import TeamHistory from '../components/TeamHistory'
 import { useTeamHistory } from '../hooks/useTeamHistory'
 
@@ -17,6 +19,7 @@ function MatchDetails() {
   const { user, signInWithGoogle } = useAuth()
   const { predictions: userPredictions, savePrediction } = usePredictions()
   const { predictions: allPredictions, loading: socialLoading } = useMatchPredictions(matchId)
+  const { leaderboard } = useLeaderboard()
 
   const [match, setMatch] = useState(null)
   const [matchLoading, setMatchLoading] = useState(true)
@@ -83,6 +86,11 @@ function MatchDetails() {
   const canSeeOtherPredictions = isDeadlinePassed || isLive || isFinished
 
   const otherPredictions = allPredictions.filter((p) => p.user_id !== user?.id)
+
+  const pendingUsers = useMemo(() => {
+    const predictedUserIds = new Set(allPredictions.map((p) => p.user_id))
+    return leaderboard.filter((entry) => !predictedUserIds.has(entry.user_id))
+  }, [leaderboard, allPredictions])
 
   const { homeHistory, awayHistory } = useTeamHistory(match, isEditable)
 
@@ -310,6 +318,27 @@ function MatchDetails() {
                 )}
               </>
             )}
+          </div>
+        )}
+
+        {isEditable && pendingUsers.length > 0 && (
+          <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-gray-700 dark:text-dark-text">
+                Ainda não palpitaram
+              </h2>
+              <span className="text-xs text-gray-500 dark:text-dark-muted bg-gray-100 dark:bg-dark-border px-2 py-0.5 rounded-full">
+                {pendingUsers.length} {pendingUsers.length === 1 ? 'pendente' : 'pendentes'}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {pendingUsers.map((u) => (
+                <div key={u.user_id} className="flex items-center gap-3 py-1.5">
+                  <Avatar src={u.avatar_url} name={u.name} className="w-8 h-8" />
+                  <span className="text-sm text-gray-900 dark:text-dark-text truncate">{u.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
