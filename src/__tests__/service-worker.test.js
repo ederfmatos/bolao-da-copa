@@ -6,10 +6,16 @@ describe('Service Worker', () => {
   let mockPrecacheAndRoute
   let mockSkipWaiting
   let mockClientsClaim
+  let mockRegisterRoute
+  let mockNavigationRoute
+  let mockNetworkFirst
+  let mockStaleWhileRevalidate
+  let mockExpirationPlugin
   let showNotificationMock
   let openWindowMock
   let waitUntilMock
   let addEventListenerSpy
+  let matchAllMock
 
   beforeEach(() => {
     vi.resetModules()
@@ -18,10 +24,16 @@ describe('Service Worker', () => {
     openWindowMock = vi.fn().mockResolvedValue({})
     waitUntilMock = vi.fn()
     addEventListenerSpy = vi.fn()
+    matchAllMock = vi.fn().mockResolvedValue([])
 
     mockPrecacheAndRoute = vi.fn()
     mockSkipWaiting = vi.fn()
     mockClientsClaim = vi.fn()
+    mockRegisterRoute = vi.fn()
+    mockNavigationRoute = vi.fn()
+    mockNetworkFirst = vi.fn()
+    mockStaleWhileRevalidate = vi.fn()
+    mockExpirationPlugin = vi.fn()
 
     vi.doMock('workbox-precaching', () => ({
       precacheAndRoute: mockPrecacheAndRoute,
@@ -32,16 +44,33 @@ describe('Service Worker', () => {
       clientsClaim: mockClientsClaim,
     }))
 
+    vi.doMock('workbox-routing', () => ({
+      registerRoute: mockRegisterRoute,
+      NavigationRoute: mockNavigationRoute,
+    }))
+
+    vi.doMock('workbox-strategies', () => ({
+      NetworkFirst: mockNetworkFirst,
+      StaleWhileRevalidate: mockStaleWhileRevalidate,
+    }))
+
+    vi.doMock('workbox-expiration', () => ({
+      ExpirationPlugin: mockExpirationPlugin,
+    }))
+
     globalThis.self = {
       __WB_MANIFEST: [{ url: '/index.html', revision: 'abc123' }],
       registration: {
         showNotification: showNotificationMock,
       },
       addEventListener: addEventListenerSpy,
+      location: { origin: 'http://localhost' },
+      clients: { matchAll: matchAllMock },
     }
 
     globalThis.clients = {
       openWindow: openWindowMock,
+      matchAll: matchAllMock,
     }
   })
 
@@ -69,6 +98,19 @@ describe('Service Worker', () => {
   it('calls clientsClaim() for immediate activation', async () => {
     await import('../service-worker.js')
     expect(mockClientsClaim).toHaveBeenCalled()
+  })
+
+  it('registers navigation route with NetworkFirst strategy', async () => {
+    await import('../service-worker.js')
+    expect(mockRegisterRoute).toHaveBeenCalled()
+    expect(mockNavigationRoute).toHaveBeenCalled()
+    expect(mockNetworkFirst).toHaveBeenCalled()
+  })
+
+  it('registers Supabase runtime caching route with NetworkFirst', async () => {
+    await import('../service-worker.js')
+    const registerCalls = mockRegisterRoute.mock.calls
+    expect(registerCalls.length).toBeGreaterThanOrEqual(2)
   })
 
   it('registers push event listener', async () => {
@@ -99,10 +141,13 @@ describe('Service Worker', () => {
     pushHandler(mockEvent)
 
     expect(waitUntilMock).toHaveBeenCalled()
+    const asyncFn = waitUntilMock.mock.calls[0][0]
+    await asyncFn
+
     expect(showNotificationMock).toHaveBeenCalledWith('Test Notification', {
       body: 'Test body content',
-      icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
+      icon: 'http://localhost/pwa-192x192.png',
+      badge: 'http://localhost/pwa-192x192.png',
       data: { url: '/matches', matchId: '123' },
     })
   })
@@ -166,6 +211,8 @@ describe('Service Worker', () => {
     clickHandler(mockEvent)
 
     expect(waitUntilMock).toHaveBeenCalled()
+    const promise = waitUntilMock.mock.calls[0][0]
+    await promise
     expect(openWindowMock).toHaveBeenCalledWith('/matches/123')
   })
 

@@ -41,22 +41,6 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'supabase-requests',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60
-              }
-            }
-          }
-        ]
       }
     })
   ],

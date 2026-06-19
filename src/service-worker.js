@@ -1,10 +1,49 @@
 import { precacheAndRoute } from 'workbox-precaching'
 import { clientsClaim, skipWaiting } from 'workbox-core'
+import { registerRoute, NavigationRoute } from 'workbox-routing'
+import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 precacheAndRoute(self.__WB_MANIFEST)
 
 skipWaiting()
 clientsClaim()
+
+registerRoute(
+  new NavigationRoute(
+    new NetworkFirst({
+      cacheName: 'pages',
+      networkTimeoutSeconds: 3,
+    })
+  )
+)
+
+registerRoute(
+  /^https:\/\/.*\.supabase\.co\/.*/i,
+  new NetworkFirst({
+    cacheName: 'supabase-requests',
+    networkTimeoutSeconds: 5,
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 50,
+        maxAgeSeconds: 60 * 60,
+      }),
+    ],
+  })
+)
+
+registerRoute(
+  ({ request }) => request.destination === 'image',
+  new StaleWhileRevalidate({
+    cacheName: 'images',
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 60,
+        maxAgeSeconds: 30 * 24 * 60 * 60,
+      }),
+    ],
+  })
+)
 
 const DB_NAME = 'bolao-notifications'
 const DB_VERSION = 1

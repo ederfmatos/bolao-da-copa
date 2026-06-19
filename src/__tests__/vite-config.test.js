@@ -18,14 +18,12 @@ describe('vite.config.js', () => {
     expect(configContent).toContain("filename: 'service-worker.js'")
   })
 
-  it('preserves existing Workbox runtime caching configuration', () => {
-    expect(configContent).toContain('runtimeCaching')
-    expect(configContent).toContain('supabase-requests')
-    expect(configContent).toContain('NetworkFirst')
+  it('uses autoUpdate registerType', () => {
+    expect(configContent).toContain("registerType: 'autoUpdate'")
   })
 
-  it('preserves globPatterns for precaching', () => {
-    expect(configContent).toContain('globPatterns')
+  it('does not include workbox config (incompatible with injectManifest)', () => {
+    expect(configContent).not.toMatch(/workbox:\s*\{/)
   })
 
   it('preserves manifest configuration', () => {
