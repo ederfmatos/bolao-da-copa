@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 
 export function useMatchPredictions(matchId) {
   const [predictions, setPredictions] = useState([])
+  const [allPredictionUserIds, setAllPredictionUserIds] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -11,15 +12,22 @@ export function useMatchPredictions(matchId) {
 
     async function fetchPredictions() {
       try {
-        const { data, error } = await supabase
-          .from('match_predictions')
-          .select('*')
-          .eq('match_id', matchId)
-          .order('points', { ascending: false })
-          .order('created_at', { ascending: true })
+        const [viewResult, allResult] = await Promise.all([
+          supabase
+            .from('match_predictions')
+            .select('*')
+            .eq('match_id', matchId)
+            .order('points', { ascending: false })
+            .order('created_at', { ascending: true }),
+          supabase
+            .from('predictions')
+            .select('user_id')
+            .eq('match_id', matchId),
+        ])
 
-        if (error) throw error
-        setPredictions(data || [])
+        if (viewResult.error) throw viewResult.error
+        setPredictions(viewResult.data || [])
+        setAllPredictionUserIds(allResult.data?.map((p) => p.user_id) || [])
       } catch (err) {
         setError(err.message)
       } finally {
@@ -30,5 +38,5 @@ export function useMatchPredictions(matchId) {
     fetchPredictions()
   }, [matchId])
 
-  return { predictions, loading, error }
+  return { predictions, allPredictionUserIds, loading, error }
 }

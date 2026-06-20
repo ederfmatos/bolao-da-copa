@@ -18,7 +18,7 @@ function MatchDetails() {
   const navigate = useNavigate()
   const { user, signInWithGoogle } = useAuth()
   const { predictions: userPredictions, savePrediction } = usePredictions()
-  const { predictions: allPredictions, loading: socialLoading } = useMatchPredictions(matchId)
+  const { predictions: allPredictions, allPredictionUserIds, loading: socialLoading } = useMatchPredictions(matchId)
   const { leaderboard } = useLeaderboard()
 
   const [match, setMatch] = useState(null)
@@ -88,9 +88,9 @@ function MatchDetails() {
   const otherPredictions = allPredictions.filter((p) => p.user_id !== user?.id)
 
   const pendingUsers = useMemo(() => {
-    const predictedUserIds = new Set(allPredictions.map((p) => p.user_id))
+    const predictedUserIds = new Set(allPredictionUserIds)
     return leaderboard.filter((entry) => !predictedUserIds.has(entry.user_id))
-  }, [leaderboard, allPredictions])
+  }, [leaderboard, allPredictionUserIds])
 
   const { homeHistory, awayHistory } = useTeamHistory(match, isEditable)
 

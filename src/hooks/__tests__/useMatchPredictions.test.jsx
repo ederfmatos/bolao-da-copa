@@ -2,17 +2,25 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useMatchPredictions } from '../useMatchPredictions'
 
 const mockState = vi.hoisted(() => {
-  const resolveRef = { current: null }
-  const builder = {
+  const matchBuilder = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
-    then: (onFulfilled) => Promise.resolve(resolveRef.current).then(onFulfilled),
+    then: (onFulfilled) => Promise.resolve(matchBuilder.resolveRef.current).then(onFulfilled),
+    resolveRef: { current: null },
   }
+  const predictionsBuilder = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    then: (onFulfilled) => Promise.resolve(predictionsBuilder.resolveRef.current).then(onFulfilled),
+    resolveRef: { current: null },
+  }
+  const fromMap = { match_predictions: matchBuilder, predictions: predictionsBuilder }
   return {
-    builder,
-    mockFrom: vi.fn(() => builder),
-    resolveRef,
+    matchBuilder,
+    predictionsBuilder,
+    fromMap,
+    mockFrom: vi.fn((table) => fromMap[table]),
   }
 })
 
@@ -58,13 +66,15 @@ const defaultPredictions = [
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mockState.resolveRef.current = { data: defaultPredictions, error: null }
+  mockState.matchBuilder.resolveRef.current = { data: defaultPredictions, error: null }
+  mockState.predictionsBuilder.resolveRef.current = { data: defaultPredictions, error: null }
 })
 
 describe('useMatchPredictions', () => {
-  it('returns { predictions, loading, error }', () => {
+  it('returns { predictions, allPredictionUserIds, loading, error }', () => {
     const { result } = renderHook(() => useMatchPredictions('m1'))
     expect(result.current).toHaveProperty('predictions')
+    expect(result.current).toHaveProperty('allPredictionUserIds')
     expect(result.current).toHaveProperty('loading')
     expect(result.current).toHaveProperty('error')
   })
@@ -78,7 +88,7 @@ describe('useMatchPredictions', () => {
   })
 
   it('error is set when query fails', async () => {
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: null,
       error: { message: 'Query failed' },
     }
@@ -91,6 +101,7 @@ describe('useMatchPredictions', () => {
   it('handles null matchId without error', () => {
     const { result } = renderHook(() => useMatchPredictions(null))
     expect(result.current.predictions).toEqual([])
+    expect(result.current.allPredictionUserIds).toEqual([])
     expect(result.current.loading).toBe(true)
     expect(result.current.error).toBeNull()
   })
@@ -98,6 +109,7 @@ describe('useMatchPredictions', () => {
   it('handles undefined matchId without error', () => {
     const { result } = renderHook(() => useMatchPredictions(undefined))
     expect(result.current.predictions).toEqual([])
+    expect(result.current.allPredictionUserIds).toEqual([])
     expect(result.current.loading).toBe(true)
     expect(result.current.error).toBeNull()
   })
@@ -115,9 +127,11 @@ describe('useMatchPredictions', () => {
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
-    expect(mockState.mockFrom).toHaveBeenCalledTimes(2)
+    expect(mockState.mockFrom).toHaveBeenCalledTimes(4)
     expect(mockState.mockFrom).toHaveBeenNthCalledWith(1, 'match_predictions')
-    expect(mockState.mockFrom).toHaveBeenNthCalledWith(2, 'match_predictions')
+    expect(mockState.mockFrom).toHaveBeenNthCalledWith(2, 'predictions')
+    expect(mockState.mockFrom).toHaveBeenNthCalledWith(3, 'match_predictions')
+    expect(mockState.mockFrom).toHaveBeenNthCalledWith(4, 'predictions')
   })
 
   it('queries with correct sorting', async () => {
@@ -125,10 +139,10 @@ describe('useMatchPredictions', () => {
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
-    expect(mockState.builder.order).toHaveBeenNthCalledWith(1, 'points', {
+    expect(mockState.matchBuilder.order).toHaveBeenNthCalledWith(1, 'points', {
       ascending: false,
     })
-    expect(mockState.builder.order).toHaveBeenNthCalledWith(
+    expect(mockState.matchBuilder.order).toHaveBeenNthCalledWith(
       2,
       'created_at',
       { ascending: true },
@@ -156,19 +170,31 @@ describe('useMatchPredictions', () => {
     )
   })
 
+  it('returns allPredictionUserIds from predictions table', async () => {
+    const { result } = renderHook(() => useMatchPredictions('m1'))
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+    expect(result.current.allPredictionUserIds).toEqual(['u3', 'u1', 'u2'])
+  })
+
   it('returns empty array for empty result set', async () => {
-    mockState.resolveRef.current = { data: [], error: null }
+    mockState.matchBuilder.resolveRef.current = { data: [], error: null }
+    mockState.predictionsBuilder.resolveRef.current = { data: [], error: null }
     const { result } = renderHook(() => useMatchPredictions('m1'))
     await waitFor(() => {
       expect(result.current.predictions).toEqual([])
+      expect(result.current.allPredictionUserIds).toEqual([])
     })
   })
 
   it('returns empty array when data is null', async () => {
-    mockState.resolveRef.current = { data: null, error: null }
+    mockState.matchBuilder.resolveRef.current = { data: null, error: null }
+    mockState.predictionsBuilder.resolveRef.current = { data: null, error: null }
     const { result } = renderHook(() => useMatchPredictions('m1'))
     await waitFor(() => {
       expect(result.current.predictions).toEqual([])
+      expect(result.current.allPredictionUserIds).toEqual([])
     })
   })
 })

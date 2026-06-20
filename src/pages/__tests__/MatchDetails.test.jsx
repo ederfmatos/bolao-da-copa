@@ -3,22 +3,47 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import MatchDetails from '../MatchDetails'
 
 const mockState = vi.hoisted(() => {
-  const resolveRef = { current: null }
-  const builder = {
+  const matchBuilder = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     single: vi.fn().mockReturnThis(),
-    then: (onFulfilled) => Promise.resolve(resolveRef.current).then(onFulfilled),
+    then: (onFulfilled) => Promise.resolve(matchBuilder.resolveRef.current).then(onFulfilled),
+    resolveRef: { current: null },
+  }
+  const predictionsBuilder = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    then: (onFulfilled) => Promise.resolve(predictionsBuilder.resolveRef.current).then(onFulfilled),
+    resolveRef: { current: null },
+  }
+  const leaderboardBuilder = {
+    select: vi.fn().mockReturnThis(),
+    then: (onFulfilled) => Promise.resolve(leaderboardBuilder.resolveRef.current).then(onFulfilled),
+    resolveRef: { current: null },
+  }
+  const fromMap = {
+    match_predictions: matchBuilder,
+    predictions: predictionsBuilder,
+    leaderboard: leaderboardBuilder,
   }
   return {
-    builder,
-    mockFrom: vi.fn(() => builder),
-    resolveRef,
+    matchBuilder,
+    predictionsBuilder,
+    leaderboardBuilder,
+    fromMap,
+    mockFrom: vi.fn((table) => fromMap[table] || matchBuilder),
   }
 })
 
 vi.mock('../../lib/supabase', () => ({
-  supabase: { from: mockState.mockFrom },
+  supabase: {
+    from: mockState.mockFrom,
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn(),
+    })),
+    removeChannel: vi.fn(),
+  },
 }))
 
 const mockUseAuth = vi.hoisted(() => vi.fn())
@@ -82,7 +107,9 @@ function renderWithRouter(route = '/match/m1') {
 describe('MatchDetails', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockState.resolveRef.current = { data: defaultMatch, error: null }
+    mockState.matchBuilder.resolveRef.current = { data: defaultMatch, error: null }
+    mockState.predictionsBuilder.resolveRef.current = { data: [], error: null }
+    mockState.leaderboardBuilder.resolveRef.current = { data: [], error: null }
     mockUseAuth.mockReturnValue({
       user: { id: 'u1', user_metadata: { full_name: 'Alice', avatar_url: null } },
     })
@@ -92,6 +119,7 @@ describe('MatchDetails', () => {
     })
     mockUseMatchPredictions.mockReturnValue({
       predictions: [],
+      allPredictionUserIds: [],
       loading: false,
       error: null,
     })
@@ -142,7 +170,7 @@ describe('MatchDetails', () => {
   })
 
   it('user prediction section is hidden for closed matches', async () => {
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
       error: null,
     }
@@ -156,7 +184,7 @@ describe('MatchDetails', () => {
   })
 
   it('user prediction section is hidden for finished matches', async () => {
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: {
         ...defaultMatch,
         status: 'finished',
@@ -176,7 +204,7 @@ describe('MatchDetails', () => {
   })
 
   it('shows score inline with team names for finished matches', async () => {
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: {
         ...defaultMatch,
         status: 'finished',
@@ -195,6 +223,10 @@ describe('MatchDetails', () => {
   })
 
   it('social predictions list renders PredictionRow for each prediction', async () => {
+    mockState.matchBuilder.resolveRef.current = {
+      data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
+      error: null,
+    }
     mockUsePredictions.mockReturnValue({
       predictions: [
         { id: 'p1', match_id: 'm1', user_id: 'u1', home_score: 2, away_score: 1, points: null },
@@ -224,6 +256,7 @@ describe('MatchDetails', () => {
           user_avatar_url: 'https://example.com/charlie.jpg',
         },
       ],
+      allPredictionUserIds: ['u1', 'u2', 'u3'],
       loading: false,
       error: null,
     })
@@ -237,6 +270,10 @@ describe('MatchDetails', () => {
   })
 
   it('prediction count displays in header', async () => {
+    mockState.matchBuilder.resolveRef.current = {
+      data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
+      error: null,
+    }
     mockUseMatchPredictions.mockReturnValue({
       predictions: [
         {
@@ -260,6 +297,7 @@ describe('MatchDetails', () => {
           user_avatar_url: null,
         },
       ],
+      allPredictionUserIds: ['u2', 'u3'],
       loading: false,
       error: null,
     })
@@ -270,6 +308,10 @@ describe('MatchDetails', () => {
   })
 
   it('shows single prediction count with correct grammar', async () => {
+    mockState.matchBuilder.resolveRef.current = {
+      data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
+      error: null,
+    }
     mockUseMatchPredictions.mockReturnValue({
       predictions: [
         {
@@ -283,6 +325,7 @@ describe('MatchDetails', () => {
           user_avatar_url: null,
         },
       ],
+      allPredictionUserIds: ['u2'],
       loading: false,
       error: null,
     })
@@ -293,13 +336,13 @@ describe('MatchDetails', () => {
   })
 
   it('loading state shows while data fetches', () => {
-    mockState.resolveRef.current = new Promise(() => {})
+    mockState.matchBuilder.resolveRef.current = new Promise(() => {})
     renderWithRouter()
     expect(screen.getByText('Carregando...')).toBeInTheDocument()
   })
 
   it('error state displays error message', async () => {
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: null,
       error: { message: 'Match not found' },
     }
@@ -311,7 +354,7 @@ describe('MatchDetails', () => {
 
   it('shows warning for matches starting within 3 hours', async () => {
     const threeHoursFromNow = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: { ...defaultMatch, kickoff_at: threeHoursFromNow },
       error: null,
     }
@@ -339,8 +382,13 @@ describe('MatchDetails', () => {
   })
 
   it('shows social loading state while match predictions load', async () => {
+    mockState.matchBuilder.resolveRef.current = {
+      data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
+      error: null,
+    }
     mockUseMatchPredictions.mockReturnValue({
       predictions: [],
+      allPredictionUserIds: [],
       loading: true,
       error: null,
     })
@@ -351,6 +399,16 @@ describe('MatchDetails', () => {
   })
 
   it('shows empty state when no predictions exist', async () => {
+    mockState.matchBuilder.resolveRef.current = {
+      data: { ...defaultMatch, kickoff_at: '2020-01-01T00:00:00Z' },
+      error: null,
+    }
+    mockUseMatchPredictions.mockReturnValue({
+      predictions: [],
+      allPredictionUserIds: [],
+      loading: false,
+      error: null,
+    })
     renderWithRouter()
     await waitFor(() => {
       expect(screen.getByText('Nenhum palpite ainda. Seja o primeiro!')).toBeInTheDocument()
@@ -359,7 +417,7 @@ describe('MatchDetails', () => {
 
   it('shows editable ScorePicker on open scheduled match', async () => {
     const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: { ...defaultMatch, kickoff_at: futureDate, status: 'scheduled' },
       error: null,
     }
@@ -377,7 +435,7 @@ describe('MatchDetails', () => {
   })
 
   it('shows live badge for live matches', async () => {
-    mockState.resolveRef.current = {
+    mockState.matchBuilder.resolveRef.current = {
       data: { ...defaultMatch, status: 'live' },
       error: null,
     }
