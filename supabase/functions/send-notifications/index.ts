@@ -136,15 +136,14 @@ async function handleDailyDigest(
   supabase: ReturnType<typeof createClient>,
   data: SendNotificationsRequest['data'],
 ): Promise<SendResult> {
-  const today = getBrasiliaToday()
-  const startOfDay = `${today}T00:00:00-03:00`
-  const endOfDay = `${today}T23:59:59-03:00`
+  const now = new Date()
+  const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000)
 
   const { data: matches, error } = await supabase
     .from('matches')
     .select('*')
-    .gte('kickoff_at', startOfDay)
-    .lte('kickoff_at', endOfDay)
+    .gte('kickoff_at', now.toISOString())
+    .lte('kickoff_at', in24h.toISOString())
     .order('kickoff_at')
 
   if (error) {
@@ -153,7 +152,7 @@ async function handleDailyDigest(
   }
 
   if (!matches || matches.length === 0) {
-    console.log(JSON.stringify({ event: 'daily_digest_no_matches', date: today, timestamp: new Date().toISOString() }))
+    console.log(JSON.stringify({ event: 'daily_digest_no_matches', window: '24h', timestamp: new Date().toISOString() }))
     return { sent: 0, failed: 0, expiredIds: [] }
   }
 
@@ -175,8 +174,8 @@ async function handleDailyDigest(
   )
 
   return sendToSubscriptions(subscriptions, () => ({
-    title: 'Jogos de hoje!',
-    body: `${matches.length} jogo(s) hoje:\n${matchLines.join('\n')}`,
+    title: 'Jogos das próximas 24h!',
+    body: `${matches.length} jogo(s) nas próximas 24 horas:\n${matchLines.join('\n')}`,
     data: { url: '/', type: 'daily-digest' },
   }))
 }
