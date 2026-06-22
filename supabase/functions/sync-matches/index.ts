@@ -228,13 +228,18 @@ export async function recalculateBonusPoints(
 
 const SCORER_POINTS = 20
 
+function normalizePlayerName(name: string): string {
+  return name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+}
+
 export async function updateScorerGoals(
   supabase: ReturnType<typeof createClient>,
   apiKey: string,
   fallbackApiKey?: string,
 ): Promise<void> {
   try {
-    let players: Array<{ id: number; goals: number }> = []
+    let players: Array<{ id: number; name: string; goals: number }> = []
+    let apiSource: 'football_data' | 'api_sports' = 'football_data'
 
     const response = await fetch('https://api.football-data.org/v4/competitions/WC/scorers', {
       headers: { 'X-Auth-Token': apiKey },
@@ -245,8 +250,10 @@ export async function updateScorerGoals(
       if (data.scorers?.length > 0) {
         players = data.scorers.map((s: any) => ({
           id: s.player.id,
+          name: s.player.name ?? '',
           goals: s.goals ?? 0,
         }))
+        apiSource = 'football_data'
       }
     }
 
@@ -261,8 +268,10 @@ export async function updateScorerGoals(
         if (data.response?.length > 0) {
           players = data.response.map((s: any) => ({
             id: s.player.id,
+            name: s.player.name ?? '',
             goals: s.statistics?.[0]?.goals?.total ?? 0,
           }))
+          apiSource = 'api_sports'
         }
       }
     }
@@ -278,7 +287,7 @@ export async function updateScorerGoals(
 
     const { data: scorerPlayers, error: fetchError } = await supabase
       .from('scorer_players')
-      .select('id, football_data_id, api_sports_id')
+      .select('id, name, football_data_id, api_sports_id')
 
     if (fetchError) {
       console.error(JSON.stringify({
@@ -289,16 +298,38 @@ export async function updateScorerGoals(
       return
     }
 
+    // Mapa por ID (comportamento original)
     const apiPlayerMap = new Map<number, number>()
     for (const p of players) {
       apiPlayerMap.set(p.id, p.goals)
     }
 
-    const updates: Array<{ id: string; goals: number }> = []
+    // Mapa por nome normalizado para fallback quando IDs estão NULL
+    const apiPlayerNameMap = new Map<string, { apiId: number; goals: number }>()
+    for (const p of players) {
+      apiPlayerNameMap.set(normalizePlayerName(p.name), { apiId: p.id, goals: p.goals })
+    }
+
+    type PlayerUpdate = { id: string; goals: number; football_data_id?: number; api_sports_id?: number }
+    const updates: PlayerUpdate[] = []
+
     for (const sp of scorerPlayers || []) {
-      const goals = apiPlayerMap.get(sp.football_data_id) ?? apiPlayerMap.get(sp.api_sports_id)
+      let goals = apiPlayerMap.get(sp.football_data_id) ?? apiPlayerMap.get(sp.api_sports_id)
+      let discoveredId: Partial<PlayerUpdate> = {}
+
+      // Fallback por nome quando ambos os IDs estão ausentes
+      if (goals === undefined && sp.football_data_id == null && sp.api_sports_id == null) {
+        const match = apiPlayerNameMap.get(normalizePlayerName(sp.name))
+        if (match !== undefined) {
+          goals = match.goals
+          // Persiste o ID descoberto para execuções futuras
+          if (apiSource === 'football_data') discoveredId = { football_data_id: match.apiId }
+          else discoveredId = { api_sports_id: match.apiId }
+        }
+      }
+
       if (goals !== undefined) {
-        updates.push({ id: sp.id, goals })
+        updates.push({ id: sp.id, goals, ...discoveredId })
       }
     }
 
