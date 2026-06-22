@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-export function useTeamHistory(match, isEditable) {
+export function useTeamHistory(match) {
   const [homeHistory, setHomeHistory] = useState([])
   const [awayHistory, setAwayHistory] = useState([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!match || !isEditable) {
+    if (!match) {
       setHomeHistory([])
       setAwayHistory([])
       return
@@ -31,7 +31,7 @@ export function useTeamHistory(match, isEditable) {
         setAwayHistory(away)
       })
       .finally(() => setLoading(false))
-  }, [match?.id, isEditable])
+  }, [match?.id])
 
   return { homeHistory, awayHistory, loading }
 }

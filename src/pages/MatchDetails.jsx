@@ -92,7 +92,7 @@ function MatchDetails() {
     return leaderboard.filter((entry) => !predictedUserIds.has(entry.user_id))
   }, [leaderboard, allPredictionUserIds])
 
-  const { homeHistory, awayHistory } = useTeamHistory(match, isEditable)
+  const { homeHistory, awayHistory } = useTeamHistory(match)
 
   const handleSave = async () => {
     if (!isEditable) return
@@ -342,7 +342,7 @@ function MatchDetails() {
           </div>
         )}
 
-        {isEditable && (homeHistory.length > 0 || awayHistory.length > 0) && (
+        {(homeHistory.length > 0 || awayHistory.length > 0) && (
           <div className="bg-white dark:bg-dark-card rounded-xl border border-gray-200 dark:border-dark-border p-4">
             <h2 className="text-xs font-semibold text-gray-400 dark:text-dark-muted uppercase tracking-wide mb-3">
               Jogos anteriores
