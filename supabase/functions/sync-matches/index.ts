@@ -599,13 +599,18 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       // Só enviar notificação para partidas recém-finalizadas (não para placar atualizado)
       if (newlyFinished.includes(matchId)) {
-        triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
+        await triggerPostMatchNotification(supabaseUrl, supabaseServiceRoleKey, {
           id: matchId,
           home_team: seedMatch.home_team,
           away_team: seedMatch.away_team,
           home_score: updatedMatch.home_score,
           away_score: updatedMatch.away_score,
         })
+        // Marcar como notificado para evitar reenvio pelo check-finished-matches
+        await supabase
+          .from('matches')
+          .update({ post_match_notified_at: new Date().toISOString() })
+          .eq('id', matchId)
       }
     }
 
