@@ -1,15 +1,18 @@
 function UserStats({ predictions = [] }) {
   const totalPredictions = predictions.length
+  const finished = predictions.filter(p => p.match_status === 'finished')
+  const pending = predictions.filter(p => p.match_status !== 'finished')
 
-  const distribution = {
-    10: predictions.filter(p => p.points === 10).length,
-    7: predictions.filter(p => p.points === 7).length,
-    6: predictions.filter(p => p.points === 6).length,
-    5: predictions.filter(p => p.points === 5).length,
-    0: predictions.filter(p => p.points === 0).length,
-  }
+  const distribution = [
+    { label: '10pts', count: finished.filter(p => p.points === 10).length, color: 'bg-green-500' },
+    { label: '7pts',  count: finished.filter(p => p.points === 7).length,  color: 'bg-teal-500' },
+    { label: '6pts',  count: finished.filter(p => p.points === 6).length,  color: 'bg-blue-500' },
+    { label: '5pts',  count: finished.filter(p => p.points === 5).length,  color: 'bg-orange-400' },
+    { label: '0pts',  count: finished.filter(p => p.points === 0).length,  color: 'bg-red-400' },
+    { label: 'Aguard.', count: pending.length,                              color: 'bg-gray-400' },
+  ]
 
-  const exactScoreCount = distribution[10]
+  const exactScoreCount = distribution[0].count
   const exactScoreRate =
     totalPredictions > 0
       ? ((exactScoreCount / totalPredictions) * 100).toFixed(1)
@@ -45,20 +48,19 @@ function UserStats({ predictions = [] }) {
         <h3 className="text-xs font-semibold text-gray-400 dark:text-dark-muted uppercase">
           Distribuição por Pontos
         </h3>
-        {[10, 7, 6, 5, 0].map(points => {
-          const count = distribution[points]
+        {distribution.map(({ label, count, color }) => {
           const percentage =
             totalPredictions > 0
               ? ((count / totalPredictions) * 100).toFixed(0)
               : '0'
           return (
-            <div key={points} className="flex items-center gap-2">
+            <div key={label} className="flex items-center gap-2">
               <span className="w-12 text-sm font-medium text-gray-600 dark:text-dark-muted shrink-0">
-                {points}pts
+                {label}
               </span>
               <div className="flex-1 h-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary-500 rounded-full transition-all duration-300"
+                  className={`h-full ${color} rounded-full transition-all duration-300`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>
