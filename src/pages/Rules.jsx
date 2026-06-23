@@ -11,6 +11,12 @@ function Rules() {
     },
     {
       points: 7,
+      title: 'Vencedor Quase Exato',
+      description: 'Acertar o vencedor, errar o gols do vencedor por 1 e o perdedor exato',
+      example: 'Palpite: 4×0 | Resultado: 5×0 · Palpite: 6×0 | Resultado: 5×0',
+    },
+    {
+      points: 6,
       title: 'Vencedor + Saldo de Gols',
       description: 'Acertar o vencedor e a diferença de gols (placar diferente)',
       example: 'Palpite: 2×0 | Resultado: 3×1',
@@ -31,6 +37,7 @@ function Rules() {
 
   const scenarioStyles = [
     { border: 'border-l-green-500', text: 'text-green-500' },
+    { border: 'border-l-teal-500', text: 'text-teal-500' },
     { border: 'border-l-blue-500', text: 'text-blue-500' },
     { border: 'border-l-orange-500', text: 'text-orange-500' },
     { border: 'border-l-accent-red', text: 'text-accent-red' },

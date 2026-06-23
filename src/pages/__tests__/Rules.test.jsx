@@ -12,9 +12,9 @@ function renderRules() {
 
 const scenarioTitles = [
   'Placar Exato',
+  'Vencedor Quase Exato',
   'Vencedor + Saldo de Gols',
-  'Empate Correto',
-  'Vencedor Correto',
+  'Resultado Correto',
   'Resultado Errado',
 ]
 
@@ -66,17 +66,18 @@ describe('Rules page', () => {
   it('displays correct points for each scenario', () => {
     renderRules()
     expect(screen.getByText('10 pts')).toBeInTheDocument()
-    expect(screen.getAllByText('7 pts')).toHaveLength(2)
-    expect(screen.getByText('3 pts')).toBeInTheDocument()
+    expect(screen.getByText('7 pts')).toBeInTheDocument()
+    expect(screen.getByText('6 pts')).toBeInTheDocument()
+    expect(screen.getByText('5 pts')).toBeInTheDocument()
     expect(screen.getByText('0 pts')).toBeInTheDocument()
   })
 
   it('renders example text for each scenario', () => {
     renderRules()
     expect(screen.getByText(/Palpite: 2×1 \| Resultado: 2×1/)).toBeInTheDocument()
+    expect(screen.getByText(/Palpite: 4×0 \| Resultado: 5×0/)).toBeInTheDocument()
     expect(screen.getByText(/Palpite: 2×0 \| Resultado: 3×1/)).toBeInTheDocument()
     expect(screen.getByText(/Palpite: 1×1 \| Resultado: 2×2/)).toBeInTheDocument()
-    expect(screen.getByText(/Palpite: 1×0 \| Resultado: 3×1/)).toBeInTheDocument()
     expect(screen.getByText(/Palpite: 2×0 \| Resultado: 0×1/)).toBeInTheDocument()
   })
 

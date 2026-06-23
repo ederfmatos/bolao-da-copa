@@ -11,13 +11,31 @@ export function calculatePoints(
   const predictedWinner = Math.sign(predictedDiff)
   const actualWinner = Math.sign(actualDiff)
 
-  if (predictedWinner !== 0 && predictedWinner === actualWinner && predictedDiff === actualDiff) {
+  if (predictedWinner !== actualWinner) {
+    return 0
+  }
+
+  // Home team wins: winner off by ±1, loser exact
+  if (
+    actualWinner === 1 &&
+    Math.abs(predicted.home - actual.home) === 1 &&
+    predicted.away === actual.away
+  ) {
     return 7
   }
 
-  if (predictedWinner === actualWinner) {
-    return 5
+  // Away team wins: winner off by ±1, loser exact
+  if (
+    actualWinner === -1 &&
+    Math.abs(predicted.away - actual.away) === 1 &&
+    predicted.home === actual.home
+  ) {
+    return 7
   }
 
-  return 0
+  if (predictedWinner !== 0 && predictedDiff === actualDiff) {
+    return 6
+  }
+
+  return 5
 }
