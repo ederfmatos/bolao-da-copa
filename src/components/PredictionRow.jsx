@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 
 function pointsBadgeColor(points) {
-  if (points >= 10) return 'bg-green-500 text-white'
-  if (points >= 7) return 'bg-blue-500 text-white'
-  if (points >= 5) return 'bg-orange-500 text-white'
+  if (points === 10) return 'bg-green-500 text-white'
+  if (points === 7)  return 'bg-teal-500 text-white'
+  if (points === 6)  return 'bg-blue-500 text-white'
+  if (points === 5)  return 'bg-orange-400 text-white'
+  if (points === 0)  return 'bg-red-400 text-white'
   return 'bg-gray-400 text-white'
 }
 
