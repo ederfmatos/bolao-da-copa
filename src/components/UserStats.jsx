@@ -4,6 +4,7 @@ function UserStats({ predictions = [] }) {
   const distribution = {
     10: predictions.filter(p => p.points === 10).length,
     7: predictions.filter(p => p.points === 7).length,
+    6: predictions.filter(p => p.points === 6).length,
     5: predictions.filter(p => p.points === 5).length,
     0: predictions.filter(p => p.points === 0).length,
   }
@@ -44,7 +45,7 @@ function UserStats({ predictions = [] }) {
         <h3 className="text-xs font-semibold text-gray-400 dark:text-dark-muted uppercase">
           Distribuição por Pontos
         </h3>
-        {[10, 7, 5, 0].map(points => {
+        {[10, 7, 6, 5, 0].map(points => {
           const count = distribution[points]
           const percentage =
             totalPredictions > 0
