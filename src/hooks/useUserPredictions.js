@@ -15,7 +15,7 @@ export function useUserPredictions(userId) {
           .from('user_predictions')
           .select('*')
           .eq('user_id', userId)
-          .order('kickoff_at', { ascending: true })
+          .order('created_at', { ascending: false })
 
         if (error) throw error
         setPredictions(data || [])

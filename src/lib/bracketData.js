@@ -2,9 +2,86 @@ export const BONUS_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
 export const SCORER_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
+export const BRACKET_DEADLINE = new Date('2026-06-28T12:45:00Z')
+// TODO: atualizar após confirmação do horário oficial (2026-06-27)
+
 // Ativar quando o bracket real for conhecido (pós-fase de grupos).
 // Também atualizar bracketHalf em TEAMS com os lados corretos.
 export const BRACKET_DETERMINED = false
+
+export const BRACKET_SLOTS = [
+  'R32_01', 'R32_02', 'R32_03', 'R32_04', 'R32_05', 'R32_06', 'R32_07', 'R32_08',
+  'R32_09', 'R32_10', 'R32_11', 'R32_12', 'R32_13', 'R32_14', 'R32_15', 'R32_16',
+  'R16_01', 'R16_02', 'R16_03', 'R16_04', 'R16_05', 'R16_06', 'R16_07', 'R16_08',
+  'QF_01', 'QF_02', 'QF_03', 'QF_04',
+  'SF_01', 'SF_02',
+  '3RD', 'FINAL',
+]
+
+export const BRACKET_PARENTS = {
+  'R32_01': null, 'R32_02': null, 'R32_03': null, 'R32_04': null,
+  'R32_05': null, 'R32_06': null, 'R32_07': null, 'R32_08': null,
+  'R32_09': null, 'R32_10': null, 'R32_11': null, 'R32_12': null,
+  'R32_13': null, 'R32_14': null, 'R32_15': null, 'R32_16': null,
+  'R16_01': ['R32_01', 'R32_02'],
+  'R16_02': ['R32_03', 'R32_04'],
+  'R16_03': ['R32_05', 'R32_06'],
+  'R16_04': ['R32_07', 'R32_08'],
+  'R16_05': ['R32_09', 'R32_10'],
+  'R16_06': ['R32_11', 'R32_12'],
+  'R16_07': ['R32_13', 'R32_14'],
+  'R16_08': ['R32_15', 'R32_16'],
+  'QF_01': ['R16_01', 'R16_02'],
+  'QF_02': ['R16_03', 'R16_04'],
+  'QF_03': ['R16_05', 'R16_06'],
+  'QF_04': ['R16_07', 'R16_08'],
+  'SF_01': ['QF_01', 'QF_02'],
+  'SF_02': ['QF_03', 'QF_04'],
+  'FINAL': ['SF_01', 'SF_02'],
+  '3RD': ['SF_01', 'SF_02'],
+}
+
+function buildDescendants() {
+  const descendants = {}
+  function getDescendants(slot, visited = new Set()) {
+    if (visited.has(slot)) return []
+    visited.add(slot)
+    const result = []
+    for (const [child, parents] of Object.entries(BRACKET_PARENTS)) {
+      if (parents && parents.includes(slot)) {
+        result.push(child, ...getDescendants(child, visited))
+      }
+    }
+    return [...new Set(result)]
+  }
+  for (const slot of Object.keys(BRACKET_PARENTS)) {
+    descendants[slot] = getDescendants(slot)
+  }
+  return descendants
+}
+
+export const BRACKET_DESCENDANTS = buildDescendants()
+
+// 16 confrontos dos 16 avos — slot canônico + identificadores visuais dos times
+// TODO: atualizar homeSlotLabel/awaySlotLabel quando o bracket oficial for confirmado
+export const R32_MATCHUPS = [
+  { slot: 'R32_01', homeSlotLabel: '1A', awaySlotLabel: '2B' },
+  { slot: 'R32_02', homeSlotLabel: '1C', awaySlotLabel: '2D' },
+  { slot: 'R32_03', homeSlotLabel: '1E', awaySlotLabel: '2F' },
+  { slot: 'R32_04', homeSlotLabel: '1G', awaySlotLabel: '2H' },
+  { slot: 'R32_05', homeSlotLabel: '1I', awaySlotLabel: '2J' },
+  { slot: 'R32_06', homeSlotLabel: '1K', awaySlotLabel: '2L' },
+  { slot: 'R32_07', homeSlotLabel: '1M', awaySlotLabel: '2N' },
+  { slot: 'R32_08', homeSlotLabel: '1O', awaySlotLabel: '2P' },
+  { slot: 'R32_09', homeSlotLabel: '1B', awaySlotLabel: '2A' },
+  { slot: 'R32_10', homeSlotLabel: '1D', awaySlotLabel: '2C' },
+  { slot: 'R32_11', homeSlotLabel: '1F', awaySlotLabel: '2E' },
+  { slot: 'R32_12', homeSlotLabel: '1H', awaySlotLabel: '2G' },
+  { slot: 'R32_13', homeSlotLabel: '1J', awaySlotLabel: '2I' },
+  { slot: 'R32_14', homeSlotLabel: '1L', awaySlotLabel: '2K' },
+  { slot: 'R32_15', homeSlotLabel: '1N', awaySlotLabel: '2M' },
+  { slot: 'R32_16', homeSlotLabel: '1P', awaySlotLabel: '2O' },
+]
 
 export const TEAMS = [
   { name: 'África do Sul', flag: '🇿🇦', bracketHalf: 'LEFT' },

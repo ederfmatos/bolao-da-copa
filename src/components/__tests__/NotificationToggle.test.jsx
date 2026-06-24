@@ -251,6 +251,6 @@ describe('NotificationToggle integration with UserProfile', () => {
   })
 
   it('NotificationToggle is rendered in UserProfile page', () => {
-    expect(userProfileContent).toContain('<NotificationToggle />')
+    expect(userProfileContent).toContain('<NotificationToggle')
   })
 })

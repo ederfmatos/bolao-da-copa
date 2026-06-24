@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import html2canvas from 'html2canvas'
 import { useLeaderboard } from '../hooks/useLeaderboard'
@@ -10,8 +10,14 @@ function Leaderboard() {
   const { leaderboard, loading, error } = useLeaderboard()
   const { user } = useAuth()
   const [sharing, setSharing] = useState(false)
+  const [bracketRanking, setBracketRanking] = useState(false)
   const captureRef = useRef(null)
   const navigate = useNavigate()
+
+  const displayedList = useMemo(() => {
+    if (!bracketRanking) return leaderboard
+    return [...leaderboard].sort((a, b) => (b.bracket_points ?? 0) - (a.bracket_points ?? 0))
+  }, [leaderboard, bracketRanking])
 
   const handleShare = async () => {
     if (!captureRef.current) return
@@ -74,8 +80,8 @@ function Leaderboard() {
     )
   }
 
-  const top3 = leaderboard.slice(0, 3)
-  const rest = leaderboard.slice(3)
+  const top3 = displayedList.slice(0, 3)
+  const rest = displayedList.slice(3)
 
   return (
     <div className="p-4 max-w-xl mx-auto">
@@ -108,6 +114,29 @@ function Leaderboard() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
           )}
+        </button>
+      </div>
+
+      <div className="flex justify-center gap-2 mb-4">
+        <button
+          onClick={() => setBracketRanking(false)}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            !bracketRanking
+              ? 'bg-green-500 text-white'
+              : 'bg-gray-100 dark:bg-dark-border text-gray-500 dark:text-dark-muted'
+          }`}
+        >
+          Geral
+        </button>
+        <button
+          onClick={() => setBracketRanking(true)}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            bracketRanking
+              ? 'bg-purple-500 text-white'
+              : 'bg-gray-100 dark:bg-dark-border text-gray-500 dark:text-dark-muted'
+          }`}
+        >
+          Mata-Mata
         </button>
       </div>
 

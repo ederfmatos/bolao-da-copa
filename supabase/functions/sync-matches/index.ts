@@ -3,6 +3,9 @@ import { createClient } from './supabaseClient.ts'
 import { calculatePoints } from '../_shared/calculatePoints.ts'
 import { calculateBonusPoints } from '../_shared/calculateBonusPoints.ts'
 import { mapTeamName } from './teamMapping.ts'
+import { PHASE_MAP } from '../_shared/phaseMapping.ts'
+import { calculateBracketPoints } from '../_shared/calculateBracketPoints.ts'
+import { BRACKET_SLOTS, BRACKET_PARENTS, BracketSlot } from '../_shared/bracketSlots.ts'
 
 interface Match {
   id: string
@@ -29,6 +32,52 @@ function mapStatus(status: string): string {
     CANCELLED: 'scheduled',
   }
   return statusMap[status] || 'scheduled'
+}
+
+function getKnockoutBracketSlot(stage: string, matchNumber: number): BracketSlot | null {
+  // Map API stage/stage names to bracket slot
+  // matchNumber is 1-indexed (1, 2, 3, ...)
+
+  switch (stage) {
+    case 'LAST_32':
+      // Round of 32 (16 Avos): 16 matches
+      if (matchNumber >= 1 && matchNumber <= 16) {
+        return (`R32_${matchNumber.toString().padStart(2, '0')}` as BracketSlot)
+      }
+      break
+    case 'LAST_16':
+      // Round of 16 (Oitavas): 8 matches
+      if (matchNumber >= 1 && matchNumber <= 8) {
+        return (`R16_${matchNumber.toString().padStart(2, '0')}` as BracketSlot)
+      }
+      break
+    case 'QUARTER_FINALS':
+      // Quarter-finals (Quartas): 4 matches
+      if (matchNumber >= 1 && matchNumber <= 4) {
+        return (`QF_${matchNumber.toString().padStart(2, '0')}` as BracketSlot)
+      }
+      break
+    case 'SEMI_FINALS':
+      // Semi-finals (Semifinais): 2 matches
+      if (matchNumber >= 1 && matchNumber <= 2) {
+        return (`SF_${matchNumber.toString().padStart(2, '0')}` as BracketSlot)
+      }
+      break
+    case 'THIRD_PLACE':
+      // Third place: 1 match
+      if (matchNumber === 1) {
+        return '3RD'
+      }
+      break
+    case 'FINAL':
+      // Final: 1 match
+      if (matchNumber === 1) {
+        return 'FINAL'
+      }
+      break
+  }
+
+  return null
 }
 
 async function fetchMatchesFromApi(apiKey: string): Promise<any[]> {
@@ -224,6 +273,148 @@ export async function recalculateBonusPoints(
     updated_count: updatedCount,
     standings,
   }))
+}
+
+export async function recalculateBracketPoints(
+  supabase: ReturnType<typeof createClient>,
+  bracketSlot: BracketSlot,
+  actualWinner: string,
+  actualOpponent: string,
+): Promise<void> {
+  try {
+    // Fetch all bracket_predictions for this slot
+    const { data: predictions, error: fetchError } = await supabase
+      .from('bracket_predictions')
+      .select('id, user_id, predicted_winner')
+      .eq('bracket_slot', bracketSlot)
+
+    if (fetchError) {
+      console.error(JSON.stringify({
+        event: 'bracket_points_recalculation_failed',
+        bracket_slot: bracketSlot,
+        error: fetchError.message,
+      }))
+      return
+    }
+
+    if (!predictions || predictions.length === 0) {
+      console.log(JSON.stringify({
+        event: 'bracket_points_recalculated',
+        bracket_slot: bracketSlot,
+        users_updated: 0,
+      }))
+      return
+    }
+
+    // Determine parent slots to get opponent predictions
+    const parents = BRACKET_PARENTS[bracketSlot]
+    // Map: user_id -> { parent1Winner, parent2Winner }
+    const userParentPredictions: Record<string, { parent1: string; parent2: string }> = {}
+
+    if (parents) {
+      // Fetch all predictions for parent slots for all users who predicted this slot
+      const { data: parentPredictions, error: parentError } = await supabase
+        .from('bracket_predictions')
+        .select('user_id, bracket_slot, predicted_winner')
+        .in('bracket_slot', parents)
+        .in('user_id', predictions.map(p => p.user_id))
+
+      if (parentError) {
+        console.error(JSON.stringify({
+          event: 'bracket_points_recalculation_failed',
+          bracket_slot: bracketSlot,
+          error: parentError.message,
+        }))
+        return
+      }
+
+      // Build map of user_id -> { parent1Winner, parent2Winner }
+      for (const parentPred of parentPredictions || []) {
+        const key = `${parentPred.user_id}`
+        if (!userParentPredictions[key]) {
+          userParentPredictions[key] = { parent1: '', parent2: '' }
+        }
+        if (parentPred.bracket_slot === parents[0]) {
+          userParentPredictions[key].parent1 = parentPred.predicted_winner
+        } else if (parentPred.bracket_slot === parents[1]) {
+          userParentPredictions[key].parent2 = parentPred.predicted_winner
+        }
+      }
+    }
+
+    let updatedCount = 0
+
+    for (const pred of predictions) {
+      const parentPreds = userParentPredictions[pred.user_id]
+      let userPredictedOpponent = ''
+
+      if (parentPreds && bracketSlot === '3RD') {
+        // For 3RD place: participants are the LOSERS of the semi-finals
+        // The user's predicted opponent in 3RD is the team they predicted would
+        // lose the OTHER semi-final (the one whose winner they didn't pick for 3RD)
+        // Since both SF losers go to 3RD, the opponent is whichever parent winner
+        // is NOT the user's predicted winner for this slot
+        if (pred.predicted_winner === parentPreds.parent1) {
+          userPredictedOpponent = parentPreds.parent2
+        } else if (pred.predicted_winner === parentPreds.parent2) {
+          userPredictedOpponent = parentPreds.parent1
+        } else {
+          // User predicted a team that didn't come from either parent
+          // (shouldn't happen in valid bracket, but handle gracefully)
+          userPredictedOpponent = parentPreds.parent1 || parentPreds.parent2 || ''
+        }
+      } else if (parentPreds) {
+        // For normal slots: the opponent is whichever parent winner
+        // is NOT the user's predicted winner for this slot
+        if (pred.predicted_winner === parentPreds.parent1) {
+          userPredictedOpponent = parentPreds.parent2
+        } else if (pred.predicted_winner === parentPreds.parent2) {
+          userPredictedOpponent = parentPreds.parent1
+        } else {
+          // User predicted a team that didn't come from either parent
+          // (invalid bracket state, but handle gracefully)
+          userPredictedOpponent = parentPreds.parent1 || parentPreds.parent2 || ''
+        }
+      }
+
+      const points = calculateBracketPoints({
+        slot: bracketSlot,
+        actualWinner,
+        actualOpponent,
+        userPredictedWinner: pred.predicted_winner,
+        userPredictedOpponent,
+      })
+
+      const { error: updateError } = await supabase
+        .from('bracket_predictions')
+        .update({ bracket_points: points })
+        .eq('id', pred.id)
+
+      if (updateError) {
+        console.error(JSON.stringify({
+          event: 'bracket_points_update_failed',
+          prediction_id: pred.id,
+          error: updateError.message,
+        }))
+      } else {
+        updatedCount++
+      }
+    }
+
+    console.log(JSON.stringify({
+      event: 'bracket_points_recalculated',
+      bracket_slot: bracketSlot,
+      actual_winner: actualWinner,
+      actual_opponent: actualOpponent,
+      users_updated: updatedCount,
+    }))
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: 'bracket_points_recalculation_failed',
+      bracket_slot: bracketSlot,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }))
+  }
 }
 
 const SCORER_POINTS = 20
@@ -486,9 +677,13 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
     const newlyFinished: string[] = []
     const scoreUpdated: string[] = []
+    const knockoutMatchesBySlot: Map<BracketSlot, { match_id: string; home_team: string; away_team: string }> = new Map()
     let updatedCount = 0
     let notFoundCount = 0
     const fallbackApiKey = Deno.env.get('API_FOOTBALL_KEY')
+
+    // Track match number per stage for bracket slot assignment
+    const stageMatchCounts: Record<string, number> = {}
 
     for (const apiMatch of apiMatches) {
       const homeTeamPt = mapTeamName(apiMatch.homeTeam?.shortName || apiMatch.homeTeam?.name || 'TBD')
@@ -497,6 +692,19 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       const status = mapStatus(apiMatch.status)
       let homeScore = apiMatch.score?.fullTime?.home ?? null
       let awayScore = apiMatch.score?.fullTime?.away ?? null
+
+      // Extract stage and determine group_name + bracket_slot
+      const apiStage = apiMatch.stage || apiMatch.round
+      let groupName = null
+      let bracketSlot: BracketSlot | null = null
+
+      if (apiStage && PHASE_MAP[apiStage]) {
+        groupName = PHASE_MAP[apiStage]
+        // Increment match counter for this stage to determine match number
+        stageMatchCounts[apiStage] = (stageMatchCounts[apiStage] || 0) + 1
+        const matchNumber = stageMatchCounts[apiStage]
+        bracketSlot = getKnockoutBracketSlot(apiStage, matchNumber)
+      }
 
       // Fallback: se status é FINISHED mas placar está null, tentar API-Football
       if (status === 'finished' && (homeScore === null || awayScore === null) && fallbackApiKey) {
@@ -518,9 +726,9 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       // Buscar partida correspondente no seed
       const normalizedKickoff = new Date(kickoffAt).toISOString()
       const candidates = seedMatchesByKickoff.get(normalizedKickoff) || []
-      
+
       let seedMatch = null
-      
+
       // Tentar match exato por nomes
       for (const candidate of candidates) {
         if (candidate.home_team === homeTeamPt && candidate.away_team === awayTeamPt) {
@@ -546,25 +754,52 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
       if (!wasFinished && isNowFinished) {
         newlyFinished.push(seedMatch.id)
+        // Track bracket matches for recalculation
+        if (bracketSlot) {
+          knockoutMatchesBySlot.set(bracketSlot, {
+            match_id: seedMatch.id,
+            home_team: homeTeamPt,
+            away_team: awayTeamPt,
+          })
+        }
       } else if (wasFinished && isNowFinished && scoreChanged && homeScore !== null && awayScore !== null) {
         // Partida já estava finalizada mas o placar foi atualizado
         scoreUpdated.push(seedMatch.id)
       }
 
       // Atualizar a partida — só sobrescrever placar se API retornou valor válido
+      const updateData: Record<string, any> = {
+        status: status,
+        ...(homeScore !== null && { home_score: homeScore }),
+        ...(awayScore !== null && { away_score: awayScore }),
+      }
+
+      // Add group_name and bracket_slot if knockout match
+      if (groupName) {
+        updateData.group_name = groupName
+      }
+      if (bracketSlot) {
+        updateData.bracket_slot = bracketSlot
+      }
+
       const { error: updateError } = await supabase
         .from('matches')
-        .update({
-          status: status,
-          ...(homeScore !== null && { home_score: homeScore }),
-          ...(awayScore !== null && { away_score: awayScore }),
-        })
+        .update(updateData)
         .eq('id', seedMatch.id)
 
       if (updateError) {
         console.error(`Error updating match ${seedMatch.id}:`, updateError)
       } else {
         updatedCount++
+        // Log knockout match sync
+        if (bracketSlot) {
+          console.log(JSON.stringify({
+            event: 'knockout_match_synced',
+            match_id: seedMatch.id,
+            bracket_slot: bracketSlot,
+            group_name: groupName,
+          }))
+        }
       }
     }
 
@@ -646,6 +881,22 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
     }
 
     console.log(`Total predictions updated: ${totalPredictionsUpdated}`)
+
+    // Process bracket points for knockout matches that just finished
+    for (const [bracketSlot, matchInfo] of knockoutMatchesBySlot.entries()) {
+      // Determine winner
+      const matchData = seedMatches.find(m => m.id === matchInfo.match_id)
+      if (matchData && matchData.status === 'finished' && matchData.home_score !== null && matchData.away_score !== null) {
+        const actualWinner = matchData.home_score > matchData.away_score
+          ? matchData.home_team
+          : matchData.away_team
+        const actualOpponent = matchData.home_score > matchData.away_score
+          ? matchData.away_team
+          : matchData.home_team
+
+        await recalculateBracketPoints(supabase, bracketSlot, actualWinner, actualOpponent)
+      }
+    }
 
     const triggerMatchIds = [...newlyFinished, ...scoreUpdated]
     const bonusTriggered = (seedMatches || []).some(

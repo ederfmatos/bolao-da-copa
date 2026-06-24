@@ -72,6 +72,33 @@ describe('LeaderboardRow', () => {
     expect(img.getAttribute('src')).toBe('https://example.com/avatar.jpg')
   })
 
+  it('renders bracket_points when provided', () => {
+    renderRow({ entry: { ...baseEntry, bracket_points: 42 } })
+    expect(screen.getByText('42')).toBeInTheDocument()
+    expect(screen.getByText('Mata-Mata')).toBeInTheDocument()
+  })
+
+  it('renders bracket_points = 0 without crashing', () => {
+    renderRow({ entry: { ...baseEntry, bracket_points: 0 } })
+    expect(screen.getByText('0')).toBeInTheDocument()
+    expect(screen.getByText('Mata-Mata')).toBeInTheDocument()
+  })
+
+  it('renders group_points detail when provided', () => {
+    renderRow({ entry: { ...baseEntry, group_points: 100, bracket_points: 42 } })
+    expect(screen.getByText('100 grupo')).toBeInTheDocument()
+  })
+
+  it('does not render bracket_points column when undefined', () => {
+    renderRow()
+    expect(screen.queryByText('Mata-Mata')).not.toBeInTheDocument()
+  })
+
+  it('does not render group_points detail when undefined', () => {
+    renderRow()
+    expect(screen.queryByText(/grupo/)).not.toBeInTheDocument()
+  })
+
   it('renders without inline styles', () => {
     const { container } = renderRow()
     const elementsWithStyle = container.querySelectorAll('[style]')

@@ -32,8 +32,8 @@ vi.mock('../pages/Rules.jsx', () => ({
   default: () => <div data-testid="rules-page">Rules</div>,
 }))
 
-vi.mock('../pages/FinalPrediction.jsx', () => ({
-  default: () => <div data-testid="final-prediction-page">FinalPrediction</div>,
+vi.mock('../pages/BracketPrediction.jsx', () => ({
+  default: () => <div data-testid="bracket-prediction-page">BracketPrediction</div>,
 }))
 
 vi.mock('../pages/Artilheiro.jsx', () => ({
@@ -109,10 +109,15 @@ describe('App routing', () => {
     expect(screen.getByRole('navigation')).toBeInTheDocument()
   })
 
-  it('renders /final-prediction with BottomNavigation', async () => {
-    await renderApp('/final-prediction', { user: { id: 'u1' }, loading: false })
-    expect(screen.getByTestId('final-prediction-page')).toBeInTheDocument()
+  it('renders /bracket-prediction with BottomNavigation', async () => {
+    await renderApp('/bracket-prediction', { user: { id: 'u1' }, loading: false })
+    expect(screen.getByTestId('bracket-prediction-page')).toBeInTheDocument()
     expect(screen.getByRole('navigation')).toBeInTheDocument()
+  })
+
+  it('redirects /final-prediction to / when not authenticated', async () => {
+    await renderApp('/final-prediction')
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
   })
 
   it('does not render BottomNavigation on Login page', async () => {
@@ -147,5 +152,21 @@ describe('ThemeProvider wrapping', () => {
 
     expect(screen.getByTestId('login-page')).toBeInTheDocument()
     expect(container.querySelector('.min-h-screen')).toBeInTheDocument()
+  })
+})
+
+describe('deprecated files preserved', () => {
+  it('FinalPrediction.jsx still exists on filesystem', () => {
+    const fs = require('fs')
+    const path = require('path')
+    const filePath = path.resolve(__dirname, '../pages/FinalPrediction.jsx')
+    expect(fs.existsSync(filePath)).toBe(true)
+  })
+
+  it('useBonusPrediction.js still exists on filesystem', () => {
+    const fs = require('fs')
+    const path = require('path')
+    const filePath = path.resolve(__dirname, '../hooks/useBonusPrediction.js')
+    expect(fs.existsSync(filePath)).toBe(true)
   })
 })

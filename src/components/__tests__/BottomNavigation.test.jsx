@@ -18,7 +18,7 @@ describe('BottomNavigation', () => {
     renderWithProviders(<BottomNavigation />)
     expect(screen.getByText('Partidas')).toBeInTheDocument()
     expect(screen.getByText('Classificação')).toBeInTheDocument()
-    expect(screen.getByText('Bônus')).toBeInTheDocument()
+    expect(screen.getByText('Mata-Mata')).toBeInTheDocument()
     expect(screen.getByText('Artilheiro')).toBeInTheDocument()
     expect(screen.getByText('Regras')).toBeInTheDocument()
   })
@@ -90,10 +90,10 @@ describe('navigation', () => {
     expect(link).toHaveAttribute('href', '/leaderboard')
   })
 
-  it('Bônus link points to /final-prediction', () => {
+  it('Mata-Mata link points to /bracket-prediction', () => {
     renderWithProviders(<BottomNavigation />)
-    const link = screen.getByText('Bônus').closest('a')
-    expect(link).toHaveAttribute('href', '/final-prediction')
+    const link = screen.getByText('Mata-Mata').closest('a')
+    expect(link).toHaveAttribute('href', '/bracket-prediction')
   })
 
   it('Artilheiro link points to /artilheiro', () => {

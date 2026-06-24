@@ -4,7 +4,7 @@ function BottomNavigation() {
   const tabs = [
     { to: '/matches', label: 'Partidas', icon: '⚽' },
     { to: '/leaderboard', label: 'Classificação', icon: '🏆' },
-    { to: '/final-prediction', label: 'Bônus', icon: '🏅' },
+    { to: '/bracket-prediction', label: 'Mata-Mata', icon: '🏅' },
     { to: '/artilheiro', label: 'Artilheiro', icon: '🥅' },
     { to: '/rules', label: 'Regras', icon: '📋' },
   ]

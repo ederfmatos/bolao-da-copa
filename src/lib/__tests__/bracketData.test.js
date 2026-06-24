@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { TEAMS, BONUS_DEADLINE, SCORER_DEADLINE, BRACKET_DETERMINED, getValidTeams, deriveFourthPlace } from '../bracketData'
+import { TEAMS, BONUS_DEADLINE, SCORER_DEADLINE, BRACKET_DEADLINE, BRACKET_DETERMINED, R32_MATCHUPS, getValidTeams, deriveFourthPlace } from '../bracketData'
 
 describe('BONUS_DEADLINE', () => {
   test('exporta data correta (2026-06-21T21:00:00Z)', () => {
@@ -19,6 +19,58 @@ describe('SCORER_DEADLINE', () => {
 
   test('é igual a BONUS_DEADLINE (mesmo prazo)', () => {
     expect(SCORER_DEADLINE.getTime()).toBe(BONUS_DEADLINE.getTime())
+  })
+})
+
+describe('BRACKET_DEADLINE', () => {
+  test('é uma instância válida de Date', () => {
+    expect(BRACKET_DEADLINE).toBeInstanceOf(Date)
+  })
+
+  test('exporta data correta (placeholder 2026-06-28T12:45:00Z)', () => {
+    expect(BRACKET_DEADLINE.toISOString()).toBe('2026-06-28T12:45:00.000Z')
+  })
+
+  test('é posterior a BONUS_DEADLINE (prazos em ordem cronológica)', () => {
+    expect(BRACKET_DEADLINE.getTime()).toBeGreaterThan(BONUS_DEADLINE.getTime())
+  })
+})
+
+describe('R32_MATCHUPS', () => {
+  test('contém 16 confrontos', () => {
+    expect(R32_MATCHUPS.length).toBe(16)
+  })
+
+  test('cada item tem slot, homeSlotLabel, awaySlotLabel', () => {
+    for (const m of R32_MATCHUPS) {
+      expect(m).toHaveProperty('slot')
+      expect(m).toHaveProperty('homeSlotLabel')
+      expect(m).toHaveProperty('awaySlotLabel')
+    }
+  })
+
+  test('todos os slots seguem o padrão R32_NN', () => {
+    for (const m of R32_MATCHUPS) {
+      expect(m.slot).toMatch(/^R32_\d{2}$/)
+    }
+  })
+
+  test('cobre slots de R32_01 a R32_16', () => {
+    const slots = R32_MATCHUPS.map(m => m.slot).sort()
+    const expected = Array.from({ length: 16 }, (_, i) => `R32_${String(i + 1).padStart(2, '0')}`)
+    expect(slots).toEqual(expected)
+  })
+
+  test('todos os homeSlotLabel e awaySlotLabel têm formato NX', () => {
+    for (const m of R32_MATCHUPS) {
+      expect(m.homeSlotLabel).toMatch(/^[12][A-P]$/)
+      expect(m.awaySlotLabel).toMatch(/^[12][A-P]$/)
+    }
+  })
+
+  test('não tem entradas duplicadas', () => {
+    const slots = R32_MATCHUPS.map(m => m.slot)
+    expect(new Set(slots).size).toBe(16)
   })
 })
 
@@ -64,13 +116,36 @@ describe('Existing exports integrity', () => {
     expect(BONUS_DEADLINE.toISOString()).toBe('2026-06-21T21:00:00.000Z')
   })
 
+  test('SCORER_DEADLINE continua exportado e inalterado', () => {
+    expect(SCORER_DEADLINE.toISOString()).toBe('2026-06-21T21:00:00.000Z')
+  })
+
+  test('BRACKET_DEADLINE continua exportado e inalterado', () => {
+    expect(BRACKET_DEADLINE.toISOString()).toBe('2026-06-28T12:45:00.000Z')
+  })
+
+  test('BRACKET_DETERMINED continua exportado e é false', () => {
+    expect(BRACKET_DETERMINED).toBe(false)
+  })
+
+  test('R32_MATCHUPS continua exportado com 16 elementos', () => {
+    expect(Array.isArray(R32_MATCHUPS)).toBe(true)
+    expect(R32_MATCHUPS.length).toBe(16)
+  })
+
   test('TEAMS continua exportado com 48 elementos', () => {
     expect(Array.isArray(TEAMS)).toBe(true)
     expect(TEAMS.length).toBe(48)
   })
 
-  test('BRACKET_DETERMINED continua exportado e é false', () => {
-    expect(BRACKET_DETERMINED).toBe(false)
+  test('getValidTeams continua exportada e funcional', () => {
+    const valid = getValidTeams('first', {})
+    expect(Array.isArray(valid)).toBe(true)
+    expect(valid.length).toBe(48)
+  })
+
+  test('deriveFourthPlace continua exportada e funcional', () => {
+    expect(deriveFourthPlace({ first: 'Brasil', second: 'Espanha', third: 'Argentina' })).toBeNull()
   })
 })
 

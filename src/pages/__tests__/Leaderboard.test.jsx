@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Leaderboard from '../Leaderboard'
 
@@ -32,7 +32,7 @@ vi.mock('../../components/Podium', () => ({
   ),
 }))
 
-const mockEntry = (id, points, tiebreakers = {}) => ({
+const mockEntry = (id, points, tiebreakers = {}, extra = {}) => ({
   user_id: id,
   name: `Player${id}`,
   avatar_url: null,
@@ -41,6 +41,8 @@ const mockEntry = (id, points, tiebreakers = {}) => ({
   exact_score_count: tiebreakers.exact_score_count ?? 0,
   winner_with_diff_count: tiebreakers.winner_with_diff_count ?? 0,
   winner_correct_count: tiebreakers.winner_correct_count ?? 0,
+  group_points: extra.group_points ?? points,
+  bracket_points: extra.bracket_points ?? 0,
 })
 
 function renderLeaderboard() {
@@ -227,5 +229,92 @@ describe('Leaderboard page', () => {
     expect(screen.getByTestId('leaderboard-row-u2').getAttribute('data-rank')).toBe('2')
     expect(screen.getByTestId('leaderboard-row-u3').getAttribute('data-rank')).toBe('3')
     expect(screen.getByTestId('leaderboard-row-u4').getAttribute('data-rank')).toBe('4')
+  })
+
+  it('shows Geral button active by default and Mata-Mata inactive', () => {
+    mockUseLeaderboard.mockReturnValue({
+      leaderboard: [mockEntry('u1', 30, {}, { bracket_points: 10 })],
+      loading: false,
+      error: null,
+    })
+    renderLeaderboard()
+    const geralBtn = screen.getByText('Geral')
+    const mataBtn = screen.getByText('Mata-Mata')
+    expect(geralBtn.className).toContain('bg-green-500')
+    expect(mataBtn.className).not.toContain('bg-purple-500')
+  })
+
+  it('sorts by bracket_points DESC when Mata-Mata toggle is active', () => {
+    mockUseLeaderboard.mockReturnValue({
+      leaderboard: [
+        mockEntry('u1', 30, {}, { bracket_points: 5 }),
+        mockEntry('u2', 25, {}, { bracket_points: 15 }),
+        mockEntry('u3', 20, {}, { bracket_points: 10 }),
+      ],
+      loading: false,
+      error: null,
+    })
+    renderLeaderboard()
+    fireEvent.click(screen.getByText('Mata-Mata'))
+
+    const rows = screen.getAllByTestId(/leaderboard-row-u/)
+    expect(rows[0].getAttribute('data-rank')).toBe('1')
+    expect(rows[0].textContent).toBe('Playeru2')
+    expect(rows[1].getAttribute('data-rank')).toBe('2')
+    expect(rows[1].textContent).toBe('Playeru3')
+    expect(rows[2].getAttribute('data-rank')).toBe('3')
+    expect(rows[2].textContent).toBe('Playeru1')
+  })
+
+  it('returns to total_points order when Geral toggle is clicked after Mata-Mata', () => {
+    mockUseLeaderboard.mockReturnValue({
+      leaderboard: [
+        mockEntry('u1', 30, {}, { bracket_points: 5 }),
+        mockEntry('u2', 25, {}, { bracket_points: 15 }),
+        mockEntry('u3', 20, {}, { bracket_points: 10 }),
+      ],
+      loading: false,
+      error: null,
+    })
+    renderLeaderboard()
+    fireEvent.click(screen.getByText('Mata-Mata'))
+    fireEvent.click(screen.getByText('Geral'))
+
+    const rows = screen.getAllByTestId(/leaderboard-row-u/)
+    expect(rows[0].getAttribute('data-rank')).toBe('1')
+    expect(rows[0].textContent).toBe('Playeru1')
+    expect(rows[1].getAttribute('data-rank')).toBe('2')
+    expect(rows[1].textContent).toBe('Playeru2')
+  })
+
+  it('uses original order when bracket_points are equal in Mata-Mata mode', () => {
+    mockUseLeaderboard.mockReturnValue({
+      leaderboard: [
+        mockEntry('u1', 30, {}, { bracket_points: 10 }),
+        mockEntry('u2', 25, {}, { bracket_points: 10 }),
+        mockEntry('u3', 20, {}, { bracket_points: 5 }),
+      ],
+      loading: false,
+      error: null,
+    })
+    renderLeaderboard()
+    fireEvent.click(screen.getByText('Mata-Mata'))
+
+    const rows = screen.getAllByTestId(/leaderboard-row-u/)
+    expect(rows[0].textContent).toBe('Playeru1')
+    expect(rows[1].textContent).toBe('Playeru2')
+    expect(rows[2].textContent).toBe('Playeru3')
+  })
+
+  it('applies purple style to active Mata-Mata button', () => {
+    mockUseLeaderboard.mockReturnValue({
+      leaderboard: [mockEntry('u1', 30)],
+      loading: false,
+      error: null,
+    })
+    renderLeaderboard()
+    fireEvent.click(screen.getByText('Mata-Mata'))
+    expect(screen.getByText('Mata-Mata').className).toContain('bg-purple-500')
+    expect(screen.getByText('Geral').className).not.toContain('bg-green-500')
   })
 })

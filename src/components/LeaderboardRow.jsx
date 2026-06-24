@@ -27,8 +27,26 @@ function LeaderboardRow({ entry, rank, isCurrentUser }) {
         </div>
       </Link>
 
-      <div className="text-2xl font-bold text-green-500 dark:text-green-400 shrink-0">
-        {entry.total_points}
+      {entry.bracket_points !== undefined && (
+        <div className="shrink-0 mr-5 text-center">
+          <div className="text-sm font-bold text-purple-600 dark:text-purple-400">
+            {entry.bracket_points}
+          </div>
+          <div className="text-[10px] text-gray-400 dark:text-dark-muted leading-tight">
+            Mata-Mata
+          </div>
+        </div>
+      )}
+
+      <div className="text-right shrink-0">
+        <div className="text-2xl font-bold text-green-500 dark:text-green-400">
+          {entry.total_points}
+        </div>
+        {entry.group_points !== undefined && (
+          <div className="text-[10px] text-gray-400 dark:text-dark-muted leading-tight">
+            {entry.group_points} grupo
+          </div>
+        )}
       </div>
     </div>
   )

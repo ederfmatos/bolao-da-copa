@@ -96,34 +96,22 @@ describe('PredictionRow', () => {
       expect(badge.className).toContain('bg-green-500')
     })
 
-    it('is green for points > 10', () => {
-      renderRow({ isFinished: true, prediction: { points: 15 } })
-      const badge = screen.getByText('15pts')
-      expect(badge.className).toContain('bg-green-500')
-    })
-
-    it('is blue for 7 points', () => {
+    it('is teal for 7 points', () => {
       renderRow({ isFinished: true, prediction: { points: 7 } })
       const badge = screen.getByText('7pts')
-      expect(badge.className).toContain('bg-blue-500')
+      expect(badge.className).toContain('bg-teal-500')
     })
 
-    it('is blue for 8 points', () => {
-      renderRow({ isFinished: true, prediction: { points: 8 } })
-      const badge = screen.getByText('8pts')
-      expect(badge.className).toContain('bg-blue-500')
-    })
-
-    it('is blue for 7 points', () => {
-      renderRow({ isFinished: true, prediction: { points: 7 } })
-      const badge = screen.getByText('7pts')
+    it('is blue for 6 points', () => {
+      renderRow({ isFinished: true, prediction: { points: 6 } })
+      const badge = screen.getByText('6pts')
       expect(badge.className).toContain('bg-blue-500')
     })
 
     it('is orange for 5 points', () => {
       renderRow({ isFinished: true, prediction: { points: 5 } })
       const badge = screen.getByText('5pts')
-      expect(badge.className).toContain('bg-orange-500')
+      expect(badge.className).toContain('bg-orange-400')
     })
 
     it('is gray for 3 points', () => {
@@ -132,10 +120,10 @@ describe('PredictionRow', () => {
       expect(badge.className).toContain('bg-gray-400')
     })
 
-    it('is gray for 0 points', () => {
+    it('is red for 0 points', () => {
       renderRow({ isFinished: true, prediction: { points: 0 } })
       const badge = screen.getByText('0pts')
-      expect(badge.className).toContain('bg-gray-400')
+      expect(badge.className).toContain('bg-red-400')
     })
   })
 

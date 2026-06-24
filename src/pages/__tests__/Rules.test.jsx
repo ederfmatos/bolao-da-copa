@@ -35,10 +35,10 @@ describe('Rules page', () => {
     expect(screen.getByText(/250 pts/)).toBeInTheDocument()
   })
 
-  it('contains link to /final-prediction', () => {
+  it('contains link to /bracket-prediction', () => {
     renderRules()
     const link = screen.getByRole('link', { name: /Fazer Palpite Bônus/i })
-    expect(link).toHaveAttribute('href', '/final-prediction')
+    expect(link).toHaveAttribute('href', '/bracket-prediction')
   })
 
   it('renders page title', () => {

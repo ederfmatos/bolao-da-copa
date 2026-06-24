@@ -11,7 +11,7 @@ import MatchDetails from './pages/MatchDetails.jsx'
 import Leaderboard from './pages/Leaderboard.jsx'
 import Rules from './pages/Rules.jsx'
 import UserProfile from './pages/UserProfile.jsx'
-import FinalPrediction from './pages/FinalPrediction.jsx'
+import BracketPrediction from './pages/BracketPrediction.jsx'
 import Artilheiro from './pages/Artilheiro.jsx'
 import Grupos from './pages/Grupos.jsx'
 
@@ -35,7 +35,7 @@ function App() {
         <Route path="/rules" element={<><Rules /><BottomNavigation /></>} />
         <Route path="/artilheiro" element={<><Artilheiro /><BottomNavigation /></>} />
         <Route path="/grupos" element={<><Grupos /><BottomNavigation /></>} />
-        <Route path="/final-prediction" element={<><FinalPrediction /><BottomNavigation /></>} />
+        <Route path="/bracket-prediction" element={<><BracketPrediction /><BottomNavigation /></>} />
         <Route path="/user/:userId" element={<ProtectedRoute><><UserProfile /><BottomNavigation /></></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
