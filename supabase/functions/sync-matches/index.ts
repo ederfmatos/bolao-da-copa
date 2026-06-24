@@ -524,18 +524,21 @@ export async function updateScorerGoals(
       }
     }
 
-    if (updates.length > 0) {
-      const { error: upsertError } = await supabase
+    for (const update of updates) {
+      const patch: Record<string, any> = { goals: update.goals }
+      if (update.football_data_id != null) patch.football_data_id = update.football_data_id
+      if (update.api_sports_id != null) patch.api_sports_id = update.api_sports_id
+      const { error: updateError } = await supabase
         .from('scorer_players')
-        .upsert(updates)
-
-      if (upsertError) {
+        .update(patch)
+        .eq('id', update.id)
+      if (updateError) {
         console.error(JSON.stringify({
           event: 'scorer_goals_update_failed',
-          error: upsertError.message,
+          error: updateError.message,
+          player_id: update.id,
           timestamp: new Date().toISOString(),
         }))
-        return
       }
     }
 
