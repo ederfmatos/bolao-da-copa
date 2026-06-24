@@ -143,7 +143,7 @@ function createR32Match(index, homeTeam, awayTeam) {
     home_team: homeTeam,
     away_team: awayTeam,
     kickoff_at: `2026-06-28T${12 + index}:00:00Z`,
-    bracket_slot: null,
+    bracket_slot: `R32_${String(index).padStart(2, '0')}`,
   }
 }
 

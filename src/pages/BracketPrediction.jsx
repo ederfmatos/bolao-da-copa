@@ -60,11 +60,11 @@ function BracketPrediction() {
 
   const matchTeams = useMemo(() => {
     const map = {}
-    R32_MATCHUPS.forEach((m, i) => {
-      if (r32Matches[i]) {
-        map[m.slot] = {
-          home_team: r32Matches[i].home_team,
-          away_team: r32Matches[i].away_team,
+    r32Matches.forEach(match => {
+      if (match.bracket_slot) {
+        map[match.bracket_slot] = {
+          home_team: match.home_team,
+          away_team: match.away_team,
         }
       }
     })
@@ -108,7 +108,14 @@ function BracketPrediction() {
       const parents = BRACKET_PARENTS[slot]
       if (!parents) {
         const matchup = matchTeams[slot]
-        if (!matchup) return []
+        if (!matchup) {
+          const m = R32_MATCHUPS.find(r => r.slot === slot)
+          if (!m) return []
+          return [
+            { name: m.homeSlotLabel, winner: false, isLabel: true },
+            { name: m.awaySlotLabel, winner: false, isLabel: true },
+          ]
+        }
         return [
           { name: matchup.home_team, winner: bracketPicks[slot] === matchup.home_team },
           { name: matchup.away_team, winner: bracketPicks[slot] === matchup.away_team },

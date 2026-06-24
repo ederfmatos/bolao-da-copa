@@ -1,4 +1,4 @@
-import { BracketSlot, SLOT_PHASE } from './bracketSlots'
+import { BracketSlot, SLOT_PHASE } from './bracketSlots.ts'
 
 export interface CalculateBracketPointsParams {
   slot: BracketSlot

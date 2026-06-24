@@ -743,8 +743,38 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       }
 
       if (!seedMatch) {
-        console.warn(`Could not find seed match for: ${homeTeamPt} vs ${awayTeamPt} at ${kickoffAt}`)
-        notFoundCount++
+        // Para partidas de mata-mata com bracket_slot, inserir no banco se ainda não existir
+        if (bracketSlot) {
+          const { data: existing } = await supabase
+            .from('matches')
+            .select('id')
+            .eq('bracket_slot', bracketSlot)
+            .maybeSingle()
+
+          if (!existing) {
+            const insertData: Record<string, any> = {
+              id: String(apiMatch.id),
+              home_team: homeTeamPt,
+              away_team: awayTeamPt,
+              kickoff_at: kickoffAt,
+              status,
+              group_name: groupName,
+              bracket_slot: bracketSlot,
+              ...(homeScore !== null && { home_score: homeScore }),
+              ...(awayScore !== null && { away_score: awayScore }),
+            }
+            const { error: insertError } = await supabase.from('matches').insert(insertData)
+            if (insertError) {
+              console.error(`Error inserting knockout match ${bracketSlot}:`, insertError)
+            } else {
+              updatedCount++
+              console.log(JSON.stringify({ event: 'knockout_match_created', bracket_slot: bracketSlot, home_team: homeTeamPt, away_team: awayTeamPt }))
+            }
+          }
+        } else {
+          console.warn(`Could not find seed match for: ${homeTeamPt} vs ${awayTeamPt} at ${kickoffAt}`)
+          notFoundCount++
+        }
         continue
       }
 
