@@ -9,7 +9,9 @@ import {
   BRACKET_SLOTS,
   R32_MATCHUPS,
   TEAMS,
+  formatSlotLabel,
 } from '../lib/bracketData'
+import MatchInfoModal from '../components/MatchInfoModal'
 
 const PHASE_COLUMNS = [
   { id: 'R32', label: '16 Avos', slots: Array.from({ length: 16 }, (_, i) => `R32_${String(i + 1).padStart(2, '0')}`) },
@@ -42,8 +44,8 @@ function BracketPrediction() {
     async function fetchMatches() {
       const { data, error } = await supabase
         .from('matches')
-        .select('id, home_team, away_team, kickoff_at, bracket_slot')
-        .eq('group_name', '16 Avos')
+        .select('id, home_team, away_team, kickoff_at, bracket_slot, status, home_score, away_score')
+        .not('bracket_slot', 'is', null)
         .order('kickoff_at')
 
       if (!cancelled) {
@@ -66,6 +68,16 @@ function BracketPrediction() {
           home_team: match.home_team,
           away_team: match.away_team,
         }
+      }
+    })
+    return map
+  }, [r32Matches])
+
+  const matchInfo = useMemo(() => {
+    const map = {}
+    r32Matches.forEach(match => {
+      if (match.bracket_slot) {
+        map[match.bracket_slot] = match
       }
     })
     return map
@@ -141,6 +153,8 @@ function BracketPrediction() {
     },
     [isPastDeadline, setBracketPick]
   )
+
+  const [modalSlot, setModalSlot] = useState(null)
 
   const bracketRef = useRef(null)
   const [connectorLines, setConnectorLines] = useState([])
@@ -222,9 +236,14 @@ function BracketPrediction() {
         className="w-full bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden"
         data-testid={`slot-${slot}`}
       >
-        <div className="text-xs text-gray-500 dark:text-dark-muted px-2 py-1 bg-gray-50 dark:bg-dark-border font-mono">
-          {slot.replace('_', ' ')}
-        </div>
+        <button
+          className="w-full text-left text-xs text-gray-500 dark:text-dark-muted px-2 py-1 bg-gray-50 dark:bg-dark-border font-mono hover:bg-gray-100 dark:hover:bg-dark-border/80 transition-colors cursor-pointer"
+          onClick={() => setModalSlot(slot)}
+          type="button"
+          aria-label={`Ver informações do confronto ${formatSlotLabel(slot)}`}
+        >
+          {formatSlotLabel(slot)}
+        </button>
         {participants.map((team, idx) => (
           <button
             key={team.name || `${slot}-empty-${idx}`}
@@ -378,6 +397,15 @@ function BracketPrediction() {
           ))}
         </div>
       </div>
+
+      {modalSlot && (
+        <MatchInfoModal
+          slot={modalSlot}
+          participants={isPreview ? getPreviewParticipants(modalSlot) : getParticipants(modalSlot)}
+          match={matchInfo[modalSlot] ?? null}
+          onClose={() => setModalSlot(null)}
+        />
+      )}
     </div>
   )
 }

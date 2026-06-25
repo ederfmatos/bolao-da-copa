@@ -1,3 +1,18 @@
+const PHASE_NAMES = {
+  R32: '16 Avos',
+  R16: 'Oitavas de Final',
+  QF: 'Quartas de Final',
+  SF: 'Semifinal',
+}
+
+export function formatSlotLabel(slot) {
+  if (slot === 'FINAL') return 'Final'
+  if (slot === '3RD') return 'Disputa do 3º Lugar'
+  const [phase, num] = slot.split('_')
+  const phaseName = PHASE_NAMES[phase] || phase
+  return `${phaseName} — Jogo ${num}`
+}
+
 export const BONUS_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
 export const SCORER_DEADLINE = new Date('2026-06-21T21:00:00Z')
