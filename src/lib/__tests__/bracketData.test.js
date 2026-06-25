@@ -27,8 +27,8 @@ describe('BRACKET_DEADLINE', () => {
     expect(BRACKET_DEADLINE).toBeInstanceOf(Date)
   })
 
-  test('exporta data correta (placeholder 2026-06-28T12:45:00Z)', () => {
-    expect(BRACKET_DEADLINE.toISOString()).toBe('2026-06-28T12:45:00.000Z')
+  test('exporta data correta (2026-06-28T18:45:00Z = 15h45 Brasília)', () => {
+    expect(BRACKET_DEADLINE.toISOString()).toBe('2026-06-28T18:45:00.000Z')
   })
 
   test('é posterior a BONUS_DEADLINE (prazos em ordem cronológica)', () => {
@@ -121,7 +121,7 @@ describe('Existing exports integrity', () => {
   })
 
   test('BRACKET_DEADLINE continua exportado e inalterado', () => {
-    expect(BRACKET_DEADLINE.toISOString()).toBe('2026-06-28T12:45:00.000Z')
+    expect(BRACKET_DEADLINE.toISOString()).toBe('2026-06-28T18:45:00.000Z')
   })
 
   test('BRACKET_DETERMINED continua exportado e é false', () => {
