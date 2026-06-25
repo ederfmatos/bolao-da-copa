@@ -164,7 +164,7 @@ function MatchInfoModal({ slot, participants, match, onClose }) {
                     <span className="text-xs text-gray-400 dark:text-dark-muted italic">Aguardando...</span>
                   </div>
                 )
-                return <TeamPanel key={team.name} teamName={team.name} />
+                return <TeamPanel key={idx} teamName={team.name} />
               })}
             </div>
           )}
