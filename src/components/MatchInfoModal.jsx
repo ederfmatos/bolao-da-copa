@@ -92,9 +92,12 @@ function TeamPanel({ teamName }) {
 
 function formatKickoff(iso) {
   const d = new Date(iso)
-  const date = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' })
-  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })
-  return `${date} às ${time}`
+  const opts = { timeZone: 'America/Sao_Paulo' }
+  const weekday = d.toLocaleDateString('pt-BR', { ...opts, weekday: 'long' })
+  const date = d.toLocaleDateString('pt-BR', { ...opts, day: '2-digit', month: '2-digit', year: 'numeric' })
+  const time = d.toLocaleTimeString('pt-BR', { ...opts, hour: '2-digit', minute: '2-digit' })
+  const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+  return `${weekdayCap}, ${date} às ${time}`
 }
 
 function MatchInfoModal({ slot, participants, match, onClose }) {
