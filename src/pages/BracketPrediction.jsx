@@ -72,6 +72,7 @@ function BracketPrediction() {
     }
 
     let cancelled = false
+    setMatchesLoading(true)
     async function fetchMatches() {
       const { data, error } = await supabase
         .from('matches')
