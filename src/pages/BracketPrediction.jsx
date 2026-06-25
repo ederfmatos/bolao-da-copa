@@ -27,6 +27,37 @@ function getTeamFlag(teamName) {
   return team ? team.flag : ''
 }
 
+function BracketSkeleton() {
+  const columns = [16, 8, 4, 2, 2]
+  return (
+    <div className="p-4 max-w-6xl mx-auto space-y-4">
+      <div className="h-10 rounded-lg bg-gray-100 dark:bg-dark-border animate-pulse" />
+      <div className="flex justify-between">
+        <div className="h-6 w-48 rounded bg-gray-200 dark:bg-dark-border animate-pulse" />
+        <div className="h-6 w-24 rounded bg-gray-100 dark:bg-dark-border animate-pulse" />
+      </div>
+      <div className="overflow-x-auto pb-4 -mx-4 px-4">
+        <div className="flex gap-4 min-w-[650px]">
+          {columns.map((count, ci) => (
+            <div key={ci} className="flex-1 min-w-[140px] flex flex-col">
+              <div className="h-5 w-16 rounded bg-gray-200 dark:bg-dark-border animate-pulse mb-1" />
+              {Array.from({ length: count }).map((_, si) => (
+                <div key={si} className="flex-1 flex items-center py-1">
+                  <div className="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-dark-border">
+                    <div className="h-6 bg-gray-100 dark:bg-dark-border animate-pulse" />
+                    <div className="h-8 border-t border-gray-100 dark:border-dark-border bg-white dark:bg-dark-card animate-pulse" />
+                    <div className="h-8 border-t border-gray-100 dark:border-dark-border bg-white dark:bg-dark-card animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function BracketPrediction() {
   const { user } = useAuth()
   const { bracketPicks, setBracketPick, isPastDeadline, loading: bpLoading, error: bpError, isSaving } = useBracketPrediction()
@@ -211,13 +242,7 @@ function BracketPrediction() {
     timeZone: 'America/Sao_Paulo',
   })
 
-  if (bpLoading || matchesLoading) {
-    return (
-      <div className="p-8 text-center text-gray-500 dark:text-dark-muted">
-        Carregando...
-      </div>
-    )
-  }
+  if (bpLoading || matchesLoading) return <BracketSkeleton />
 
   if (bpError) {
     return (
