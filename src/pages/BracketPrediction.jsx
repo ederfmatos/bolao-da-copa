@@ -333,10 +333,10 @@ function BracketPrediction() {
             onClick={() => handleTeamClick(slot, team.name)}
             disabled={isPreview || isPastDeadline || !team.name}
             className={`w-full text-left px-2 py-1.5 text-sm border-t border-gray-100 dark:border-dark-border flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed ${team.isLabel
-                ? 'text-gray-400 dark:text-dark-muted italic opacity-80'
-                : team.winner
-                  ? 'bg-primary-50 dark:bg-primary-900/30 font-semibold text-primary-700 dark:text-primary-300'
-                  : 'hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-dark-text disabled:opacity-50'
+              ? 'text-gray-400 dark:text-dark-muted italic opacity-80'
+              : team.winner
+                ? 'bg-primary-50 dark:bg-primary-900/30 font-semibold text-primary-700 dark:text-primary-300'
+                : 'hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-dark-text disabled:opacity-50'
               }`}
             data-testid={team.name && !team.isLabel ? `pick-btn-${slot}-${team.name}` : undefined}
           >
@@ -377,15 +377,15 @@ function BracketPrediction() {
       {!isPastDeadline && (
         <div
           className={`rounded-lg p-3 ${isUrgent
-              ? 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700'
-              : 'bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700'
+            ? 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700'
+            : 'bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700'
             }`}
           data-testid="countdown"
         >
           <p
             className={`text-sm font-medium ${isUrgent
-                ? 'text-red-900 dark:text-red-100'
-                : 'text-amber-900 dark:text-amber-100'
+              ? 'text-red-900 dark:text-red-100'
+              : 'text-amber-900 dark:text-amber-100'
               }`}
           >
             ⏰ Prazo para palpites:{' '}
@@ -407,7 +407,7 @@ function BracketPrediction() {
                 onChange={e => setViewingUserId(e.target.value)}
                 className="text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-card text-gray-800 dark:text-dark-text px-2 py-1"
               >
-                {bracketUsers.map(u => (
+                {bracketUsers.sort((u1, u2) => u1.name - u2.name).map(u => (
                   <option key={u.id} value={u.id}>
                     {u.id === user?.id ? `${u.name} (você)` : u.name}
                   </option>
