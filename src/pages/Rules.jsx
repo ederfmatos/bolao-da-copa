@@ -115,23 +115,23 @@ function Rules() {
               </tr>
               <tr>
                 <td className="py-1.5">Oitavas</td>
-                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">7</td>
+                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">10</td>
                 <td className="text-center text-gray-500 dark:text-dark-muted">5</td>
               </tr>
               <tr>
                 <td className="py-1.5">Quartas</td>
-                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">9</td>
-                <td className="text-center text-gray-500 dark:text-dark-muted">7</td>
+                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">15</td>
+                <td className="text-center text-gray-500 dark:text-dark-muted">10</td>
               </tr>
               <tr>
                 <td className="py-1.5">Semifinal</td>
-                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">11</td>
-                <td className="text-center text-gray-500 dark:text-dark-muted">9</td>
+                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">20</td>
+                <td className="text-center text-gray-500 dark:text-dark-muted">15</td>
               </tr>
               <tr>
                 <td className="py-1.5">Final / 3º Lugar</td>
-                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">15</td>
-                <td className="text-center text-gray-500 dark:text-dark-muted">11</td>
+                <td className="text-center font-semibold text-gray-800 dark:text-dark-text">25</td>
+                <td className="text-center text-gray-500 dark:text-dark-muted">20</td>
               </tr>
             </tbody>
           </table>

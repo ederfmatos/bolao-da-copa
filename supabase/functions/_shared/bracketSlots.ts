@@ -64,25 +64,25 @@ export const SLOT_PHASE: Record<BracketSlot, { phase: string; fullPts: number; p
   'R32_14': { phase: '16 Avos', fullPts: 5, partialPts: null },
   'R32_15': { phase: '16 Avos', fullPts: 5, partialPts: null },
   'R32_16': { phase: '16 Avos', fullPts: 5, partialPts: null },
-  // Round of 16 (Oitavas) - 7 points, 5 with partial credit
-  'R16_01': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_02': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_03': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_04': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_05': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_06': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_07': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  'R16_08': { phase: 'Oitavas', fullPts: 7, partialPts: 5 },
-  // Quarter-finals (Quartas) - 9 points, 7 with partial credit
-  'QF_01': { phase: 'Quartas', fullPts: 9, partialPts: 7 },
-  'QF_02': { phase: 'Quartas', fullPts: 9, partialPts: 7 },
-  'QF_03': { phase: 'Quartas', fullPts: 9, partialPts: 7 },
-  'QF_04': { phase: 'Quartas', fullPts: 9, partialPts: 7 },
-  // Semi-finals (Semifinais) - 11 points, 9 with partial credit
-  'SF_01': { phase: 'Semifinal', fullPts: 11, partialPts: 9 },
-  'SF_02': { phase: 'Semifinal', fullPts: 11, partialPts: 9 },
-  // Third place (Terceiro Lugar) - 15 points, 11 with partial credit
-  '3RD': { phase: 'Terceiro Lugar', fullPts: 15, partialPts: 11 },
-  // Final - 15 points, 11 with partial credit
-  'FINAL': { phase: 'Final', fullPts: 15, partialPts: 11 },
+  // Round of 16 (Oitavas) - 10 points, 5 with partial credit
+  'R16_01': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_02': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_03': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_04': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_05': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_06': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_07': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  'R16_08': { phase: 'Oitavas', fullPts: 10, partialPts: 5 },
+  // Quarter-finals (Quartas) - 15 points, 10 with partial credit
+  'QF_01': { phase: 'Quartas', fullPts: 15, partialPts: 10 },
+  'QF_02': { phase: 'Quartas', fullPts: 15, partialPts: 10 },
+  'QF_03': { phase: 'Quartas', fullPts: 15, partialPts: 10 },
+  'QF_04': { phase: 'Quartas', fullPts: 15, partialPts: 10 },
+  // Semi-finals (Semifinais) - 20 points, 15 with partial credit
+  'SF_01': { phase: 'Semifinal', fullPts: 20, partialPts: 15 },
+  'SF_02': { phase: 'Semifinal', fullPts: 20, partialPts: 15 },
+  // Third place (Terceiro Lugar) - 25 points, 20 with partial credit
+  '3RD': { phase: 'Terceiro Lugar', fullPts: 25, partialPts: 20 },
+  // Final - 25 points, 20 with partial credit
+  'FINAL': { phase: 'Final', fullPts: 25, partialPts: 20 },
 }
