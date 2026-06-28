@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { BONUS_DEADLINE, SCORER_DEADLINE, BRACKET_DEADLINE } from '../lib/bracketData'
+import { SCORER_DEADLINE, BRACKET_DEADLINE } from '../lib/bracketData'
 
 function Rules() {
   const scenarios = [
@@ -12,8 +12,8 @@ function Rules() {
     {
       points: 7,
       title: 'Vencedor Quase Exato',
-      description: 'Acertar o vencedor, errar o gols do vencedor por 1 e o perdedor exato',
-      example: 'Palpite: 4×0 | Resultado: 5×0 · Palpite: 6×0 | Resultado: 5×0',
+      description: 'Acertar o vencedor e errar apenas 1 gol (de qualquer time)',
+      example: 'Palpite: 4×0 | Resultado: 5×0 · Palpite: 2×1 | Resultado: 2×0',
     },
     {
       points: 6,
@@ -150,29 +150,6 @@ function Rules() {
         </Link>
       </div>
 
-      <div className="mt-8 p-4 bg-white dark:bg-dark-card rounded-lg shadow-md border-l-4 border-l-primary-500">
-        <h2 className="text-lg font-bold mb-2 text-gray-900 dark:text-dark-text">🏅 Palpite Bônus</h2>
-        <p className="text-sm text-gray-600 dark:text-dark-muted mb-3">
-          Antes do início da Copa, escolha as 4 seleções que você acha que vão chegar às finais:
-          campeão, vice-campeão, 3º e 4º lugar.
-        </p>
-        <p className="text-sm text-gray-600 dark:text-dark-muted mb-3">
-          Prazo para enviar: <strong>{BONUS_DEADLINE.toLocaleString()}</strong>
-        </p>
-        <div className="bg-gray-50 dark:bg-dark-border rounded p-3 mb-3">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-dark-text mb-2">Pontuação</h3>
-          <ul className="text-sm text-gray-600 dark:text-dark-muted space-y-1">
-            <li>50 pts por posição correta</li>
-            <li>250 pts se acertar as 4 posições</li>
-          </ul>
-        </div>
-        <Link
-          to="/bracket-prediction"
-          className="inline-block px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          Fazer Palpite Bônus
-        </Link>
-      </div>
       <div className="mt-8 p-4 bg-white dark:bg-dark-card rounded-lg shadow-md border-l-4 border-l-primary-500">
         <h2 className="text-lg font-bold mb-2 text-gray-900 dark:text-dark-text">🥅 Artilheiro da Copa</h2>
         <p className="text-sm text-gray-600 dark:text-dark-muted mb-3">
