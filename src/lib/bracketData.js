@@ -17,7 +17,7 @@ export const BONUS_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
 export const SCORER_DEADLINE = new Date('2026-06-21T21:00:00Z')
 
-export const BRACKET_DEADLINE = new Date('2026-06-28T18:45:00Z')
+export const BRACKET_DEADLINE = new Date('2026-06-28T19:00:00Z')
 
 // Ativar quando o bracket real for conhecido (pós-fase de grupos).
 // Também atualizar bracketHalf em TEAMS com os lados corretos.
