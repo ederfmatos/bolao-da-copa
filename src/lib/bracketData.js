@@ -5,6 +5,15 @@ const PHASE_NAMES = {
   SF: 'Semifinal',
 }
 
+export function getSlotPoints(slot) {
+  if (slot.startsWith('R32')) return { fullPts: 5, partialPts: null }
+  if (slot.startsWith('R16')) return { fullPts: 10, partialPts: 5 }
+  if (slot.startsWith('QF')) return { fullPts: 15, partialPts: 10 }
+  if (slot.startsWith('SF')) return { fullPts: 20, partialPts: 15 }
+  if (slot === '3RD' || slot === 'FINAL') return { fullPts: 25, partialPts: 20 }
+  return null
+}
+
 export function formatSlotLabel(slot) {
   if (slot === 'FINAL') return 'Final'
   if (slot === '3RD') return 'Disputa do 3º Lugar'

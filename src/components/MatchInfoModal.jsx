@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTeamStats } from '../hooks/useTeamStats'
-import { TEAMS, formatSlotLabel } from '../lib/bracketData'
+import { TEAMS, formatSlotLabel, getSlotPoints } from '../lib/bracketData'
 
 function getTeamFlag(teamName) {
   if (!teamName) return ''
@@ -23,7 +23,7 @@ function formatDate(iso) {
 
 function TeamPanel({ teamName }) {
   const teamFlag = getTeamFlag(teamName)
-  const { groupInfo, goalsScoredTotal, recentMatches, loading } = useTeamStats(teamName)
+  const { groupInfo, recentMatches, loading } = useTeamStats(teamName)
 
   if (!teamName) return null
 
@@ -49,11 +49,6 @@ function TeamPanel({ teamName }) {
               </p>
             </div>
           )}
-
-          <div className="mb-3">
-            <p className="text-xs text-gray-500 dark:text-dark-muted mb-0.5">Gols no torneio</p>
-            <p className="text-lg font-bold text-primary-600 dark:text-primary-400">{goalsScoredTotal}</p>
-          </div>
 
           {recentMatches.length > 0 && (
             <div>
@@ -100,7 +95,7 @@ function formatKickoff(iso) {
   return `${weekdayCap}, ${date} às ${time}`
 }
 
-function MatchInfoModal({ slot, participants, match, onClose }) {
+function MatchInfoModal({ slot, participants, match, predicted, onClose }) {
   useEffect(() => {
     function handleKey(e) {
       if (e.key === 'Escape') onClose()
@@ -113,6 +108,16 @@ function MatchInfoModal({ slot, participants, match, onClose }) {
   const hasTeams = realTeams.length > 0
 
   const slotLabel = formatSlotLabel(slot)
+  const slotPoints = getSlotPoints(slot)
+
+  const isFinished = match?.status === 'finished'
+  let actualWinner = null
+  if (isFinished && match.home_score != null && match.away_score != null) {
+    if (match.home_score > match.away_score) actualWinner = match.home_team
+    else if (match.away_score > match.home_score) actualWinner = match.away_team
+  }
+  const isCorrect = isFinished && actualWinner !== null && predicted === actualWinner
+  const isWrong = isFinished && actualWinner !== null && predicted !== null && predicted !== actualWinner
 
   return (
     <div
@@ -147,6 +152,38 @@ function MatchInfoModal({ slot, participants, match, onClose }) {
                   {match.home_score} × {match.away_score}
                 </span>
               )}
+            </div>
+          )}
+          {slotPoints && predicted && (
+            <div className={`mt-2 inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md ${
+              isCorrect
+                ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                : isWrong
+                  ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                  : 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+            }`}>
+              {isCorrect && <span>✓ Acertou!</span>}
+              {isWrong && <span>✗ Errou</span>}
+              {!isFinished && <span>Seu palpite: {getTeamFlag(predicted)} {predicted}</span>}
+              {isCorrect && (
+                <span>
+                  {slotPoints.partialPts
+                    ? `${slotPoints.partialPts}–${slotPoints.fullPts} pts`
+                    : `${slotPoints.fullPts} pts`}
+                </span>
+              )}
+              {isWrong && <span>0 pts</span>}
+              {!isFinished && (
+                <span className="text-gray-400 dark:text-dark-muted">
+                  · vale até {slotPoints.fullPts} pts
+                </span>
+              )}
+            </div>
+          )}
+          {slotPoints && !predicted && (
+            <div className="mt-2 text-xs text-gray-400 dark:text-dark-muted">
+              Vale até {slotPoints.fullPts} pts
+              {slotPoints.partialPts && ` (parcial: ${slotPoints.partialPts} pts)`}
             </div>
           )}
         </div>

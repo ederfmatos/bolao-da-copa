@@ -10,6 +10,7 @@ import {
   R32_MATCHUPS,
   TEAMS,
   formatSlotLabel,
+  getSlotPoints,
 } from '../lib/bracketData'
 import MatchInfoModal from '../components/MatchInfoModal'
 
@@ -314,9 +315,25 @@ function BracketPrediction() {
     const participants = isPreview ? getPreviewParticipants(slot) : getParticipants(slot)
     const predicted = isPreview ? null : displayPicks[slot]
 
+    const slotMatch = matchInfo[slot]
+    const isFinished = slotMatch?.status === 'finished'
+    let actualWinner = null
+    if (isFinished && slotMatch.home_score != null && slotMatch.away_score != null) {
+      if (slotMatch.home_score > slotMatch.away_score) actualWinner = slotMatch.home_team
+      else if (slotMatch.away_score > slotMatch.home_score) actualWinner = slotMatch.away_team
+    }
+    const isCorrect = isFinished && actualWinner !== null && predicted === actualWinner
+    const isWrong = isFinished && actualWinner !== null && predicted !== null && predicted !== actualWinner
+
     return (
       <div
-        className="w-full bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg overflow-hidden"
+        className={`w-full bg-white dark:bg-dark-card border rounded-lg overflow-hidden ${
+          isCorrect
+            ? 'border-green-400 dark:border-green-600'
+            : isWrong
+              ? 'border-red-300 dark:border-red-800'
+              : 'border-gray-200 dark:border-dark-border'
+        }`}
         data-testid={`slot-${slot}`}
       >
         <button
@@ -327,32 +344,54 @@ function BracketPrediction() {
         >
           {formatSlotLabel(slot)}
         </button>
-        {participants.map((team, idx) => (
-          <button
-            key={team.name || `${slot}-empty-${idx}`}
-            onClick={() => handleTeamClick(slot, team.name)}
-            disabled={isPreview || isPastDeadline || !team.name}
-            className={`w-full text-left px-2 py-1.5 text-sm border-t border-gray-100 dark:border-dark-border flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed ${team.isLabel
-              ? 'text-gray-400 dark:text-dark-muted italic opacity-80'
-              : team.winner
-                ? 'bg-primary-50 dark:bg-primary-900/30 font-semibold text-primary-700 dark:text-primary-300'
-                : 'hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-dark-text disabled:opacity-50'
-              }`}
-            data-testid={team.name && !team.isLabel ? `pick-btn-${slot}-${team.name}` : undefined}
-          >
-            {!team.isLabel && (
-              <span className="text-base w-5 text-center flex-shrink-0">
-                {getTeamFlag(team.name)}
+        {participants.map((team, idx) => {
+          const isUserPick = !team.isLabel && team.winner
+          const isActualWinner = !team.isLabel && team.name === actualWinner
+
+          let rowCls
+          let indicator = null
+
+          if (team.isLabel) {
+            rowCls = 'text-gray-400 dark:text-dark-muted italic opacity-80'
+          } else if (isFinished && actualWinner !== null) {
+            if (isUserPick && isActualWinner) {
+              rowCls = 'bg-green-50 dark:bg-green-900/30 font-semibold text-green-700 dark:text-green-300'
+              indicator = <span className="text-green-500 flex-shrink-0">✓</span>
+            } else if (isUserPick && !isActualWinner) {
+              rowCls = 'bg-red-50/50 dark:bg-red-900/10 text-gray-400 dark:text-dark-muted'
+              indicator = <span className="text-red-400 flex-shrink-0">✗</span>
+            } else if (isActualWinner) {
+              rowCls = 'font-semibold text-gray-700 dark:text-dark-text'
+            } else {
+              rowCls = 'text-gray-500 dark:text-dark-muted disabled:opacity-50'
+            }
+          } else {
+            rowCls = isUserPick
+              ? 'bg-primary-50 dark:bg-primary-900/30 font-semibold text-primary-700 dark:text-primary-300'
+              : 'hover:bg-gray-50 dark:hover:bg-dark-border text-gray-700 dark:text-dark-text disabled:opacity-50'
+            if (isUserPick) indicator = <span className="text-primary-500 flex-shrink-0">✓</span>
+          }
+
+          return (
+            <button
+              key={team.name || `${slot}-empty-${idx}`}
+              onClick={() => handleTeamClick(slot, team.name)}
+              disabled={isPreview || isPastDeadline || !team.name}
+              className={`w-full text-left px-2 py-1.5 text-sm border-t border-gray-100 dark:border-dark-border flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed ${rowCls}`}
+              data-testid={team.name && !team.isLabel ? `pick-btn-${slot}-${team.name}` : undefined}
+            >
+              {!team.isLabel && (
+                <span className="text-base w-5 text-center flex-shrink-0">
+                  {getTeamFlag(team.name)}
+                </span>
+              )}
+              <span className={`truncate flex-1 min-w-0 ${team.isLabel ? 'text-xs font-mono' : ''}`}>
+                {team.name || '—'}
               </span>
-            )}
-            <span className={`truncate flex-1 min-w-0 ${team.isLabel ? 'text-xs font-mono' : ''}`}>
-              {team.name || '—'}
-            </span>
-            {team.winner && (
-              <span className="text-primary-500 flex-shrink-0">✓</span>
-            )}
-          </button>
-        ))}
+              {indicator}
+            </button>
+          )
+        })}
         {participants.length === 0 && (
           <div className="px-2 py-1.5 text-xs text-gray-400 dark:text-dark-muted border-t border-gray-100 dark:border-dark-border">
             Aguardando...
@@ -364,7 +403,13 @@ function BracketPrediction() {
           </div>
         )}
         {predicted && (
-          <div className="px-2 py-0.5 text-xs font-medium text-primary-600 dark:text-primary-400 bg-primary-50/50 dark:bg-primary-900/20 border-t border-gray-100 dark:border-dark-border">
+          <div className={`px-2 py-0.5 text-xs font-medium border-t border-gray-100 dark:border-dark-border ${
+            isCorrect
+              ? 'text-green-600 dark:text-green-400 bg-green-50/50 dark:bg-green-900/20'
+              : isWrong
+                ? 'text-red-400 dark:text-red-500 bg-red-50/30 dark:bg-red-900/10'
+                : 'text-primary-600 dark:text-primary-400 bg-primary-50/50 dark:bg-primary-900/20'
+          }`}>
             {getTeamFlag(predicted)} {predicted}
           </div>
         )}
@@ -507,6 +552,7 @@ function BracketPrediction() {
           slot={modalSlot}
           participants={isPreview ? getPreviewParticipants(modalSlot) : getParticipants(modalSlot)}
           match={matchInfo[modalSlot] ?? null}
+          predicted={displayPicks[modalSlot] ?? null}
           onClose={() => setModalSlot(null)}
         />
       )}
