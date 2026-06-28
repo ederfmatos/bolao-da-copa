@@ -15,21 +15,8 @@ export function calculatePoints(
     return 0
   }
 
-  // Home team wins: winner off by ±1, loser exact
-  if (
-    actualWinner === 1 &&
-    Math.abs(predicted.home - actual.home) === 1 &&
-    predicted.away === actual.away
-  ) {
-    return 7
-  }
-
-  // Away team wins: winner off by ±1, loser exact
-  if (
-    actualWinner === -1 &&
-    Math.abs(predicted.away - actual.away) === 1 &&
-    predicted.home === actual.home
-  ) {
+  // One score exact, the other off by ±1 (total difference of 1 goal)
+  if (Math.abs(predicted.home - actual.home) + Math.abs(predicted.away - actual.away) === 1) {
     return 7
   }
 
