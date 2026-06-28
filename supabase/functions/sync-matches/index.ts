@@ -811,7 +811,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       if (groupName) {
         updateData.group_name = groupName
       }
-      if (bracketSlot) {
+      if (bracketSlot && !seedMatch.bracket_slot) {
         updateData.bracket_slot = bracketSlot
       }
 
