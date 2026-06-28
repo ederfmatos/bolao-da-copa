@@ -165,6 +165,21 @@ function BracketPrediction() {
           { name: matchup.away_team, winner: bracketPicks[slot] === matchup.away_team },
         ]
       }
+      if (slot === '3RD') {
+        return parents.map(sfSlot => {
+          const sfWinner = bracketPicks[sfSlot]
+          const sfParents = BRACKET_PARENTS[sfSlot]
+          if (!sfParents) return { name: null, winner: false }
+          const sfLoser = sfParents
+            .map(qf => bracketPicks[qf])
+            .find(team => team && team !== sfWinner) || null
+          return {
+            name: sfLoser,
+            winner: bracketPicks['3RD'] === sfLoser,
+          }
+        })
+      }
+
       return parents.map(parent => ({
         name: bracketPicks[parent] || null,
         winner: bracketPicks[slot] === bracketPicks[parent],
