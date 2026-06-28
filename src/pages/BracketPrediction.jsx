@@ -64,6 +64,10 @@ function BracketPrediction() {
   const [r32Matches, setR32Matches] = useState([])
   const [matchesLoading, setMatchesLoading] = useState(true)
   const [now, setNow] = useState(new Date())
+  const [viewingUserId, setViewingUserId] = useState(null)
+  const [bracketUsers, setBracketUsers] = useState([])
+  const [viewingPicks, setViewingPicks] = useState(null)
+  const [viewingPicksLoading, setViewingPicksLoading] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -91,6 +95,44 @@ function BracketPrediction() {
     return () => { cancelled = true }
   }, [user])
 
+  useEffect(() => {
+    if (!isPastDeadline) return
+    supabase
+      .from('bracket_predictions')
+      .select('user_id, profiles(name)')
+      .then(({ data }) => {
+        if (!data) return
+        const seen = new Set()
+        const unique = []
+        data.forEach(row => {
+          if (!seen.has(row.user_id)) {
+            seen.add(row.user_id)
+            unique.push({ id: row.user_id, name: row.profiles?.name || 'Desconhecido' })
+          }
+        })
+        setBracketUsers(unique)
+      })
+  }, [isPastDeadline])
+
+  useEffect(() => {
+    if (!viewingUserId || viewingUserId === user?.id) {
+      setViewingPicks(null)
+      return
+    }
+    setViewingPicksLoading(true)
+    supabase
+      .from('bracket_predictions')
+      .select('bracket_slot, predicted_winner')
+      .eq('user_id', viewingUserId)
+      .then(({ data }) => {
+        const picks = {}
+        if (data) data.forEach(row => { picks[row.bracket_slot] = row.predicted_winner })
+        setViewingPicks(picks)
+        setViewingPicksLoading(false)
+      })
+  }, [viewingUserId, user?.id])
+
+  const displayPicks = viewingPicks ?? bracketPicks
 
   const matchTeams = useMemo(() => {
     const map = {}
@@ -118,8 +160,8 @@ function BracketPrediction() {
   const totalSlots = BRACKET_SLOTS.length
 
   const filledCount = useMemo(
-    () => BRACKET_SLOTS.filter(s => bracketPicks[s]).length,
-    [bracketPicks]
+    () => BRACKET_SLOTS.filter(s => displayPicks[s]).length,
+    [displayPicks]
   )
 
   const isPreview = !matchesLoading && r32Matches.length === 0
@@ -161,31 +203,31 @@ function BracketPrediction() {
           ]
         }
         return [
-          { name: matchup.home_team, winner: bracketPicks[slot] === matchup.home_team },
-          { name: matchup.away_team, winner: bracketPicks[slot] === matchup.away_team },
+          { name: matchup.home_team, winner: displayPicks[slot] === matchup.home_team },
+          { name: matchup.away_team, winner: displayPicks[slot] === matchup.away_team },
         ]
       }
       if (slot === '3RD') {
         return parents.map(sfSlot => {
-          const sfWinner = bracketPicks[sfSlot]
+          const sfWinner = displayPicks[sfSlot]
           const sfParents = BRACKET_PARENTS[sfSlot]
           if (!sfParents) return { name: null, winner: false }
           const sfLoser = sfParents
-            .map(qf => bracketPicks[qf])
+            .map(qf => displayPicks[qf])
             .find(team => team && team !== sfWinner) || null
           return {
             name: sfLoser,
-            winner: bracketPicks['3RD'] === sfLoser,
+            winner: displayPicks['3RD'] === sfLoser,
           }
         })
       }
 
       return parents.map(parent => ({
-        name: bracketPicks[parent] || null,
-        winner: bracketPicks[slot] === bracketPicks[parent],
+        name: displayPicks[parent] || null,
+        winner: displayPicks[slot] === displayPicks[parent],
       }))
     },
-    [matchTeams, bracketPicks]
+    [matchTeams, displayPicks]
   )
 
   const handleTeamClick = useCallback(
@@ -258,7 +300,7 @@ function BracketPrediction() {
     timeZone: 'America/Sao_Paulo',
   })
 
-  if (bpLoading || matchesLoading) return <BracketSkeleton />
+  if (bpLoading || matchesLoading || viewingPicksLoading) return <BracketSkeleton />
 
   if (bpError) {
     return (
@@ -270,7 +312,7 @@ function BracketPrediction() {
 
   function renderSlotCard(slot) {
     const participants = isPreview ? getPreviewParticipants(slot) : getParticipants(slot)
-    const predicted = isPreview ? null : bracketPicks[slot]
+    const predicted = isPreview ? null : displayPicks[slot]
 
     return (
       <div
@@ -353,16 +395,37 @@ function BracketPrediction() {
       )}
 
       {isPastDeadline && (
-        <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3">
+        <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-3 flex flex-wrap items-center gap-3">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-            🛑 Palpites encerrados — modo somente leitura
+            🛑 Palpites encerrados
           </p>
+          {bracketUsers.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-500 dark:text-dark-muted">Ver palpites de:</label>
+              <select
+                value={viewingUserId || user?.id || ''}
+                onChange={e => setViewingUserId(e.target.value)}
+                className="text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-dark-card text-gray-800 dark:text-dark-text px-2 py-1"
+              >
+                {bracketUsers.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.id === user?.id ? `${u.name} (você)` : u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       )}
 
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-xl font-bold text-gray-900 dark:text-dark-text">
           Palpites do Mata-Mata
+          {viewingUserId && viewingUserId !== user?.id && (
+            <span className="text-base font-normal text-gray-500 dark:text-dark-muted ml-2">
+              — {bracketUsers.find(u => u.id === viewingUserId)?.name}
+            </span>
+          )}
         </h1>
         <span
           className="text-sm text-gray-500 dark:text-dark-muted"
