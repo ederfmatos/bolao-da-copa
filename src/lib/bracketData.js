@@ -21,7 +21,7 @@ export const BRACKET_DEADLINE = new Date('2026-06-28T18:45:00Z')
 
 // Ativar quando o bracket real for conhecido (pós-fase de grupos).
 // Também atualizar bracketHalf em TEAMS com os lados corretos.
-export const BRACKET_DETERMINED = false
+export const BRACKET_DETERMINED = true
 
 export const BRACKET_SLOTS = [
   'R32_01', 'R32_02', 'R32_03', 'R32_04', 'R32_05', 'R32_06', 'R32_07', 'R32_08',
