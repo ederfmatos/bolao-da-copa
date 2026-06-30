@@ -680,7 +680,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
     const newlyFinished: string[] = []
     const scoreUpdated: string[] = []
-    const knockoutMatchesBySlot: Map<BracketSlot, { match_id: string; home_team: string; away_team: string }> = new Map()
+    const knockoutMatchesBySlot: Map<BracketSlot, { match_id: string; home_team: string; away_team: string; home_score: number | null; away_score: number | null; winner_team: string | null }> = new Map()
     let updatedCount = 0
     let notFoundCount = 0
     const fallbackApiKey = Deno.env.get('API_FOOTBALL_KEY')
@@ -693,8 +693,20 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
       const awayTeamPt = mapTeamName(apiMatch.awayTeam?.shortName || apiMatch.awayTeam?.name || 'TBD')
       const kickoffAt = apiMatch.utcDate
       const status = mapStatus(apiMatch.status)
-      let homeScore = apiMatch.score?.fullTime?.home ?? null
-      let awayScore = apiMatch.score?.fullTime?.away ?? null
+      const duration = apiMatch.score?.duration
+      let homeScore: number | null
+      let awayScore: number | null
+      if (duration === 'PENALTY_SHOOTOUT' || duration === 'EXTRA_TIME') {
+        homeScore = apiMatch.score?.extraTime?.home ?? apiMatch.score?.fullTime?.home ?? null
+        awayScore = apiMatch.score?.extraTime?.away ?? apiMatch.score?.fullTime?.away ?? null
+      } else {
+        homeScore = apiMatch.score?.fullTime?.home ?? null
+        awayScore = apiMatch.score?.fullTime?.away ?? null
+      }
+      let winnerTeam: string | null = null
+      if (duration === 'PENALTY_SHOOTOUT' && apiMatch.score?.winner) {
+        winnerTeam = apiMatch.score.winner === 'HOME_TEAM' ? homeTeamPt : awayTeamPt
+      }
 
       // Extract stage and determine group_name + bracket_slot
       const apiStage = apiMatch.stage || apiMatch.round
@@ -793,11 +805,24 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
             match_id: seedMatch.id,
             home_team: homeTeamPt,
             away_team: awayTeamPt,
+            home_score: homeScore,
+            away_score: awayScore,
+            winner_team: winnerTeam,
           })
         }
       } else if (wasFinished && isNowFinished && scoreChanged && homeScore !== null && awayScore !== null) {
         // Partida já estava finalizada mas o placar foi atualizado
         scoreUpdated.push(seedMatch.id)
+        if (bracketSlot) {
+          knockoutMatchesBySlot.set(bracketSlot, {
+            match_id: seedMatch.id,
+            home_team: homeTeamPt,
+            away_team: awayTeamPt,
+            home_score: homeScore,
+            away_score: awayScore,
+            winner_team: winnerTeam,
+          })
+        }
       }
 
       // Atualizar a partida — só sobrescrever placar se API retornou valor válido
@@ -805,6 +830,7 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
         status: status,
         ...(homeScore !== null && { home_score: homeScore }),
         ...(awayScore !== null && { away_score: awayScore }),
+        ...(winnerTeam !== null && { winner_team: winnerTeam }),
       }
 
       // Add group_name and bracket_slot if knockout match
@@ -915,20 +941,22 @@ export async function handleSyncMatches(req: Request): Promise<Response> {
 
     console.log(`Total predictions updated: ${totalPredictionsUpdated}`)
 
-    // Process bracket points for knockout matches that just finished
+    // Process bracket points for knockout matches that just finished or had scores updated
     for (const [bracketSlot, matchInfo] of knockoutMatchesBySlot.entries()) {
-      // Determine winner
-      const matchData = seedMatches.find(m => m.id === matchInfo.match_id)
-      if (matchData && matchData.status === 'finished' && matchData.home_score !== null && matchData.away_score !== null) {
-        const actualWinner = matchData.home_score > matchData.away_score
-          ? matchData.home_team
-          : matchData.away_team
-        const actualOpponent = matchData.home_score > matchData.away_score
-          ? matchData.away_team
-          : matchData.home_team
-
-        await recalculateBracketPoints(supabase, bracketSlot, actualWinner, actualOpponent)
+      if (matchInfo.home_score === null || matchInfo.away_score === null) continue
+      let actualWinner: string
+      let actualOpponent: string
+      if (matchInfo.winner_team) {
+        actualWinner = matchInfo.winner_team
+        actualOpponent = matchInfo.winner_team === matchInfo.home_team ? matchInfo.away_team : matchInfo.home_team
+      } else if (matchInfo.home_score > matchInfo.away_score) {
+        actualWinner = matchInfo.home_team
+        actualOpponent = matchInfo.away_team
+      } else {
+        actualWinner = matchInfo.away_team
+        actualOpponent = matchInfo.home_team
       }
+      await recalculateBracketPoints(supabase, bracketSlot, actualWinner, actualOpponent)
     }
 
     const triggerMatchIds = [...newlyFinished, ...scoreUpdated]
