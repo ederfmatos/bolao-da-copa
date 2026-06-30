@@ -81,7 +81,7 @@ function BracketPrediction() {
     async function fetchMatches() {
       const { data, error } = await supabase
         .from('matches')
-        .select('id, home_team, away_team, kickoff_at, bracket_slot, status, home_score, away_score')
+        .select('id, home_team, away_team, kickoff_at, bracket_slot, status, home_score, away_score, winner_team')
         .not('bracket_slot', 'is', null)
         .order('kickoff_at')
 
@@ -321,6 +321,7 @@ function BracketPrediction() {
     if (isFinished && slotMatch.home_score != null && slotMatch.away_score != null) {
       if (slotMatch.home_score > slotMatch.away_score) actualWinner = slotMatch.home_team
       else if (slotMatch.away_score > slotMatch.home_score) actualWinner = slotMatch.away_team
+      else if (slotMatch.winner_team) actualWinner = slotMatch.winner_team
     }
     const isCorrect = isFinished && actualWinner !== null && predicted === actualWinner
     const isWrong = isFinished && actualWinner !== null && predicted !== null && predicted !== actualWinner
